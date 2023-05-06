@@ -44,7 +44,7 @@ func (source *Triples) NewNode(value interface{}) (Node, error) {
 	case string:
 		return NewStringNode(typedValue), nil
 	case nil:
-		return NewNilNode(), nil
+		return NewAnonymousNode(), nil
 	case []interface{}:
 		triples, err := source.NewTriplesFromSlice(typedValue)
 		if err != nil {
@@ -88,28 +88,34 @@ type StringNodes map[string]StringNode
 var stringNodes StringNodes = make(StringNodes)
 
 // use guid as a unique identifier for each node
-type NilNode uuid.UUID
+type AnonymousNode uuid.UUID
 
-func NewNilNode() NilNode {
-	return NilNode(uuid.New())
+func NewAnonymousNode() AnonymousNode {
+	return AnonymousNode(uuid.New())
 }
-func (n NilNode) String() string {
+func (n AnonymousNode) String() string {
 	return uuid.UUID(n).String()[0:8]
 }
 
-func (source *Triples) NewNodeFromTriple(triple Triple) NilNode {
-	container := NewNilNode()
+type IndexNode int
+
+func (n IndexNode) String() string {
+	return fmt.Sprint(int(n))
+}
+
+func (source *Triples) NewNodeFromTriple(triple Triple) AnonymousNode {
+	container := NewAnonymousNode()
 	source.NewTriple(container, Subject, triple.Subject)
 	source.NewTriple(container, Predicate, triple.Predicate)
 	source.NewTriple(container, Object, triple.Object)
 	return container
 }
 
-func (source *Triples) NewNodeFromTriples(triples TripleList) NilNode {
-	container := NewNilNode()
-	for _, triple := range triples {
+func (source *Triples) NewNodeFromTriples(triples TripleList) AnonymousNode {
+	container := NewAnonymousNode()
+	for i, triple := range triples {
 		node := source.NewNodeFromTriple(triple)
-		source.NewTriple(container, Contains, node)
+		source.NewTriple(container, IndexNode(i), node)
 	}
 	return container
 }

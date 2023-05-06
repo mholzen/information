@@ -19,7 +19,7 @@ func (source *Triples) NewTriplesFromMap(m map[string]interface{}) (TripleList, 
 	res := make(TripleList, 0)
 	is_spo_form := false
 	is_po_form := false
-	container := NewNilNode()
+	container := NewAnonymousNode()
 	for key, val := range m {
 		if key == "s" || key == "p" || key == "o" {
 			if is_spo_form {
@@ -148,14 +148,14 @@ func (source *Triples) AddReachableTriples(node Node, triples *Triples) *Triples
 			triple.Predicate.String() == node.String() ||
 			(triple.Object != nil && triple.Object.String() == node.String()) {
 
-			if _, ok := triple.Subject.(NilNode); ok {
+			if _, ok := triple.Subject.(AnonymousNode); ok {
 				// log.Printf("found subject nil node: %+v", n)
 				source.AddReachableTriples(triple.Subject, triples)
 				if triple.Object != nil {
 					source.AddReachableTriples(triple.Object, triples)
 				}
 			}
-			if _, ok := triple.Object.(NilNode); ok {
+			if _, ok := triple.Object.(AnonymousNode); ok {
 				// log.Printf("found object nil node: %+v", n)
 				source.AddReachableTriples(triple.Subject, triples)
 				if triple.Object != nil {
@@ -195,7 +195,7 @@ func (source *Triples) String(triples TripleList, prefix string, depth int) stri
 	res := ""
 	for _, triple := range triples {
 		res += fmt.Sprintf("%s%s %s\n", prefix, triple.Predicate, triple.Object)
-		if _, ok := triple.Object.(NilNode); ok {
+		if _, ok := triple.Object.(AnonymousNode); ok {
 			if depth > 0 {
 				r := source.GetTriplesForSubject(triple.Object, nil)
 				res += source.String(r, prefix+"    ", depth-1)
