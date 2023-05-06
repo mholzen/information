@@ -1,0 +1,18 @@
+life relates-to
+    organization
+    response
+    metabolism
+    homeostasis
+    growth
+    reproduction
+    adaptation
+
+-> = enables
+
+organization -> response -> metabolism
+    -> homeostasis
+    -> growth
+
+organization -> response -> metabolism -> ( homeostasis growth )
+
+( homeostasis growth ) -> reproduction -> adaptation

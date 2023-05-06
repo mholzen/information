@@ -1,0 +1,21 @@
+positive,neutral,negative,object,object.time,intensity,note
+wanting of,content,fearful of,"state, something",future,,
+proud of,content,regretful of,action,past,,
+grateful,,angry,state,past,,"injustice, unheard"
+curious,"bored, apathetic",avoiding,action.outcome,future,,
+strong,,weak,state.self,present,,
+free,,trapped,action,present,,
+relieved,,sad,action.loss,past,,
+"happy, winner",,selfish,action.gain,past,,
+relief,,loser,action.loss,future,,
+deserving of,,undeserving of,resource,future,,
+generous with,,"stingy with, miserly for",resource,present,,
+worthy of,,undeserving of,state.role,future,,
+proud of,,ashamed of,action,past,,
+safe,,unsafe,state,future,,
+secure from,,"insecure from, threatened by",action,future,,
+loved by,,hated by,someone,present,high,
+healed from,,hurt by,action,past,,
+recognized for,,embarrased of,action,past,,action is known to others
+lusting for,,,"state, something",future,high,usually sexual in nature
+,,disgusted by,"state, something",future,high,

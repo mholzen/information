@@ -1,0 +1,8 @@
+[ "https://www.youtube.com/watch?v=WvTTDxMuAis",
+    "contains",
+    ["marc", "first-learns-about", "auto-gpt"],
+    ["falcon 9", {"mass to orbit": "17t", "variable cost": "$15M"}],
+    ["starship", {"mass to orbit": "100m", "variable cost": "$2M"}],
+    ["starship", "reduces cost to orbit", "by 50x"],
+    ["human transport", "transcontinental cargo", "fundamental change"]
+]

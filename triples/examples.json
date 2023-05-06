@@ -1,0 +1,137 @@
+[ null, "contains",
+    // triple in object form
+    { "s": "marc", "p": "is", "o": "alive" },
+
+    // triple as an array
+    [
+        "marc",
+        "is",
+        "alive"
+    ],
+
+    // multiple tripes with the same subject and predicate
+    [
+        "marc",
+        "is",
+        "alive",
+        "well"
+    ],
+
+    // multiple predicates on the same subject
+    [
+        "marc",
+        [ null, "contains", "birthdate", "birthplace" ],
+        [ null, "contains", "3/24/1971", "Geneva" ]
+    ],
+
+    // multiple predicates on a subject, using a list of anonymous triples
+    [
+        "marc",
+        "described by", // all the following anonymous subjects are described by marc
+        [null, "birthdate", "3/24/1971"],
+        [null, "birthplace", "Geneva"],
+        {"p": "citizenship", "o": "Switzerland"},
+        {"height": "1.86m", "weight": "90kg"}       // TODO
+    ],
+
+    // multiple predicates on a subject, using a predicate list
+    [
+        "marc",
+        [null, "contains", "firstname", "lastname"],
+        [null, "contains", "Marc", "von Holzen"]
+    ],
+
+    // statement about a statement
+    [
+        ["marc", "is", "alive"],
+        "described by",
+        {"is": "important", "said by": "marc"}
+    ],
+
+    [
+        "sam altman",
+        "equals",
+        ["sam altman", [null, "contains", "firstname", "lastname"], [null, "contains", "sam", "altman"]]
+    ],
+
+
+
+
+    // equivalence between object and array with more than 3 element
+    [
+        ["marc", "is", "alive", "well"],
+        "equals",
+        [ 
+            null,       // null creates an anonymous entity
+            "contains",     // "contains" defines a list
+            [ "marc", "is", "alive"],
+            [ "marc", "is", "well"]
+        ]
+    ],
+    [
+        "a b c d",
+        "equals",
+        [ null, "contains", "a", "b", "c", "d" ]
+    ],
+
+    [
+        "sam altman",
+        "predicts",
+        [
+            "energy & intelligence",
+            "drop dramatically"
+        ]
+    ],
+    [
+        "sam altman",
+        "equals",
+        ["sam altman", [null, "contains", "firstname", "lastname"], [null, "contains", "sam", "altman"]]
+    ],
+    [
+        "sam altman",
+        "equals",
+        [null, "set", [null, "firstname", "sam"], [null, "lastname", "altman"]]     // does not work because the last two nulls represent different identities
+    ],
+    [
+        "energy & intelligence",
+        "equals",
+        [null, "contains", "energy", "intelligence"]
+    ],
+    [
+        "drop dramatically",
+        "equals",
+        ["drop dramatically",
+            [null, "contains", "change", "amount"],
+            [null, "contains", "decrease", "significant"]
+        ]
+    ],
+    [
+        "a b c",
+        "equals",
+        ["a b c",
+            [null, "contains", "0", "1", "2" ],     // could be integers (float64 data types)
+            [null, "contains", "a", "b", "c"]
+        ]
+    ],
+
+
+
+    // equivalence between object and array, expressed in object form
+    {
+        "s": { "s": "marc", "p": "is", "o": "alive" },
+        "p": "equals",
+        "o": [ "marc", "is", "alive" ]
+    },
+
+    // equivalence between object and array, expressed in array form
+    [
+        { "s": "marc", "p": "is", "o": "alive" },
+        "equals",
+        [ "marc", "is", "alive" ]
+    ]
+    
+]
+
+
+
+

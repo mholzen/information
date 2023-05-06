@@ -1,0 +1,10 @@
+[ null, "list",
+
+    // triple as an array
+    [
+        "marc",
+        "is",
+        "alive"
+    ],
+    { "s": "marc", "p": "is", "o": "alive" }
+ ]
