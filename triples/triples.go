@@ -168,6 +168,19 @@ func (source *Triples) AddReachableTriples(node Node, triples *Triples) *Triples
 
 	return triples
 }
+func (source *Triples) GetTripleList() TripleList {
+	tripleList := make(TripleList, 0)
+	for triple := range source.TripleSet {
+		tripleList = append(tripleList, triple)
+	}
+	return tripleList
+}
+
+func (s TripleList) Sort() {
+	sort.Sort(TripleSort{s, func(i, j int) bool {
+		return s[i].String() < s[j].String()
+	}})
+}
 
 type TripleSort struct {
 	data     TripleList

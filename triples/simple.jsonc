@@ -2,9 +2,14 @@
 
     // triple as an array
     [
-        "marc",
-        "is",
-        "alive"
+        "a",
+        "b",
+        "c"
     ],
-    { "s": "marc", "p": "is", "o": "alive" }
+
+    [
+        "a",
+        "b",
+        "d"
+    ]
  ]

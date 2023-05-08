@@ -6,15 +6,12 @@ import (
 	"encoding/json"
 	"log"
 	"os"
-	"sort"
 	"strings"
-
-	"golang.org/x/exp/maps"
 )
 
 // parse examples.json into a Go data structure
 
-func parse(filename string) (*Triples, error) {
+func Parse(filename string) (*Triples, error) {
 	// read the file
 	file, err := os.Open(filename)
 	if err != nil {
@@ -69,15 +66,15 @@ func parseString(buffer bytes.Buffer) (*Triples, error) {
 	return res, nil
 }
 
-func printKeys(triples *Triples) {
-	keys := maps.Keys(triples.Nodes)
-	sort.Strings(keys)
+// func printKeys(triples *Triples) {
+// 	keys := maps.Keys(triples.Nodes)
+// 	sort.Strings(keys)
 
-	log.Printf("keys (%d):", len(keys))
-	// for _, key := range keys {
-	// 	log.Printf("%s", key)
-	// }
-}
+// 	log.Printf("keys (%d):", len(keys))
+// 	// for _, key := range keys {
+// 	// 	log.Printf("%s", key)
+// 	// }
+// }
 
 func printAllTriples(triples *Triples) {
 	log.Printf("triples (%d):", len(triples.TripleSet))
