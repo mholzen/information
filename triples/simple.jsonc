@@ -1,15 +1,15 @@
 [ null, "list",
 
-    // triple as an array
-    [
-        "a",
-        "b",
-        "c"
-    ],
+// triple as an array
+[
+    "a",
+    "b",
+    "c"
+],
 
-    [
-        "a",
-        "b",
-        "d"
-    ]
- ]
+[
+    "a",
+    "b",
+    "d"
+]
+]

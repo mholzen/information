@@ -21,7 +21,7 @@ func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c 
 func Handler(c echo.Context) error {
 	all, err := triples.Parse(c.Param("file"))
 	if err != nil {
-		return err
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
 	tripleList := all.GetTripleList()
 	// tripleList = make(triples.TripleList, 0)

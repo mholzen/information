@@ -15,7 +15,7 @@ func Parse(filename string) (*Triples, error) {
 	// read the file
 	file, err := os.Open(filename)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	defer file.Close()
 
@@ -38,7 +38,6 @@ func parseString(buffer bytes.Buffer) (*Triples, error) {
 	var data interface{}
 	err := decoder.Decode(&data)
 	if err != nil {
-		log.Fatal(err)
 		return nil, err
 	}
 

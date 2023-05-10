@@ -24,6 +24,17 @@ func (html HtmlTransformer) String() string {
 	if len(html.TripleList) == 0 {
 		return res
 	}
+	if len(html.TripleList) == 3 {
+		html.TripleList.Sort()
+		log.Printf("triple: %+v", html.TripleList)
+		if html.TripleList[0].Predicate == Subject && html.TripleList[1].Predicate == Predicate && html.TripleList[2].Predicate == Object {
+			return fmt.Sprintf("<table><tr><td class=subject>%s</td><td>%s</td><td>%s</td></tr></table>\n",
+				html.HtmlObject(html.TripleList[0].Object),
+				html.HtmlObject(html.TripleList[1].Object),
+				html.HtmlObject(html.TripleList[2].Object))
+		}
+	}
+
 	triple := html.TripleList[0]
 	prevSubject := triple.Subject
 	prevPredicate := triple.Predicate
@@ -46,7 +57,7 @@ func (html HtmlTransformer) String() string {
 					predicateObject += fmt.Sprintf("<tr><td>%s</td><td>%s</td></tr>\n", prevPredicate.String(), object)
 					predicateObject = fmt.Sprintf("<table class=pred>%s</table>\n", predicateObject)
 
-					res += fmt.Sprintf("<tr><td>%s</td><td>%s</td></tr>\n", prevSubject, predicateObject)
+					res += fmt.Sprintf("<tr><td class=subject><p>%s</p></td><td>%s</td></tr>\n", prevSubject, predicateObject)
 					break
 				} else {
 
@@ -63,7 +74,7 @@ func (html HtmlTransformer) String() string {
 
 					// output previous predicate, object
 					predicateObject = fmt.Sprintf("<table class=pred>%s</table>\n", predicateObject)
-					res += fmt.Sprintf("<tr><td>%s</td><td>%s</td></tr>\n", prevSubject, predicateObject)
+					res += fmt.Sprintf("<tr><td class=subject><p>%s</p></td><td>%s</td></tr>\n", prevSubject, predicateObject)
 					break
 				}
 			} else {
@@ -73,7 +84,7 @@ func (html HtmlTransformer) String() string {
 				object = fmt.Sprintf("<table class=object>%s</table>\n", object)
 				predicateObject += fmt.Sprintf("<tr><td>%s</td><td>%s</td></tr>\n", prevPredicate.String(), object)
 				predicateObject = fmt.Sprintf("<table class=pred>%s</table>\n", predicateObject)
-				res += fmt.Sprintf("<tr><td>%s</td><td>%s</td></tr>\n", prevSubject, predicateObject)
+				res += fmt.Sprintf("<tr><td class=subject><p>%s</p></td><td>%s</td></tr>\n", prevSubject, predicateObject)
 
 				// output current subject, predicate, object
 				object = fmt.Sprintf("<tr><td>%s</td></tr>", html.HtmlObject(triple.Object))
@@ -81,7 +92,7 @@ func (html HtmlTransformer) String() string {
 
 				predicateObject = fmt.Sprintf("<tr><td>%s</td><td>%s</td></tr>\n", triple.Predicate, object)
 				predicateObject = fmt.Sprintf("<table class=pred>%s</table>\n", predicateObject)
-				res += fmt.Sprintf("<tr><td>%s</td><td>%s</td></tr>\n", triple.Subject, predicateObject)
+				res += fmt.Sprintf("<tr><td class=subject><p>%s</p></td><td>%s</td></tr>\n", triple.Subject, predicateObject)
 				break
 			}
 		} else if prevSubject == triple.Subject {
@@ -106,12 +117,12 @@ func (html HtmlTransformer) String() string {
 		}
 		// New Subject (so new Predicate) or last line
 		object = fmt.Sprintf("<table class=object>%s</table>\n", object)
-		predicateObject += fmt.Sprintf("<tr><td>%s</td><td>%s</td></tr>\n", prevPredicate.String(), object)
+		predicateObject += fmt.Sprintf("<tr><td>%s</td><td>%s</td></tr>\n", prevPredicate, object)
 
 		predicateObject = fmt.Sprintf("<table class=pred>%s</table>\n", predicateObject)
-		res += fmt.Sprintf("<tr><td>%s</td><td>%s</td></tr>\n", prevSubject, predicateObject)
+		res += fmt.Sprintf("<tr><td class=subject><p>%s</p></td><td>%s</td></tr>\n", prevSubject, predicateObject)
 
-		object = fmt.Sprintf("<tr class=objectrow><td>%s</td></tr>", html.HtmlObject(triple.Object))
+		object = fmt.Sprintf("<tr class=object><td>%s</td></tr>", html.HtmlObject(triple.Object))
 		predicateObject = ""
 		prevPredicate = triple.Predicate
 		prevSubject = triple.Subject
@@ -129,7 +140,7 @@ func (html HtmlTransformer) HtmlObject(object Node) string {
 		// res = typedObject.String()
 
 	case StringNode:
-		res = typedObject.String()
+		res = fmt.Sprintf("<p class=string>%s</p>", typedObject.String())
 	case IndexNode:
 		res = typedObject.String()
 	default:

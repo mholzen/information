@@ -1,0 +1,15 @@
+[ "null", "list",
+
+    // triple as an array
+    [
+        "life",
+        "is",
+        "organization",
+        "homeostasis", 
+        "response",
+        "metabolism",
+        "growth",
+        "reproduction",
+        "adaptation"
+    ]
+ ]
