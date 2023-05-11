@@ -2,12 +2,15 @@ package triples
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 )
 
 type Node interface {
 	String() string
+	LessThan(Node) bool
+	// TODO: consider Created field
 }
 
 type NodeSet map[string]struct{}
@@ -64,18 +67,37 @@ func (source *Triples) NewNode(value interface{}) (Node, error) {
 	}
 }
 
-type StringNode string
+type StringNode struct {
+	Value   string
+	Created time.Time
+}
 
 func NewStringNode(value string) StringNode {
 	if node, ok := stringNodes[value]; ok {
 		return node
 	} else {
-		stringNodes[value] = StringNode(value)
+		stringNodes[value] = StringNode{
+			Value:   value,
+			Created: time.Now(),
+		}
 		return stringNodes[value]
 	}
 }
 func (n StringNode) String() string {
-	return string(n)
+	return n.Value
+}
+
+func (n StringNode) LessThan(other Node) bool {
+	switch other := other.(type) {
+	case StringNode:
+		return n.String() < other.String()
+	case IndexNode:
+		return n.Created.Compare(other.Created) < 0
+	case AnonymousNode:
+		return n.Created.Compare(other.Created) < 0
+	default:
+		return false
+	}
 }
 
 var Subject = NewStringNode("1-subject")
@@ -88,19 +110,59 @@ type StringNodes map[string]StringNode
 var stringNodes StringNodes = make(StringNodes)
 
 // use guid as a unique identifier for each node
-type AnonymousNode uuid.UUID
+type AnonymousNode struct {
+	UUID    uuid.UUID
+	Created time.Time
+}
 
 func NewAnonymousNode() AnonymousNode {
-	return AnonymousNode(uuid.New())
+	return AnonymousNode{
+		UUID:    uuid.New(),
+		Created: time.Now(),
+	}
 }
 func (n AnonymousNode) String() string {
-	return uuid.UUID(n).String()[0:8]
+	return n.UUID.String()[0:8]
+}
+func (n AnonymousNode) LessThan(other Node) bool {
+	switch other := other.(type) {
+	case AnonymousNode:
+		return n.Created.Compare(other.Created) < 0
+	case IndexNode:
+		return n.Created.Compare(other.Created) < 0
+	case StringNode:
+		return n.Created.Compare(other.Created) < 0
+	default:
+		return false
+	}
 }
 
-type IndexNode int
+type IndexNode struct {
+	Value   int
+	Created time.Time
+}
 
 func (n IndexNode) String() string {
-	return fmt.Sprint(int(n))
+	return fmt.Sprint(int(n.Value))
+}
+func NewIndexNode(value int) IndexNode {
+	return IndexNode{
+		Value:   value,
+		Created: time.Now(),
+	}
+}
+
+func (n IndexNode) LessThan(other Node) bool {
+	switch other := other.(type) {
+	case IndexNode:
+		return n.Value < other.Value
+	case AnonymousNode:
+		return n.Created.Compare(other.Created) < 0
+	case StringNode:
+		return n.Created.Compare(other.Created) < 0
+	default:
+		return false
+	}
 }
 
 func (source *Triples) NewNodeFromTriple(triple Triple) AnonymousNode {
@@ -115,7 +177,7 @@ func (source *Triples) NewNodeFromTriples(triples TripleList) AnonymousNode {
 	container := NewAnonymousNode()
 	for i, triple := range triples {
 		node := source.NewNodeFromTriple(triple)
-		source.NewTriple(container, IndexNode(i), node)
+		source.NewTriple(container, NewIndexNode(i), node)
 	}
 	return container
 }

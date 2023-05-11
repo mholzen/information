@@ -65,16 +65,6 @@ func parseString(buffer bytes.Buffer) (*Triples, error) {
 	return res, nil
 }
 
-// func printKeys(triples *Triples) {
-// 	keys := maps.Keys(triples.Nodes)
-// 	sort.Strings(keys)
-
-// 	log.Printf("keys (%d):", len(keys))
-// 	// for _, key := range keys {
-// 	// 	log.Printf("%s", key)
-// 	// }
-// }
-
 func printAllTriples(triples *Triples) {
 	log.Printf("triples (%d):", len(triples.TripleSet))
 	for triple := range triples.TripleSet {
