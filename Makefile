@@ -1,5 +1,5 @@
 test:
-	go test
+	(cd triples; go test -v)
 
 run:
 	go run server/server.go

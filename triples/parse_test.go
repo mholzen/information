@@ -11,7 +11,10 @@ import (
 
 func Test_parse(t *testing.T) {
 	all, err := Parse("examples.json")
-	assert.Nil(t, err)
+
+	if !assert.Nil(t, err) {
+		return
+	}
 
 	subject := NewStringNode("marc")
 	marc := all.AddReachableTriples(subject, nil)
