@@ -3,6 +3,8 @@ package main
 import (
 	"io"
 	"net/http"
+	"os"
+	"path/filepath"
 	"text/template"
 
 	"github.com/mholzen/information/triples"
@@ -19,7 +21,9 @@ func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c 
 }
 
 func Handler(c echo.Context) error {
-	all, err := triples.Parse(c.Param("file"))
+	root := os.Getenv("ROOT")
+	path := filepath.Join(root, c.Param("file"))
+	all, err := triples.Parse(path)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}

@@ -34,7 +34,23 @@ func Test_parse(t *testing.T) {
 
 func Test_triple_in_subject_predicate_object(t *testing.T) {
 	buffer := bytes.NewBuffer([]byte(`{"s":"marc","p":"is","o":"alive"}`))
-	parseString(*buffer)
+	res, err := parseString(*buffer)
+	assert.Nil(t, err)
+	assert.Len(t, res.TripleSet, 6)
+}
+
+func Test_triples_map(t *testing.T) {
+	buffer := bytes.NewBuffer([]byte(`{"first":"marc","last":"von Holzen"}]`))
+	res, err := parseString(*buffer)
+	assert.Nil(t, err)
+	assert.Len(t, res.TripleSet, 2)
+}
+
+func Test_triples_array_object(t *testing.T) {
+	buffer := bytes.NewBuffer([]byte(`{"names":["marc","Marc", "Marco"]}`))
+	res, err := parseString(*buffer)
+	assert.Nil(t, err)
+	assert.Len(t, res.TripleSet, 3)
 }
 
 func Test_slice_as_object(t *testing.T) {
@@ -42,7 +58,6 @@ func Test_slice_as_object(t *testing.T) {
 	res, err := parseString(*buffer)
 	assert.Nil(t, err)
 	assert.Len(t, res.TripleSet, 6)
-
 }
 
 func Test_html(t *testing.T) {

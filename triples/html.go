@@ -158,9 +158,19 @@ func (list *SubjectPredicateObjectList) AddTriples(triples TripleList) {
 }
 
 func (list *SubjectPredicateObjectList) ToHtml(html HtmlTransformer) string {
+	if len(html.TripleList) == 3 {
+		html.TripleList.Sort()
+		if html.TripleList[0].Predicate == Subject && html.TripleList[1].Predicate == Predicate && html.TripleList[2].Predicate == Object {
+			return fmt.Sprintf("<table><tr><td class=subject><p>%s</p></td><td class=predicate><p>%s</p></td><td class=object><p>%s</p></td></tr></table>\n",
+				html.HtmlObject(html.TripleList[0].Object),
+				html.HtmlObject(html.TripleList[1].Object),
+				html.HtmlObject(html.TripleList[2].Object))
+		}
+	}
+
 	res := ""
 	for _, item := range *list {
-		res += fmt.Sprintf("<tr><td>%s</td><td>%s</td></tr>", item.Subject, item.PredicateObjects.ToHtml(html))
+		res += fmt.Sprintf("<tr><td class=subject><p>%s</p></td><td>%s</td></tr>", item.Subject, item.PredicateObjects.ToHtml(html))
 	}
 	return fmt.Sprintf("<table>%s</table>", res)
 }

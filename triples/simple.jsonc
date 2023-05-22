@@ -1,15 +1,9 @@
-[ null, "list",
-
-// triple as an array
 [
-    "a",
-    "b",
-    "c"
-],
-
-[
-    "a",
-    "b",
-    "d"
-]
+    null,
+    "list",
+    // triple as an object
+    [
+        "marc",
+        { "first": "marc", "last": "von Holzen" }
+    ]
 ]

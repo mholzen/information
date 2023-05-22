@@ -1,6 +1,8 @@
-test:
-	(cd triples; go test -v)
+cwd = $(shell pwd)
 
 run:
-	go run server/server.go
+	env ROOT=$(cwd) go run server/server.go
 	open http://localhost:1323/html/examples.json
+
+test:
+	(cd triples; make test)

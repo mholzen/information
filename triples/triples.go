@@ -58,7 +58,7 @@ func (source *Triples) NewTriplesFromMap(m map[string]interface{}) (TripleList, 
 				return res, err
 			}
 
-			triples.NewTriple(container, predicate, object)
+			source.NewTriple(container, predicate, object)
 		}
 	}
 	return res, nil

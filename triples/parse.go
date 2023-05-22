@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"io"
 	"log"
 	"os"
 	"strings"
@@ -28,16 +30,37 @@ func Parse(filename string) (*Triples, error) {
 		// remove comments from line
 		line = strings.Split(line, "//")[0]
 
-		buffer.WriteString(line)
+		buffer.WriteString(line + "\n")
 	}
 	return parseString(buffer)
 }
 
-func parseString(buffer bytes.Buffer) (*Triples, error) {
-	decoder := json.NewDecoder(&buffer)
+type lineCountingReader struct {
+	r      io.Reader
+	lineno int
+}
+
+func (lcr *lineCountingReader) Read(p []byte) (n int, err error) {
+	n, err = lcr.r.Read(p)
+	lcr.lineno += bytes.Count(p[:n], []byte{'\n'})
+	return
+}
+
+func (lcr *lineCountingReader) Lineno() int {
+	return lcr.lineno + 1
+}
+
+func parseString(input bytes.Buffer) (*Triples, error) {
+	lcr := &lineCountingReader{r: bufio.NewReader(&input)}
+
+	decoder := json.NewDecoder(lcr)
 	var data interface{}
 	err := decoder.Decode(&data)
 	if err != nil {
+		if syntaxErr, ok := err.(*json.SyntaxError); ok {
+			// should use syntaxErr.Offset
+			return nil, fmt.Errorf("syntax error on line %d (%d): %s", lcr.Lineno(), syntaxErr.Offset, syntaxErr)
+		}
 		return nil, err
 	}
 
@@ -60,14 +83,5 @@ func parseString(buffer bytes.Buffer) (*Triples, error) {
 		log.Printf("unknown")
 	}
 
-	printAllTriples(res)
-
 	return res, nil
-}
-
-func printAllTriples(triples *Triples) {
-	log.Printf("triples (%d):", len(triples.TripleSet))
-	for triple := range triples.TripleSet {
-		log.Printf("%s", triple)
-	}
 }

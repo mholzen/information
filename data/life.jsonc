@@ -12,6 +12,7 @@
         "reproduce",
         "adapt"
     ],
+
     [ "why is life important?",
         "because",
         "death is the most irreversible experience we know of",
@@ -20,10 +21,12 @@
         "death of someone close are the most painful psychological experiences we know of",
         "birth of child are the most joyful psychological experiences we know of"
     ],
+
     [ "if life is so important, why do people kill themselves?",
         "because",
         "the experiences of life are very intense, including very painfully intense"
     ],
+
     [
         [ "reproduce", "is", "self-replicating"],
         "interesting because",

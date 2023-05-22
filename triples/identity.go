@@ -46,6 +46,8 @@ func (source *Triples) NewNode(value interface{}) (Node, error) {
 	switch typedValue := value.(type) {
 	case string:
 		return NewStringNode(typedValue), nil
+	case int:
+		return NewStringNode(fmt.Sprintf("%d", typedValue)), nil // TODO: create NumberNode
 	case nil:
 		return NewAnonymousNode(), nil
 	case []interface{}:
