@@ -37,17 +37,23 @@ func Parse(filename string) (*Triples, error) {
 
 type lineCountingReader struct {
 	r      io.Reader
+	last   []byte
+	offset int64
 	lineno int
 }
 
 func (lcr *lineCountingReader) Read(p []byte) (n int, err error) {
+	lcr.lineno += bytes.Count(lcr.last, []byte{'\n'})
+	lcr.offset += int64(len(lcr.last))
 	n, err = lcr.r.Read(p)
-	lcr.lineno += bytes.Count(p[:n], []byte{'\n'})
+	lcr.last = make([]byte, n)
+	copy(lcr.last, p[:n])
 	return
 }
 
-func (lcr *lineCountingReader) Lineno() int {
-	return lcr.lineno + 1
+func (lcr *lineCountingReader) Lineno(offset int64) int {
+	offset -= lcr.offset
+	return lcr.lineno + bytes.Count(lcr.last[:offset], []byte{'\n'})
 }
 
 func parseString(input bytes.Buffer) (*Triples, error) {
@@ -59,7 +65,7 @@ func parseString(input bytes.Buffer) (*Triples, error) {
 	if err != nil {
 		if syntaxErr, ok := err.(*json.SyntaxError); ok {
 			// should use syntaxErr.Offset
-			return nil, fmt.Errorf("syntax error on line %d (%d): %s", lcr.Lineno(), syntaxErr.Offset, syntaxErr)
+			return nil, fmt.Errorf("syntax error on line %d: %s", lcr.Lineno(syntaxErr.Offset), syntaxErr)
 		}
 		return nil, err
 	}

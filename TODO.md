@@ -1,5 +1,8 @@
 # TODO
 
+- can I express a query using a graph?
+  - using nodes that express an unknown?
+
 - create a way to organize statements using concepts, words, ideas, dimensions, values about myself, my world
 
     - need a way to validate/invalidate statements (not every statement/question has meaning ... what is meaning?  statements that are promote life)
