@@ -58,6 +58,7 @@
             "hurt",
             "ill",
             "heal",
+            "wound",
             "sicken",
             "infect",
             "maintain",

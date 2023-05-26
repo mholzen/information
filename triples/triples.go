@@ -15,6 +15,40 @@ func (t Triple) String() string {
 	return fmt.Sprintf("(%s %s %s)", t.Subject, t.Predicate, t.Object)
 }
 
+type TripleList []Triple
+type TripleSet map[Triple]struct{}
+
+type Triples struct {
+	TripleSet TripleSet
+	Nodes     NodeSet
+}
+
+func NewTriples() *Triples {
+	return &Triples{
+		TripleSet: make(TripleSet),
+		Nodes:     NewNodeSet(),
+	}
+}
+
+func (source *Triples) NewTriple(subject Node, predicate Node, object Node) Triple {
+	triple := Triple{subject, predicate, object}
+	source.Add(triple)
+	return triple
+}
+
+func (source *Triples) Add(triple Triple) {
+	if _, ok := source.TripleSet[triple]; ok {
+		return
+	}
+	source.TripleSet[triple] = struct{}{}
+
+	source.Nodes.Add(triple.Subject)
+	source.Nodes.Add(triple.Predicate)
+	if triple.Object != nil {
+		source.Nodes.Add(triple.Object)
+	}
+}
+
 func (source *Triples) NewTriplesFromMap(m map[string]interface{}) (TripleList, error) {
 	res := make(TripleList, 0)
 	is_spo_form := false
@@ -41,7 +75,7 @@ func (source *Triples) NewTriplesFromMap(m map[string]interface{}) (TripleList, 
 				return res, err
 			}
 
-			triples.NewTriple(subject, predicate, object)
+			source.NewTriple(subject, predicate, object)
 			is_spo_form = true
 		} else {
 			is_po_form = true
@@ -62,42 +96,6 @@ func (source *Triples) NewTriplesFromMap(m map[string]interface{}) (TripleList, 
 		}
 	}
 	return res, nil
-}
-
-type TripleList []Triple
-type TripleSet map[Triple]struct{}
-
-type Triples struct {
-	TripleSet TripleSet
-	Nodes     NodeSet
-}
-
-func NewTriples() *Triples {
-	return &Triples{
-		TripleSet: make(TripleSet),
-		Nodes:     NewNodeSet(),
-	}
-}
-
-var triples *Triples = NewTriples()
-
-func (source *Triples) NewTriple(subject Node, predicate Node, object Node) Triple {
-	triple := Triple{subject, predicate, object}
-	source.Add(triple)
-	return triple
-}
-
-func (source *Triples) Add(triple Triple) {
-	if _, ok := source.TripleSet[triple]; ok {
-		return
-	}
-	source.TripleSet[triple] = struct{}{}
-
-	source.Nodes.Add(triple.Subject)
-	source.Nodes.Add(triple.Predicate)
-	if triple.Object != nil {
-		source.Nodes.Add(triple.Object)
-	}
 }
 
 func (source *Triples) NewTriplesFromSlice(slice []interface{}) (TripleList, error) {

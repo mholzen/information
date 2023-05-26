@@ -1,0 +1,27 @@
+[
+    null,
+    null,
+    [
+        "marc",
+        "age",
+        "52"
+    ],
+    [
+        "john",
+        "age",
+        "21"
+    ],
+    [
+        [
+            "john",
+            "age",
+            "x?"
+        ],
+        "generates",
+        [
+            "john",
+            "age",
+            "21"
+        ]
+    ],
+]

@@ -1,7 +1,11 @@
 # TODO
 
-- can I express a query using a graph?
-  - using nodes that express an unknown?
+- computation can be expressed in triples (mathematical or search operations)
+    - how do we generate new triples from existing ones?
+    - can computation be implemented by functions behind predicates?
+        - eg: (x sum 1, x sum 2, sum = `(acc, x)->acc+x` ) -> (x equal 3)
+        - sum is a reducer (accumulator, currentValue)
+
 
 - create a way to organize statements using concepts, words, ideas, dimensions, values about myself, my world
 

@@ -28,7 +28,7 @@ func Parse(filename string) (*Triples, error) {
 	for scanner.Scan() {
 		line := scanner.Text()
 		// remove comments from line
-		line = strings.Split(line, "//")[0]
+		line = strings.Split(line, `//(?=(?:[^"]|"[^"]*")`)[0]
 
 		buffer.WriteString(line + "\n")
 	}

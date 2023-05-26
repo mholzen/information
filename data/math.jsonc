@@ -1,0 +1,18 @@
+[
+    "examples of computation",
+    "contains",
+    [
+        [
+            "x?",
+            "sum",
+            "2",
+            "2"
+        ],
+        "equals",
+        [
+            "x?",
+            "is",
+            "4"
+        ]
+    ]
+]
