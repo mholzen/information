@@ -1,11 +1,16 @@
 # TODO
 
-- computation can be expressed in triples (mathematical or search operations)
-    - how do we generate new triples from existing ones?
-    - can computation be implemented by functions behind predicates?
+- express computations (eg. mathematical, search, generation) in triples
+    - [x] express mathematical unary function as a node, use it as a predicate with the argument is the object
+    - [ ] express mathematical binary functions as reducers
         - eg: (x sum 1, x sum 2, sum = `(acc, x)->acc+x` ) -> (x equal 3)
         - sum is a reducer (accumulator, currentValue)
 
+    - [ ] express queries as
+
+    - [ ] generalize TripleSet.Compute() into functions that accept Triples
+
+- setup a set for all nodes using the name of the class as a string prefix
 
 - create a way to organize statements using concepts, words, ideas, dimensions, values about myself, my world
 
@@ -46,7 +51,7 @@
 - create a way to generate all combinations of values given some dimension/category (eg. build a table header for color,size,style)
 
 
-- relationship
+- relationships
     - similarity
 
     - resource/threat

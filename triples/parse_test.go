@@ -2,7 +2,6 @@ package triples
 
 import (
 	"bytes"
-	"fmt"
 	"log"
 	"testing"
 
@@ -19,11 +18,8 @@ func Test_parse(t *testing.T) {
 	subject := NewStringNode("marc")
 	marc := all.AddReachableTriples(subject, nil)
 
-	subjectTriples := marc.GetTriplesForSubject(subject, nil)
-	log.Printf("=== subject triples ===")
-	res := fmt.Sprintf("%s\n", subject)
-	res += marc.String(subjectTriples, "   ", 4)
-	log.Printf("\n%s", res)
+	log.Printf("=== triples ===")
+	log.Printf("%s\n", marc.String())
 
 	objectTriples := marc.GetTriplesForObject(subject, nil)
 	log.Printf("=== object triples for marc")

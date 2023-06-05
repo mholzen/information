@@ -12,11 +12,11 @@ type Triple struct {
 }
 
 func (t Triple) String() string {
-	return fmt.Sprintf("(%s %s %s)", t.Subject, t.Predicate, t.Object)
+	return fmt.Sprintf("(%s %s %s)", NodeString(t.Subject), NodeString(t.Predicate), NodeString(t.Object))
 }
 
 type TripleList []Triple
-type TripleSet map[Triple]struct{}
+type TripleSet map[string]Triple
 
 type Triples struct {
 	TripleSet TripleSet
@@ -36,11 +36,17 @@ func (source *Triples) NewTriple(subject Node, predicate Node, object Node) Trip
 	return triple
 }
 
+func (source *Triples) NewTripleString(subject string, predicate string, object string) Triple {
+	triple := Triple{NewStringNode(subject), NewStringNode(predicate), NewStringNode(object)}
+	source.Add(triple)
+	return triple
+}
+
 func (source *Triples) Add(triple Triple) {
-	if _, ok := source.TripleSet[triple]; ok {
+	if _, ok := source.TripleSet[triple.String()]; ok {
 		return
 	}
-	source.TripleSet[triple] = struct{}{}
+	source.TripleSet[triple.String()] = triple
 
 	source.Nodes.Add(triple.Subject)
 	source.Nodes.Add(triple.Predicate)
@@ -131,6 +137,52 @@ func (source *Triples) NewTriplesFromSlice(slice []interface{}) (TripleList, err
 	return triples, nil
 }
 
+func (source *Triples) Contains(triple Triple) bool {
+	return source.TripleSet[triple.String()] == triple
+}
+
+func (source *Triples) GetTriplesForSubject(node Node, triples *Triples) TripleList {
+	res := make(TripleList, 0)
+	for _, triple := range source.TripleSet {
+		if triple.Subject.String() == node.String() {
+			res = append(res, triple)
+		}
+	}
+	sort.Sort(TripleSort{res, func(i, j int) bool {
+		return res[i].Predicate.String() < res[j].Predicate.String()
+	}})
+	return res
+}
+
+func (source *Triples) String() string {
+	res := ""
+	for _, triple := range source.TripleSet {
+		res += fmt.Sprintf("%s\n", triple)
+	}
+	return res
+}
+
+func (source *Triples) GetTriplesForObject(node Node, triples *Triples) *Triples {
+	if triples == nil {
+		triples = NewTriples()
+	}
+	if triples.Nodes.ContainsOrAdd(node) {
+		return triples
+	}
+
+	for _, triple := range source.TripleSet {
+		if triple.Object != nil && triple.Object.String() == node.String() {
+			triples.Add(triple)
+		}
+	}
+
+	return triples
+}
+
+func (source *Triples) GetTriples(subject, predicate, object Node) *Triples {
+	return nil
+}
+
 func (source *Triples) AddReachableTriples(node Node, triples *Triples) *Triples {
 	if triples == nil {
 		triples = NewTriples()
@@ -140,7 +192,7 @@ func (source *Triples) AddReachableTriples(node Node, triples *Triples) *Triples
 	}
 
 	// log.Printf("len(source.Triples): %d", len(source.Triples))
-	for triple := range source.TripleSet {
+	for _, triple := range source.TripleSet {
 		// log.Printf("searching triple: %+v", triple)
 		if triple.Subject.String() == node.String() ||
 			triple.Predicate.String() == node.String() ||
@@ -168,10 +220,28 @@ func (source *Triples) AddReachableTriples(node Node, triples *Triples) *Triples
 }
 func (source *Triples) GetTripleList() TripleList {
 	tripleList := make(TripleList, 0)
-	for triple := range source.TripleSet {
+	for _, triple := range source.TripleSet {
 		tripleList = append(tripleList, triple)
 	}
 	return tripleList
+}
+
+func (source *Triples) Compute() error {
+	// generate new triples based on predicates that are functions
+	for _, triple := range source.TripleSet {
+		if p, ok := triple.Predicate.(UnaryFunctionNode); ok {
+			// find triples describing this node
+
+			object, err := p(triple.Object)
+			if err != nil {
+				return err
+			}
+			predicate := triple.Predicate.String()
+
+			source.NewTriple(triple.Subject, NewStringNode(predicate), object)
+		}
+	}
+	return nil
 }
 
 func (s TripleList) Sort() {
@@ -203,47 +273,3 @@ type TripleSort struct {
 func (s TripleSort) Len() int           { return len(s.data) }
 func (s TripleSort) Swap(i, j int)      { s.data[i], s.data[j] = s.data[j], s.data[i] }
 func (s TripleSort) Less(i, j int) bool { return s.lessFunc(i, j) }
-
-func (source *Triples) GetTriplesForSubject(node Node, triples *Triples) TripleList {
-	res := make(TripleList, 0)
-	for triple := range source.TripleSet {
-		if triple.Subject.String() == node.String() {
-			res = append(res, triple)
-		}
-	}
-	sort.Sort(TripleSort{res, func(i, j int) bool {
-		return res[i].Predicate.String() < res[j].Predicate.String()
-	}})
-	return res
-}
-
-func (source *Triples) String(triples TripleList, prefix string, depth int) string {
-	res := ""
-	for _, triple := range triples {
-		res += fmt.Sprintf("%s%s %s\n", prefix, triple.Predicate, triple.Object)
-		if _, ok := triple.Object.(AnonymousNode); ok {
-			if depth > 0 {
-				r := source.GetTriplesForSubject(triple.Object, nil)
-				res += source.String(r, prefix+"    ", depth-1)
-			}
-		}
-	}
-	return res
-}
-
-func (source *Triples) GetTriplesForObject(node Node, triples *Triples) *Triples {
-	if triples == nil {
-		triples = NewTriples()
-	}
-	if triples.Nodes.ContainsOrAdd(node) {
-		return triples
-	}
-
-	for triple := range source.TripleSet {
-		if triple.Object != nil && triple.Object.String() == node.String() {
-			triples.Add(triple)
-		}
-	}
-
-	return triples
-}
