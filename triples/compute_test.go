@@ -16,7 +16,7 @@ func Test_unary_function_should_be_a_node(t *testing.T) {
 func Test_compute_square(t *testing.T) {
 	triples := NewTriples()
 	x := NewAnonymousNode()
-	triples.NewTriple(x, SquareNode, NewNumberNode(2))
+	triples.NewTripleFromNodes(x, SquareNode, NewNumberNode(2))
 	triples.Compute()
 	assert.Len(t, triples.TripleSet, 2)
 	log.Printf("triples:\n%s", triples.String())
@@ -30,8 +30,8 @@ func Test_compute_square(t *testing.T) {
 func Test_compute_search(t *testing.T) {
 	triples := NewTriples()
 	x := NewAnonymousNode()
-	triples.NewTriple(x, NewStringNode("first"), NewStringNode("marc"))
-	triples.NewTriple(NewStringNode("x?"), NewStringNode("first"), NewStringNode("marc"))
+	triples.NewTripleFromNodes(x, NewStringNode("first"), NewStringNode("marc"))
+	triples.NewTripleFromNodes(NewStringNode("x?"), NewStringNode("first"), NewStringNode("marc"))
 	triples.Compute()
 	assert.Len(t, triples.TripleSet, 3)
 	assert.Contains(t, triples.TripleSet, Triple{NewStringNode("x"), NewStringNode("equals"), x})

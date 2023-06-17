@@ -44,6 +44,8 @@ func (set NodeSet) ContainsOrAdd(node Node) bool {
 
 func (source *Triples) NewNode(value interface{}) (Node, error) {
 	switch typedValue := value.(type) {
+	case Node:
+		return typedValue, nil
 	case string:
 		return NewStringNode(typedValue), nil
 	case int:
@@ -131,9 +133,9 @@ func (n IndexNode) LessThan(other Node) bool {
 
 func (source *Triples) NewNodeFromTriple(triple Triple) AnonymousNode {
 	container := NewAnonymousNode()
-	source.NewTriple(container, Subject, triple.Subject)
-	source.NewTriple(container, Predicate, triple.Predicate)
-	source.NewTriple(container, Object, triple.Object)
+	source.NewTripleFromNodes(container, Subject, triple.Subject)
+	source.NewTripleFromNodes(container, Predicate, triple.Predicate)
+	source.NewTripleFromNodes(container, Object, triple.Object)
 	return container
 }
 
@@ -141,7 +143,7 @@ func (source *Triples) NewNodeFromTriples(triples TripleList) AnonymousNode {
 	container := NewAnonymousNode()
 	for i, triple := range triples {
 		node := source.NewNodeFromTriple(triple)
-		source.NewTriple(container, NewIndexNode(i), node)
+		source.NewTripleFromNodes(container, NewIndexNode(i), node)
 	}
 	return container
 }

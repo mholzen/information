@@ -30,10 +30,31 @@ func NewTriples() *Triples {
 	}
 }
 
-func (source *Triples) NewTriple(subject Node, predicate Node, object Node) Triple {
+func (source *Triples) NewTripleFromNodes(subject Node, predicate Node, object Node) Triple {
 	triple := Triple{subject, predicate, object}
 	source.Add(triple)
 	return triple
+}
+
+func (source *Triples) NewTriple(subject, predicate, object any) (Triple, error) {
+	var err error
+	var s, p, o Node
+	s, err = source.NewNode(subject)
+	if err != nil {
+		return Triple{}, err
+	}
+	p, err = source.NewNode(predicate)
+	if err != nil {
+		return Triple{}, err
+	}
+	o, err = source.NewNode(object)
+	if err != nil {
+		return Triple{}, err
+	}
+
+	triple := Triple{s, p, o}
+	source.Add(triple)
+	return triple, nil
 }
 
 func (source *Triples) NewTripleString(subject string, predicate string, object string) Triple {
@@ -81,7 +102,7 @@ func (source *Triples) NewTriplesFromMap(m map[string]interface{}) (TripleList, 
 				return res, err
 			}
 
-			source.NewTriple(subject, predicate, object)
+			source.NewTripleFromNodes(subject, predicate, object)
 			is_spo_form = true
 		} else {
 			is_po_form = true
@@ -98,7 +119,7 @@ func (source *Triples) NewTriplesFromMap(m map[string]interface{}) (TripleList, 
 				return res, err
 			}
 
-			source.NewTriple(container, predicate, object)
+			source.NewTripleFromNodes(container, predicate, object)
 		}
 	}
 	return res, nil
@@ -238,38 +259,8 @@ func (source *Triples) Compute() error {
 			}
 			predicate := triple.Predicate.String()
 
-			source.NewTriple(triple.Subject, NewStringNode(predicate), object)
+			source.NewTripleFromNodes(triple.Subject, NewStringNode(predicate), object)
 		}
 	}
 	return nil
 }
-
-func (s TripleList) Sort() {
-	sort.Sort(TripleSort{s, func(i, j int) bool {
-
-		if s[i].Subject.LessThan(s[j].Subject) {
-			return true
-		} else if s[j].Subject.LessThan(s[i].Subject) {
-			return false
-		}
-		// subjects are equal
-
-		if s[i].Predicate.LessThan(s[j].Predicate) {
-			return true
-		} else if s[j].Predicate.LessThan(s[i].Predicate) {
-			return false
-		}
-		// predicates are equal
-
-		return s[i].Object.LessThan(s[j].Object)
-	}})
-}
-
-type TripleSort struct {
-	data     TripleList
-	lessFunc func(i, j int) bool
-}
-
-func (s TripleSort) Len() int           { return len(s.data) }
-func (s TripleSort) Swap(i, j int)      { s.data[i], s.data[j] = s.data[j], s.data[i] }
-func (s TripleSort) Less(i, j int) bool { return s.lessFunc(i, j) }

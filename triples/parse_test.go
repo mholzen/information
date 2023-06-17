@@ -8,8 +8,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func Test_remove_comment(t *testing.T) {
+	assert.Empty(t, RemoveComment("// comment"))
+	assert.Equal(t, "abc ", RemoveComment("abc // comment"))
+	assert.Equal(t, `"http://a.c" `, RemoveComment(`"http://a.c" // comment`))
+}
+
 func Test_parse(t *testing.T) {
-	all, err := Parse("examples.json")
+	all, err := Parse("../data/examples.jsonc")
 
 	if !assert.Nil(t, err) {
 		return

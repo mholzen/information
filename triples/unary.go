@@ -40,19 +40,3 @@ func Square(node Node) (Node, error) {
 }
 
 var SquareNode UnaryFunctionNode = UnaryFunctionNode(Square)
-
-func Compute(node Node) (Node, error) {
-	return nil, nil
-}
-
-var ComputeNode UnaryFunctionNode = UnaryFunctionNode(Compute)
-
-// func Equal(node Node) (Node, error) {
-// 	n, ok := node.(NumberNode)
-// 	if !ok {
-// 		return nil, fmt.Errorf("expected NumberNode, got %T", node)
-// 	}
-// 	return NewNumberNode(n.Value * n.Value), nil
-// }
-
-// var EqualNode UnaryFunctionNode = UnaryFunctionNode(Square)

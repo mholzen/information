@@ -28,18 +28,8 @@ func Handler(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
 	tripleList := all.GetTripleList()
-	// tripleList = make(triples.TripleList, 0)
-	// tripleList = append(tripleList, triples.Triple{triples.NewStringNode("a"), triples.NewStringNode("b"), triples.NewStringNode("c")})
-	// tripleList = append(tripleList, triples.Triple{triples.NewStringNode("a"), triples.NewStringNode("b"), triples.NewStringNode("d")})
-	// tripleList = append(tripleList, triples.Triple{triples.NewStringNode("a"), triples.NewStringNode("b1"), triples.NewStringNode("c")})
-	// tripleList = append(tripleList, triples.Triple{triples.NewStringNode("a"), triples.NewStringNode("b2"), triples.NewStringNode("c")})
-	// tripleList = append(tripleList, triples.Triple{triples.NewStringNode("b"), triples.NewStringNode("b2"), triples.NewStringNode("c")})
-	// tripleList = append(tripleList, triples.Triple{triples.NewStringNode("zz"), triples.NewStringNode("b"), triples.NewStringNode("c")})
 	tripleList.Sort()
 
-	// subject := triples.NewStringNode("marc")
-	// marc := all.AddReachableTriples(subject, nil)
-	// subjectTriples := marc.GetTriplesForSubject(subject, nil)
 	html := triples.NewHtmlTransformer(*all, tripleList, 0)
 
 	data := map[string]interface{}{
@@ -47,9 +37,6 @@ func Handler(c echo.Context) error {
 		"html":       html.String(),
 	}
 	return c.Render(http.StatusOK, "index.html", data)
-}
-
-func init() {
 }
 
 func main() {

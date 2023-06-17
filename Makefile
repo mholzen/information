@@ -2,7 +2,9 @@ cwd = $(shell pwd)
 
 run:
 	env ROOT=$(cwd) go run server/server.go
-	open http://localhost:1323/html/examples.json
+
+open:
+	open http://localhost:1323/html/data/examples.jsonc
 
 test:
 	(cd triples; make test)

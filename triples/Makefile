@@ -1,2 +1,2 @@
 test:
-	go test *.go -v -run Test_parse
+	go test *.go -v -run Test_

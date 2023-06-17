@@ -8,31 +8,46 @@ import (
 	"io"
 	"log"
 	"os"
-	"strings"
+	"regexp"
 )
 
 // parse examples.json into a Go data structure
 
-func Parse(filename string) (*Triples, error) {
+func Read(filename string) (bytes.Buffer, error) {
+	var buffer bytes.Buffer
+
 	// read the file
 	file, err := os.Open(filename)
 	if err != nil {
-		return nil, err
+		return buffer, err
 	}
 	defer file.Close()
-
-	var buffer bytes.Buffer
 
 	// remove comments
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := scanner.Text()
+
 		// remove comments from line
-		line = strings.Split(line, `//(?=(?:[^"]|"[^"]*")`)[0]
+		line = RemoveComment(line)
 
 		buffer.WriteString(line + "\n")
 	}
+	return buffer, nil
+}
+
+func Parse(filename string) (*Triples, error) {
+	buffer, err := Read(filename)
+	if err != nil {
+		return nil, err
+	}
 	return parseString(buffer)
+}
+
+func RemoveComment(line string) string {
+	re := regexp.MustCompile(`(//)(?:([^"]|"[^"]*")*)$`)
+	lines := re.Split(line, 2)
+	return lines[0]
 }
 
 type lineCountingReader struct {
@@ -72,6 +87,15 @@ func parseString(input bytes.Buffer) (*Triples, error) {
 
 	res := NewTriples()
 
+	transformer := NewParser(data)
+	err = res.Transform(transformer)
+	log.Printf("res: %+v", res.Nodes)
+	return res, err
+
+	// return oldParse(data, res)
+}
+
+func oldParse(data interface{}, res *Triples) (*Triples, error) {
 	switch typedData := data.(type) {
 	case map[string]interface{}:
 		_, err := res.NewTriplesFromMap(typedData)
@@ -88,6 +112,5 @@ func parseString(input bytes.Buffer) (*Triples, error) {
 	default:
 		log.Printf("unknown")
 	}
-
-	return res, nil
+	return nil, nil
 }
