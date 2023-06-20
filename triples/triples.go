@@ -2,7 +2,6 @@ package triples
 
 import (
 	"fmt"
-	"sort"
 )
 
 type Triple struct {
@@ -169,9 +168,7 @@ func (source *Triples) GetTriplesForSubject(node Node, triples *Triples) TripleL
 			res = append(res, triple)
 		}
 	}
-	sort.Sort(TripleSort{res, func(i, j int) bool {
-		return res[i].Predicate.String() < res[j].Predicate.String()
-	}})
+	res.Sort()
 	return res
 }
 
@@ -212,9 +209,7 @@ func (source *Triples) AddReachableTriples(node Node, triples *Triples) *Triples
 		return triples
 	}
 
-	// log.Printf("len(source.Triples): %d", len(source.Triples))
 	for _, triple := range source.TripleSet {
-		// log.Printf("searching triple: %+v", triple)
 		if triple.Subject.String() == node.String() ||
 			triple.Predicate.String() == node.String() ||
 			(triple.Object != nil && triple.Object.String() == node.String()) {

@@ -18,23 +18,6 @@ func NewHtmlTransformer(triples Triples, tripleList TripleList, depth int) *Html
 	}
 }
 
-// func (html HtmlTransformer) String() string {
-// 	res := ""
-// 	if len(html.TripleList) == 0 {
-// 		return res
-// 	}
-// 	if len(html.TripleList) == 3 {
-// 		html.TripleList.Sort()
-// 		log.Printf("triple: %+v", html.TripleList)
-// 		if html.TripleList[0].Predicate == Subject && html.TripleList[1].Predicate == Predicate && html.TripleList[2].Predicate == Object {
-// 			return fmt.Sprintf("<table><tr><td class=subject>%s</td><td>%s</td><td>%s</td></tr></table>\n",
-// 				html.HtmlObject(html.TripleList[0].Object),
-// 				html.HtmlObject(html.TripleList[1].Object),
-// 				html.HtmlObject(html.TripleList[2].Object))
-// 		}
-// 	}
-// }
-
 func (html HtmlTransformer) String() string {
 	res := NewSubjectPredicateObjectList()
 	res.AddTriples(html.TripleList)
@@ -47,12 +30,9 @@ func (html HtmlTransformer) HtmlObject(object Node) string {
 	case AnonymousNode:
 		tripleList := html.Triples.GetTriplesForSubject(typedObject, nil)
 		res = NewHtmlTransformer(html.Triples, tripleList, html.Depth-1).String()
-		// res = typedObject.String()
 
-	case StringNode:
+	case StringNode, CreatedNode[FloatType], IndexNode:
 		res = fmt.Sprintf("<p class=string>%s</p>", typedObject.String())
-	case IndexNode:
-		res = typedObject.String()
 	default:
 		res = "<unknown>"
 	}

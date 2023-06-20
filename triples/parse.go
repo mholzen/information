@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"regexp"
 )
@@ -89,28 +88,7 @@ func parseString(input bytes.Buffer) (*Triples, error) {
 
 	transformer := NewParser(data)
 	err = res.Transform(transformer)
-	log.Printf("res: %+v", res.Nodes)
 	return res, err
 
 	// return oldParse(data, res)
-}
-
-func oldParse(data interface{}, res *Triples) (*Triples, error) {
-	switch typedData := data.(type) {
-	case map[string]interface{}:
-		_, err := res.NewTriplesFromMap(typedData)
-		if err != nil {
-			return nil, err
-		}
-
-	case []interface{}:
-		_, err := res.NewTriplesFromSlice(typedData)
-		if err != nil {
-			return nil, err
-		}
-
-	default:
-		log.Printf("unknown")
-	}
-	return nil, nil
 }

@@ -1,0 +1,19 @@
+{
+    "name": "John",
+    "age": 30,
+    "city": "New York",
+    "children": [
+        {
+            "name": "Sally",
+            "age": 2
+        },
+        {
+            "name": "Mark",
+            "age": 4
+        },
+        {
+            "name": "Sam",
+            "age": 5
+        }
+    ]
+}

@@ -1,15 +1,17 @@
-[
-    "this file",
-    "includes",
-    [
-        "verbs",
-        "include",
-        [
-            "exchange",
-            "includes",
-            [
-                null,
-                "includes",
+{
+    "verbs": {
+        "body": {
+            "interface": [
+                "warm up",
+                "cool down",
+                "burn",
+                "freeze",
+                "shiver",
+                "sweat",
+                "clean",
+                "soil"
+            ],
+            "exchange": [
                 "inhale",
                 "exhale",
                 "breathe",
@@ -27,162 +29,143 @@
                 "satiate",
                 "consume",
                 "throw up"
+            ],
+            "move": [
+                "immobilize",
+                "constrain",
+                "trap",
+                "free",
+                "move",
+                "turn",
+                "revert",
+                "stretch",
+                "curl up",
+                "puff up",
+                "shrink",
+                "grow"
+            ],
+            "maintain": [
+                "bleed",
+                "wound",
+                "leak",
+                "hurt",
+                "pain",
+                "heal",
+                "ill",
+                "sicken",
+                "infect",
+                "preserve"
+            ],
+            "metabolize": [
+                "tire",
+                "rest",
+                "sleep",
+                "respond",
+                "energize",
+                "excite",
+                "relax",
+                "idle",
+                "yawn"
+            ],
+            "reproduce": [
+                "lust",
+                "masturbate",
+                "orgasm",
+                "ejaculate",
+                "birth"
+            ],
+            "express": [
+                "express",
+                "smile",
+                "frown",
+                "joke",
+                "laugh",
+                "dance"
+            ],
+            "fight": [
+                "fight",
+                "includes",
+                "defend",
+                "attack",
+                "hurt",
+                "kill",
+                "yell",
+                "shout",
+                "react"
+            ],
+            "flee": [
+                "flee",
+                "abandon",
+                "leave",
+                "depart"
+            ],
+            "freeze": [
+                "freeze",
+                "includes",
+                "stiffen",
+                "quiet",
+                "abstain"
             ]
-        ],
-        [
-            "move",
+        },
+        "plan": [
+            "remember",
             "includes",
-            "immobilize",
-            "constrain",
-            "trap",
-            "free",
-            "move",
-            "stretch",
-            "curl up",
-            "puff up",
-            "shrink",
-            "grow"
+            "relive",
+            "reexperience",
+            "reminisce"
         ],
-        [
-            "interface",
-            "includes",
-            "warm up",
-            "cool down",
-            "burn",
-            "freeze",
-            "shiver",
-            "sweat",
-            "clean",
-            "soil"
+        "assess": [
+            "assess",
+            "feel",
+            "think",
+            "judge",
+            "please",
+            "dislike",
+            "regret",
+            "notice",
+            "frustrate",
+            "satisfy",
+            "expect"
         ],
-        [
-            "maintain",
-            "includes",
-            "bleed",
-            "wound",
-            "leak",
-            "hurt",
-            "pain",
-            "heal",
-            "ill",
-            "sicken",
-            "infect",
-            "preserve"
+        "predict": [
+            "predict",
+            "want",
+            "crave",
+            "imagine",
+            "dream",
+            "focus",
+            "aim",
+            "explore",
+            "anticipate",
+            "identify"
         ],
-        [
-            "energy",
-            "includes",
-            "tire",
-            "rest",
-            "sleep",
-            "respond",
-            "energize",
-            "excite",
-            "relax",
-            "idle",
-            "yawn"
+        "do": [
+            "do",
+            "try",
+            "start",
+            "persist",
+            "persevere",
+            "play",
+            "embark",
+            "get",
+            "lose",
+            "take",
+            "give",
+            "win",
+            "steal",
+            "acquire",
+            "act",
+            "keep",
+            "hide",
+            "work",
+            "expend",
+            "reserve",
+            "protect"
         ],
-        [
-            "reproduce",
-            "includes",
-            "lust",
-            "masturbate",
-            "orgasm",
-            "ejaculate",
-            "birth"
+        "stop": [
+            "resist"
         ],
-        [
-            "express",
-            "includes",
-            "smile",
-            "frown",
-            "joke",
-            "laugh",
-            "dance"
-        ],
-        [
-            "fight",
-            "includes",
-            "defend",
-            "attack",
-            "hurt",
-            "kill",
-            "yell",
-            "shout"
-        ],
-        [
-            "flee",
-            "includes",
-            "abandon"
-        ],
-        [
-            "freeze",
-            "includes",
-            "stiffen",
-            "quiet",
-            "abstain"
-        ],
-        [
-            "plan",
-            "includes",
-            [
-                "remember",
-                "includes",
-                "relive",
-                "reexperience",
-                "reminisce"
-            ],
-            [
-                "assess",
-                "includes",
-                "feel",
-                "think",
-                "judge",
-                "please",
-                "dislike",
-                "regret",
-                "notice",
-                "frustrate",
-                "satisfy",
-                "expect"
-            ],
-            [
-                "predict",
-                "includes",
-                "want",
-                "crave",
-                "imagine",
-                "dream",
-                "focus",
-                "aim",
-                "explore",
-                "anticipate",
-                "identify"
-            ],
-            [
-                "do",
-                "includes",
-                "try",
-                "start",
-                "play",
-                "embark",
-                "get",
-                "lose",
-                "take",
-                "give",
-                "win",
-                "steal",
-                "acquire",
-                "act",
-                "keep",
-                "hide",
-                "work",
-                "expend",
-                "reserve",
-                "protect"
-            ]
-        ],
-        [
+        "risk": [
             "risk",
             "inclues",
             "caution",
@@ -195,16 +178,16 @@
             "fear",
             "worry"
         ],
-        [
+        "communicate": [
             "communicate",
             "includes",
             "alert",
             "caution",
-            "alarm"
+            "alarm",
+            "silence",
+            "mute"
         ],
-        [
-            "cooperate/relate",
-            "includes",
+        "cooperate/relate": [
             "communicate",
             "drive",
             "disconnect",
@@ -223,9 +206,7 @@
             "cooperate",
             "relieve"
         ],
-        [
-            "support/encourage/foster/amplify",
-            "includes",
+        "support/encourage/foster/amplify": [
             "attach",
             "agree",
             "aid",
@@ -246,14 +227,13 @@
             "support",
             "uplift"
         ],
-        [
-            "prevent/diminish",
-            "includes",
+        "prevent/diminish": [
             "numb",
             "burden",
             "weaken",
             "constrain",
             "avoid",
+            "avert",
             "hate",
             "repulse",
             "destroy",
@@ -274,69 +254,65 @@
             "shame",
             "dismiss"
         ],
-        "question",
-        "invent",
-        "create",
-        "value",
-        "signify",
-        "aggrandize",
-        "repulse",
-        "doubt",
-        "confuse",
-        "own up",
-        "laze",
-        "exhuberate",
-        "long for",
-        "miss",
-        "sober up",
-        "desire",
-        "swear",
-        "cry",
-        "fulfill",
-        "bore"
-    ],
-    [
-        "adjectives",
-        "include",
-        [
-            null,
-            null,
-            "sensitive",
-            "apathetic",
-            "sad",
-            "angry",
-            "calm",
-            "content",
-            "nervous",
-            "homeostable",
-            "horny",
-            "confident",
-            "consciencious",
-            "resilient",
-            "confident of",
-            "compassionate with",
-            "worthy of",
-            "unworthy of",
-            "anuric",
-            "grateful",
-            "joyful",
-            "serious",
-            "ungrateful",
-            "healthy",
-            "cold",
-            "stationary",
-            "worthy of",
-            "insecure of",
-            "jealous of",
-            "insignificant to",
-            "undeserving of",
-            "stingy with",
-            "casual",
-            "selfish of",
-            "dubious",
-            "consistent",
-            "alone",
-            "unnoticed by"
+        "verbs": [
+            "question",
+            "invent",
+            "create",
+            "value",
+            "signify",
+            "aggrandize",
+            "repulse",
+            "doubt",
+            "confuse",
+            "own up",
+            "laze",
+            "exhuberate",
+            "long for",
+            "miss",
+            "sober up",
+            "desire",
+            "swear",
+            "cry",
+            "fulfill",
+            "bore"
         ]
+    },
+    "adjectives": [
+        "sensitive",
+        "apathetic",
+        "sad",
+        "angry",
+        "calm",
+        "content",
+        "nervous",
+        "homeostable",
+        "horny",
+        "confident",
+        "consciencious",
+        "resilient",
+        "confident of",
+        "compassionate with",
+        "worthy of",
+        "unworthy of",
+        "anuric",
+        "grateful",
+        "joyful",
+        "serious",
+        "ungrateful",
+        "healthy",
+        "cold",
+        "stationary",
+        "worthy of",
+        "insecure of",
+        "jealous of",
+        "insignificant to",
+        "undeserving of",
+        "stingy with",
+        "casual",
+        "selfish of",
+        "dubious",
+        "consistent",
+        "alone",
+        "unnoticed by"
     ]
-]
+}
