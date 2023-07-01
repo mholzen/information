@@ -1,7 +1,10 @@
 package triples
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"strings"
 )
 
 type TriplesModifier struct {
@@ -62,4 +65,30 @@ func NewParser(data any) Transformer {
 		_, err := tm.Parse(data)
 		return err
 	}
+}
+
+func DecodeJson(input string) (interface{}, error) {
+	buffer := bytes.NewBuffer([]byte(input))
+	decoder := json.NewDecoder(strings.NewReader(buffer.String()))
+	var data interface{}
+	err := decoder.Decode(&data)
+	return data, err
+}
+
+func NewJsonParser(json string, top *Node) (Transformer, error) {
+	data, err := DecodeJson(json)
+	if err != nil {
+		return nil, err
+	}
+	tm := TriplesModifier{}
+	return func(target *Triples) error {
+		tm.Triples = target
+		res, err := tm.Parse(data)
+		*top = res
+
+		if top != nil {
+			*top = res
+		}
+		return err
+	}, nil
 }

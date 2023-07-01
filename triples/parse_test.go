@@ -69,7 +69,7 @@ func Test_html(t *testing.T) {
 	subject := NewStringNode("marc")
 	marc := all.AddReachableTriples(subject, nil)
 
-	subjectTriples := marc.GetTriplesForSubject(subject, nil)
+	subjectTriples := marc.GetTriplesForSubject(subject)
 	html := NewHtmlTransformer(*marc, subjectTriples, 4)
 	log.Printf("=== subject triples ===\n%s", html.String())
 }

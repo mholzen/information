@@ -28,7 +28,7 @@ func (html HtmlTransformer) HtmlObject(object Node) string {
 	res := ""
 	switch typedObject := object.(type) {
 	case AnonymousNode:
-		tripleList := html.Triples.GetTriplesForSubject(typedObject, nil)
+		tripleList := html.Triples.GetTriplesForSubject(typedObject)
 		res = NewHtmlTransformer(html.Triples, tripleList, html.Depth-1).String()
 
 	case StringNode, CreatedNode[FloatType], IndexNode:

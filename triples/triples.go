@@ -11,7 +11,15 @@ type Triple struct {
 }
 
 func (t Triple) String() string {
-	return fmt.Sprintf("(%s %s %s)", NodeString(t.Subject), NodeString(t.Predicate), NodeString(t.Object))
+	return fmt.Sprintf("(%s, %s, %s)", shortString(t.Subject), shortString(t.Predicate), shortString(t.Object))
+}
+
+func shortString(n Node) string {
+	if a, ok := n.(AnonymousNode); ok {
+		return a.String()[0:8]
+	} else {
+		return n.String()
+	}
 }
 
 type TripleList []Triple
@@ -60,6 +68,14 @@ func (source *Triples) NewTripleString(subject string, predicate string, object 
 	triple := Triple{NewStringNode(subject), NewStringNode(predicate), NewStringNode(object)}
 	source.Add(triple)
 	return triple
+}
+
+func (source *Triples) AddTripleReference(triple Triple) Node {
+	container := NewAnonymousNode()
+	source.NewTripleFromNodes(container, Subject, triple.Subject)
+	source.NewTripleFromNodes(container, Predicate, triple.Predicate)
+	source.NewTripleFromNodes(container, Object, triple.Object)
+	return container
 }
 
 func (source *Triples) Add(triple Triple) {
@@ -161,7 +177,7 @@ func (source *Triples) Contains(triple Triple) bool {
 	return source.TripleSet[triple.String()] == triple
 }
 
-func (source *Triples) GetTriplesForSubject(node Node, triples *Triples) TripleList {
+func (source *Triples) GetTriplesForSubject(node Node) TripleList {
 	res := make(TripleList, 0)
 	for _, triple := range source.TripleSet {
 		if triple.Subject.String() == node.String() {

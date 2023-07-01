@@ -3,6 +3,7 @@ package triples
 import (
 	"fmt"
 	"reflect"
+	"regexp"
 	"runtime"
 )
 
@@ -40,3 +41,14 @@ func Square(node Node) (Node, error) {
 }
 
 var SquareNode UnaryFunctionNode = UnaryFunctionNode(Square)
+
+func NewStringNodeMatch(re string) UnaryFunctionNode {
+	return func(node Node) (Node, error) {
+		if node, ok := node.(StringNode); ok {
+			if match, _ := regexp.MatchString(re, node.String()); match {
+				return NewNumberNode(1), nil
+			}
+		}
+		return NewNumberNode(0), nil
+	}
+}

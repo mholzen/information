@@ -99,6 +99,10 @@ func (i FloatType) Compare(other FloatType) int {
 
 type IndexNode = CreatedNode[Index]
 
+func NewIndexNode(value int) IndexNode {
+	return NewCreatedNode(Index(value))
+}
+
 func NewNode(value any) (Node, error) {
 	switch typedValue := value.(type) {
 	case Node:
