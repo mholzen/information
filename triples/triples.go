@@ -91,6 +91,12 @@ func (source *Triples) Add(triple Triple) {
 	}
 }
 
+func (source *Triples) AddTriples(triples *Triples) {
+	for _, triple := range triples.TripleSet {
+		source.Add(triple)
+	}
+}
+
 func (source *Triples) NewTriplesFromMap(m map[string]interface{}) (TripleList, error) {
 	res := make(TripleList, 0)
 	is_spo_form := false
@@ -274,4 +280,12 @@ func (source *Triples) Compute() error {
 		}
 	}
 	return nil
+}
+
+func (l TripleList) NewTriples() *Triples {
+	triples := NewTriples()
+	for _, triple := range l {
+		triples.Add(triple)
+	}
+	return triples
 }

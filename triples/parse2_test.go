@@ -7,8 +7,8 @@ import (
 )
 
 func Test_parse2(t *testing.T) {
-	var top *Node
-	tm, err := NewJsonParser(`{"first":"marc","last":"von Holzen"}`, top)
+	var top Node = NewAnonymousNode()
+	tm, err := NewJsonParser(`{"first":"marc","last":"von Holzen"}`, &top)
 	assert.Nil(t, err)
 
 	src := NewTriples()

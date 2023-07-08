@@ -2,6 +2,8 @@ package triples
 
 import (
 	"log"
+	"sort"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -60,14 +62,40 @@ func Test_traverse(t *testing.T) {
 
 	res2 := NewTriples()
 	dest2 := NewAnonymousNode()
-
-	// match := NewObjectTripleMatch(NewStringNodeMatch(".*"))
-
 	objectMapper := NewTripleObjectTransformer(dest2, res2)
 	err = res.Transform(NewMap(dest, objectMapper, res2))
 	assert.Nil(t, err)
 
 	answer := res2.GetTriplesForSubject(dest2)
-	log.Printf("answer: %s", answer)
-	assert.Len(t, answer, 4)
+	log.Printf("answer: %s", answer.GetObjects())
+}
+
+func Test_traverse_file(t *testing.T) {
+	var top Node = NewAnonymousNode()
+	tm, err := NewFileJsonParser("../data/verbs.jsonc", &top)
+	assert.Nil(t, err)
+
+	src := NewTriples()
+	err = src.Transform(tm)
+	assert.Nil(t, err)
+
+	dest := NewAnonymousNode()
+	err = src.Transform(NewTraverse(top, AlwaysTripleMatch, dest, src))
+	assert.Nil(t, err)
+
+	dest2 := NewAnonymousNode()
+	objectMapper := NewTripleObjectTransformer(dest2, src)
+	err = src.Transform(NewMap(dest, objectMapper, src))
+	assert.Nil(t, err)
+
+	res := NewTriples()
+	err = src.Transform(NewFlatMap(dest2, GetStringObjectMapper, res))
+	assert.Nil(t, err)
+
+	answer := res.GetTripleList().GetObjectStrings()
+	sort.Strings(answer)
+
+	log.Printf("answer: %s", strings.Join(answer, "\n"))
+
+	assert.Len(t, src.TripleSet, 2)
 }

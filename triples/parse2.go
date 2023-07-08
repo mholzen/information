@@ -92,3 +92,11 @@ func NewJsonParser(json string, top *Node) (Transformer, error) {
 		return err
 	}, nil
 }
+
+func NewFileJsonParser(filename string, top *Node) (Transformer, error) {
+	buffer, err := Read(filename)
+	if err != nil {
+		return nil, err
+	}
+	return NewJsonParser(buffer.String(), top)
+}

@@ -38,3 +38,30 @@ func NewTripleObjectTransformer(target Node, dest *Triples) TripleTransform {
 		return Triple{}, nil
 	}
 }
+
+type TripleMapper func(triple Triple) (*Triples, error)
+
+func NewFlatMap(start Node, mapper TripleMapper, output *Triples) Transformer {
+
+	return func(source *Triples) error {
+
+		triples := source.GetTriplesForSubject(start)
+		triples.Sort()
+		for _, triple := range triples {
+			triples, err := mapper(triple)
+			if err != nil {
+				return err
+			}
+			output.AddTriples(triples)
+		}
+		return nil
+	}
+}
+
+func GetStringObjectMapper(triple Triple) (*Triples, error) {
+	triples := NewTriples()
+	if _, ok := triple.Object.(StringNode); ok {
+		triples.Add(triple)
+	}
+	return triples, nil
+}

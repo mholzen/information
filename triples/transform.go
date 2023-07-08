@@ -1,6 +1,8 @@
 package triples
 
-import "log"
+import (
+	"github.com/sirupsen/logrus"
+)
 
 type Transformer func(target *Triples) error
 
@@ -74,10 +76,10 @@ func NewTraverse(start Node, filter TripleMatch, dest Node, output *Triples) Tra
 
 			for _, triple := range source.GetTriplesForSubject(node) {
 				if !filter(triple) {
-					log.Printf("%s fail", triple)
+					logrus.Debugf("%s fail", triple)
 					continue
 				}
-				log.Printf("%s pass", triple)
+				logrus.Debugf("%s pass", triple)
 				tripleReference := output.AddTripleReference(triple)
 				output.NewTripleFromNodes(dest, NewIndexNode(resultIndex), tripleReference)
 				resultIndex++
