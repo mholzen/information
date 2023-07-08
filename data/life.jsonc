@@ -1,41 +1,46 @@
-[ "this-file", "list",
-
-    // triple as an array
+[
     [
         "life",
-        "is",
-        "organize",
-        "maintain",
-        "respond",
-        "metabolize",
-        "grow",
-        "reproduce",
-        "adapt"
+        {
+            "is": [
+                "organize",
+                "maintain",
+                "respond",
+                "metabolize",
+                "grow",
+                "reproduce",
+                "adapt"
+            ]
+        }
     ],
-
-    [ "why is life important?",
-        "because",
-        "death is the most irreversible experience we know of",
-        "injuries leading to death are the most painful physical experiences we know of",
-        "actions leading to life are the most pleasurable physical experiences we know of",
-        "death of someone close are the most painful psychological experiences we know of",
-        "birth of child are the most joyful psychological experiences we know of"
-    ],
-
-    [ "if life is so important, why do people kill themselves?",
-        "because",
-        "the experiences of life are very intense, including very painfully intense"
-    ],
-
     [
-        [ "reproduce", "is", "self-replicating"],
-        "interesting because",
-        "best way to dissipate energy",
-        "counter to the second law of thermodynamics",
-        "self",
-        "fractal"
+        "why is life important?",
+        {
+            "because": [
+                "death is the most irreversible experience we know of",
+                "injuries leading to death are the most painful physical experiences we know of",
+                "actions leading to life are the most pleasurable physical experiences we know of",
+                "death of someone close are the most painful psychological experiences we know of",
+                "birth of child are the most joyful psychological experiences we know of"
+            ]
+        }
     ],
-    [ "organize", "enables", "maintain"],
-    [ "maintain", "verb for", "homeostasis"]
-
+    [
+        "if life is so important, why do people kill themselves?",
+        {
+            "because": "the experiences of life are very intense, including very painfully intense"
+        }
+    ],
+    [
+        "reproduce",
+        {
+            "is": "self-replicating",
+            "interesting because": [
+                "best way to dissipate energy",
+                "counter to the second law of thermodynamics",
+                "defines self",
+                "defines fractal"
+            ]
+        }
+    ]
 ]
