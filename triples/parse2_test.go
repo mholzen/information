@@ -6,17 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_parse2(t *testing.T) {
-	tm := NewJsonParser(`{"first":"marc","last":"von Holzen"}`)
-
-	src := NewTriples()
-	err := src.Transform(tm.Transformer)
-	assert.Nil(t, err)
-
-	assert.Len(t, src.TripleSet, 2)
-}
-
-func Test_parse_with_result(t *testing.T) {
+func Test_parse(t *testing.T) {
 	tm := NewJsonParser(`{"first":"marc","last":"von Holzen"}`)
 
 	src := NewTriples()
@@ -25,4 +15,28 @@ func Test_parse_with_result(t *testing.T) {
 	assert.NotNil(t, tm.Result)
 
 	assert.Len(t, src.TripleSet, 2)
+}
+
+func Test_triples_map2(t *testing.T) {
+	tm := NewJsonParser(`{"first":"marc","last":"von Holzen"}]`)
+	src := NewTriples()
+	err := src.Transform(tm.Transformer)
+	assert.Nil(t, err)
+	assert.Len(t, src.TripleSet, 2)
+}
+
+func Test_triples_array_object(t *testing.T) {
+	tm := NewJsonParser(`{"names":["marc","Marc", "Marco"]}`)
+	src := NewTriples()
+	err := src.Transform(tm.Transformer)
+	assert.Nil(t, err)
+	assert.Len(t, src.TripleSet, 4)
+}
+
+func Test_slice_as_object(t *testing.T) {
+	tm := NewJsonParser(`["root", "contains", ["marc", "is", "alive"]]`)
+	src := NewTriples()
+	err := src.Transform(tm.Transformer)
+	assert.Nil(t, err)
+	assert.Len(t, src.TripleSet, 6)
 }
