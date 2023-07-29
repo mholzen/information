@@ -53,6 +53,8 @@ func (source *TriplesModifier) Parse(data any) (Node, error) {
 		return source.ParseMap(data)
 	case []interface{}:
 		return source.ParseSlice(data)
+	case nil:
+		return source.NewNode(nil)
 	default:
 		return nil, fmt.Errorf("unknown type '%T'", data)
 	}

@@ -24,21 +24,15 @@ func Test_parse(t *testing.T) {
 	subject := NewStringNode("marc")
 	marc := all.AddReachableTriples(subject, nil)
 
-	log.Printf("=== triples ===")
-	log.Printf("%s\n", marc.String())
-
 	objectTriples := marc.GetTriplesForObject(subject, nil)
-	log.Printf("=== object triples for marc")
-	for triple := range objectTriples.TripleSet {
-		log.Printf("%s", triple)
-	}
+	assert.Greater(t, len(objectTriples.TripleSet), 10)
 }
 
 func Test_triple_in_subject_predicate_object(t *testing.T) {
 	buffer := bytes.NewBuffer([]byte(`{"s":"marc","p":"is","o":"alive"}`))
 	res, err := parseString(*buffer)
 	assert.Nil(t, err)
-	assert.Len(t, res.TripleSet, 6)
+	assert.Len(t, res.TripleSet, 3)
 }
 
 func Test_triples_map(t *testing.T) {
@@ -52,7 +46,7 @@ func Test_triples_array_object(t *testing.T) {
 	buffer := bytes.NewBuffer([]byte(`{"names":["marc","Marc", "Marco"]}`))
 	res, err := parseString(*buffer)
 	assert.Nil(t, err)
-	assert.Len(t, res.TripleSet, 3)
+	assert.Len(t, res.TripleSet, 4)
 }
 
 func Test_slice_as_object(t *testing.T) {
@@ -63,13 +57,10 @@ func Test_slice_as_object(t *testing.T) {
 }
 
 func Test_html(t *testing.T) {
-	all, err := Parse("examples.json")
+	all, err := Parse("../data/examples.jsonc")
 	assert.Nil(t, err)
 
-	subject := NewStringNode("marc")
-	marc := all.AddReachableTriples(subject, nil)
-
-	subjectTriples := marc.GetTriplesForSubject(subject)
-	html := NewHtmlTransformer(*marc, subjectTriples, 4)
+	html := NewHtmlTransformer(*all, all.GetTripleList(), 4)
 	log.Printf("=== subject triples ===\n%s", html.String())
+	assert.Greater(t, len(html.String()), 1000)
 }

@@ -4,8 +4,29 @@
         {
             "is": [
                 "organize",
-                "maintain",
-                "respond",
+                {
+                    "maintain": [
+                        "regulate"
+                    ]
+                },
+                {
+                    "respond": {
+                        "communicate": [
+                            "alert",
+                            "caution",
+                            "wave",
+                            "alarm",
+                            "silence",
+                            "mute"
+                        ],
+                        "other": [
+                            "react",
+                            "fight",
+                            "freeze",
+                            "flee"
+                        ]
+                    }
+                },
                 "metabolize",
                 "grow",
                 "reproduce",

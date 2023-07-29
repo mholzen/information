@@ -3,7 +3,6 @@ package triples
 import (
 	"log"
 	"sort"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -26,8 +25,8 @@ func Test_filter(t *testing.T) {
 }
 
 func Test_predicate_filter(t *testing.T) {
-	var top *Node
-	data, err := NewJsonParser(`{"first":"marc","last":"von Holzen"}`, top)
+	var top Node
+	data, err := NewJsonParser(`{"first":"marc","last":"von Holzen"}`, &top)
 	assert.Nil(t, err)
 
 	src := NewTriples()
@@ -95,7 +94,5 @@ func Test_traverse_file(t *testing.T) {
 	answer := res.GetTripleList().GetObjectStrings()
 	sort.Strings(answer)
 
-	log.Printf("answer: %s", strings.Join(answer, "\n"))
-
-	assert.Len(t, src.TripleSet, 2)
+	assert.Greater(t, len(src.TripleSet), 100)
 }

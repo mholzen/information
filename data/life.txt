@@ -1,0 +1,15 @@
+organize    : differentiate, aggregate
+respond     : stimuli, response, before/after, short term
+maintain    : in/out, degradation
+metabolize  : matter to energy
+
+grow        : energy to matter in
+reproduce   : matter out, similar but different
+adapt       : self to other, long term
+
+term:
+    long: adapt
+    short: respond
+
+worth:
+    maintain: 

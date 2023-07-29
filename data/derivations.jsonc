@@ -1,6 +1,11 @@
-{
+[
+ {
     "feel": [
         "organize/identify",
         "respond/communicate"
-    ]
-}
+   ]
+ },
+ { "oppose": ["maintain", "adapt" ]
+ },
+ { "oppose": ["respond", "metabolize" ] }
+]

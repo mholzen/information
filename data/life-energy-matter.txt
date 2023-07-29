@@ -1,0 +1,8 @@
+organize    : matter in
+respond     : energy out
+maintain    : matter/energy in/out
+metabolize  : matter in to matter/energy
+
+grow        : energy to matter in
+reproduce   : matter out
+adapt       : self to other

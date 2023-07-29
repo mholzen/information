@@ -26,8 +26,8 @@ type TripleList []Triple
 type TripleSet map[string]Triple
 
 type Triples struct {
-	TripleSet TripleSet
-	Nodes     NodeSet
+	TripleSet
+	Nodes NodeSet
 }
 
 func NewTriples() *Triples {
@@ -194,7 +194,7 @@ func (source *Triples) GetTriplesForSubject(node Node) TripleList {
 	return res
 }
 
-func (source *Triples) String() string {
+func (source Triples) String() string {
 	res := ""
 	for _, triple := range source.TripleSet {
 		res += fmt.Sprintf("%s\n", triple)
@@ -264,7 +264,7 @@ func (source *Triples) GetTripleList() TripleList {
 	return tripleList
 }
 
-func (source *Triples) Compute() error {
+func (source *Triples) Compute() error { // TODO: convert to a Triples mapper
 	// generate new triples based on predicates that are functions
 	for _, triple := range source.TripleSet {
 		if p, ok := triple.Predicate.(UnaryFunctionNode); ok {
@@ -288,4 +288,12 @@ func (l TripleList) NewTriples() *Triples {
 		triples.Add(triple)
 	}
 	return triples
+}
+
+func (source TripleSet) String() string {
+	res := ""
+	for _, triple := range source {
+		res += fmt.Sprintf("%s\n", triple)
+	}
+	return res
 }
