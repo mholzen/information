@@ -40,3 +40,13 @@ func Test_slice_as_object(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Len(t, src.TripleSet, 6)
 }
+
+func Test_csv_parse(t *testing.T) {
+	tm := NewCsvParser("a,b,c\nd,e,f")
+
+	src := NewTriples()
+	err := src.Transform(tm.Transformer)
+	assert.Nil(t, err)
+
+	assert.Len(t, src.TripleSet, 8)
+}

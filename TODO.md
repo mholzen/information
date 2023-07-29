@@ -1,11 +1,13 @@
 # TODO
 
-- express relationships
-    - [ ] in JSON
+- edit files to express relationships
     - [ ] in CSV
-        - [ ] parse a CSV file
+        - [ ] parse a CSV file NewCSVParser
             - each row is a subject, each column a property, the value the object
         - [ ] generate a CSV from a query, to edit it, to parse it
+        - [ ] edit a table in html, save to CSV, support lists in cells, hierarchies as rows, columns that span hiearchies
+
+    - [ ] in JSON
 
 - express computations (eg. mathematical, search, generation) in triples
     - [x] express mathematical unary function as a node, use it as a predicate with the argument is the object

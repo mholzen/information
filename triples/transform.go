@@ -32,6 +32,12 @@ var AlwaysTripleMatch TripleMatch = func(triple Triple) bool {
 	return true
 }
 
+func NewSubjectTripleMatch(subject Node) TripleMatch {
+	return func(triple Triple) bool {
+		return triple.Subject == subject
+	}
+}
+
 func NewPredicateTripleMatch(predicate string) TripleMatch {
 	return func(triple Triple) bool {
 		return triple.Predicate.String() == predicate

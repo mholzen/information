@@ -2,6 +2,7 @@ package triples
 
 import (
 	"bytes"
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -53,6 +54,23 @@ func (source *Parser) Parse(data any) (Node, error) {
 		return source.ParseMap(data)
 	case []interface{}:
 		return source.ParseSlice(data)
+	case [][]string:
+		array := NewAnonymousNode()
+		for i, stringArray := range data {
+			row := NewAnonymousNode()
+			for j, val := range stringArray {
+				_, err := source.NewTriple(row, j, val)
+				if err != nil {
+					return array, err
+				}
+			}
+			_, err := source.NewTriple(array, i, row)
+			if err != nil {
+				return array, err
+			}
+		}
+		return array, nil
+
 	case nil:
 		return source.NewNode(nil)
 	default:
@@ -96,16 +114,31 @@ func NewJsonParserOld(json string, top *Node) (Transformer, error) {
 }
 
 func NewJsonParser(json string) *TransformerWithResult {
-	parser := Parser{}
 	transformer := TransformerWithResult{}
 	transformer.Transformer = func(target *Triples) error {
 		data, err := DecodeJson(json)
 		if err != nil {
 			return err
 		}
-
+		parser := Parser{}
 		parser.Triples = target
 		res, err := parser.Parse(data)
+		transformer.Result = &res
+		return err
+	}
+	return &transformer
+}
+
+func NewCsvParser(data string) *TransformerWithResult {
+	transformer := TransformerWithResult{}
+	transformer.Transformer = func(target *Triples) error {
+		array, err := csv.NewReader(strings.NewReader(data)).ReadAll()
+		if err != nil {
+			return err
+		}
+		parser := Parser{}
+		parser.Triples = target
+		res, err := parser.Parse(array)
 		transformer.Result = &res
 		return err
 	}
