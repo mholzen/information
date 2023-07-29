@@ -10,10 +10,10 @@ func (source *Triples) Transform(transformer Transformer) error {
 	return transformer(source)
 }
 
-func NewNodeFilter(target *Triples, object UnaryFunctionNode) Transformer {
+func NewObjectFilter(target *Triples, objectFn UnaryFunctionNode) Transformer {
 	return func(source *Triples) error {
 		for _, triple := range source.TripleSet {
-			value, err := object(triple.Object)
+			value, err := objectFn(triple.Object)
 			if err != nil {
 				return err
 			}

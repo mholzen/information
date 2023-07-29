@@ -16,12 +16,11 @@ func Test_filter(t *testing.T) {
 	err = src.Transform(NewParser(data))
 	assert.Nil(t, err)
 
-	fn := NewStringNodeMatch(".*")
+	fn := NewStringNodeMatch("von.*")
 	res := NewTriples()
-	f := NewNodeFilter(res, fn)
-	err = src.Transform(f)
+	err = src.Transform(NewObjectFilter(res, fn))
 	assert.Nil(t, err)
-	assert.Len(t, res.TripleSet, 2)
+	assert.Len(t, res.TripleSet, 1)
 }
 
 func Test_predicate_filter(t *testing.T) {

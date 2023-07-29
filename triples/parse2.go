@@ -7,11 +7,11 @@ import (
 	"strings"
 )
 
-type TriplesModifier struct {
+type Parser struct {
 	*Triples
 }
 
-func (source *TriplesModifier) ParseMap(m map[string]interface{}) (Node, error) {
+func (source *Parser) ParseMap(m map[string]interface{}) (Node, error) {
 	container := NewAnonymousNode()
 	for key, val := range m {
 		err := source.ParseAdd(container, key, val)
@@ -22,7 +22,7 @@ func (source *TriplesModifier) ParseMap(m map[string]interface{}) (Node, error) 
 	return container, nil
 }
 
-func (source *TriplesModifier) ParseSlice(slice []interface{}) (Node, error) {
+func (source *Parser) ParseSlice(slice []interface{}) (Node, error) {
 	container := NewAnonymousNode()
 	for i, val := range slice {
 		err := source.ParseAdd(container, i, val)
@@ -33,7 +33,7 @@ func (source *TriplesModifier) ParseSlice(slice []interface{}) (Node, error) {
 	return container, nil
 }
 
-func (source *TriplesModifier) ParseAdd(subject Node, predicate, object any) error {
+func (source *Parser) ParseAdd(subject Node, predicate, object any) error {
 	object, err := source.Parse(object)
 	if err != nil {
 		return err
@@ -45,7 +45,7 @@ func (source *TriplesModifier) ParseAdd(subject Node, predicate, object any) err
 	return nil
 }
 
-func (source *TriplesModifier) Parse(data any) (Node, error) {
+func (source *Parser) Parse(data any) (Node, error) {
 	switch data := data.(type) {
 	case float64, string:
 		return source.NewNode(data)
@@ -61,10 +61,10 @@ func (source *TriplesModifier) Parse(data any) (Node, error) {
 }
 
 func NewParser(data any) Transformer {
-	tm := TriplesModifier{}
+	parser := Parser{}
 	return func(target *Triples) error {
-		tm.Triples = target
-		_, err := tm.Parse(data)
+		parser.Triples = target
+		_, err := parser.Parse(data)
 		return err
 	}
 }
@@ -82,10 +82,10 @@ func NewJsonParser(json string, top *Node) (Transformer, error) {
 	if err != nil {
 		return nil, err
 	}
-	tm := TriplesModifier{}
+	parser := Parser{}
 	return func(target *Triples) error {
-		tm.Triples = target
-		res, err := tm.Parse(data)
+		parser.Triples = target
+		res, err := parser.Parse(data)
 		*top = res
 
 		if top != nil {

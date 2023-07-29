@@ -1,14 +1,22 @@
 # TODO
 
+- express relationships
+    - [ ] in JSON
+    - [ ] in CSV
+        - [ ] parse a CSV file
+            - each row is a subject, each column a property, the value the object
+        - [ ] generate a CSV from a query, to edit it, to parse it
+
 - express computations (eg. mathematical, search, generation) in triples
     - [x] express mathematical unary function as a node, use it as a predicate with the argument is the object
+    - [ ] express queries as transformation that copy nodes that match a function
     - [ ] express mathematical binary functions as reducers
         - eg: (x sum 1, x sum 2, sum = `(acc, x)->acc+x` ) -> (x equal 3)
         - sum is a reducer (accumulator, currentValue)
 
-    - [ ] express queries as
 
     - [ ] generalize TripleSet.Compute() into functions that accept Triples
+
 
 - setup a set for all nodes using the name of the class as a string prefix
 

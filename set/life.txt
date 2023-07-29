@@ -1,18 +1,28 @@
-life relates-to
-    organization
+life describe
+    organize
+    respond
+    metabolize
+    maintain, regulate
+    grow
+    reproduce
+    adapt
+
+maintain defines
+    succeed:continue
+
+respond defines
+    stimuli
     response
-    metabolism
-    homeostasis
-    growth
-    reproduction
-    adaptation
 
--> = enables
+reproduce defines
+    succeed:similar
 
-organization -> response -> metabolism
-    -> homeostasis
-    -> growth
+grow defines
+    succeed:increase
 
-organization -> response -> metabolism -> ( homeostasis growth )
+adapt defines
+    term:long
 
-( homeostasis growth ) -> reproduction -> adaptation
+respond defines
+    term:short
+
