@@ -7,13 +7,22 @@ import (
 )
 
 func Test_parse2(t *testing.T) {
-	var top Node = NewAnonymousNode()
-	tm, err := NewJsonParser(`{"first":"marc","last":"von Holzen"}`, &top)
-	assert.Nil(t, err)
+	tm := NewJsonParser(`{"first":"marc","last":"von Holzen"}`)
 
 	src := NewTriples()
-	err = src.Transform(tm)
+	err := src.Transform(tm.Transformer)
 	assert.Nil(t, err)
+
+	assert.Len(t, src.TripleSet, 2)
+}
+
+func Test_parse_with_result(t *testing.T) {
+	tm := NewJsonParser(`{"first":"marc","last":"von Holzen"}`)
+
+	src := NewTriples()
+	err := src.Transform(tm.Transformer)
+	assert.Nil(t, err)
+	assert.NotNil(t, tm.Result)
 
 	assert.Len(t, src.TripleSet, 2)
 }

@@ -77,7 +77,7 @@ func DecodeJson(input string) (interface{}, error) {
 	return data, err
 }
 
-func NewJsonParser(json string, top *Node) (Transformer, error) {
+func NewJsonParserOld(json string, top *Node) (Transformer, error) {
 	data, err := DecodeJson(json)
 	if err != nil {
 		return nil, err
@@ -95,10 +95,27 @@ func NewJsonParser(json string, top *Node) (Transformer, error) {
 	}, nil
 }
 
+func NewJsonParser(json string) *TransformerWithResult {
+	parser := Parser{}
+	transformer := TransformerWithResult{}
+	transformer.Transformer = func(target *Triples) error {
+		data, err := DecodeJson(json)
+		if err != nil {
+			return err
+		}
+
+		parser.Triples = target
+		res, err := parser.Parse(data)
+		transformer.Result = &res
+		return err
+	}
+	return &transformer
+}
+
 func NewFileJsonParser(filename string, top *Node) (Transformer, error) {
 	buffer, err := Read(filename)
 	if err != nil {
 		return nil, err
 	}
-	return NewJsonParser(buffer.String(), top)
+	return NewJsonParserOld(buffer.String(), top)
 }

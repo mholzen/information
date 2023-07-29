@@ -93,3 +93,8 @@ func NewTraverse(start Node, filter TripleMatch, dest Node, output *Triples) Tra
 		return nil
 	}
 }
+
+type TransformerWithResult struct {
+	Transformer
+	Result *Node
+}

@@ -24,12 +24,10 @@ func Test_filter(t *testing.T) {
 }
 
 func Test_predicate_filter(t *testing.T) {
-	var top Node
-	data, err := NewJsonParser(`{"first":"marc","last":"von Holzen"}`, &top)
-	assert.Nil(t, err)
+	data := NewJsonParser(`{"first":"marc","last":"von Holzen"}`)
 
 	src := NewTriples()
-	err = src.Transform(data)
+	err := src.Transform(data.Transformer)
 	assert.Nil(t, err)
 
 	res := NewTriples()
@@ -41,20 +39,17 @@ func Test_predicate_filter(t *testing.T) {
 }
 
 func Test_traverse(t *testing.T) {
-	var top Node = NewAnonymousNode()
-	tm, err := NewJsonParser(`{"first":["marc","marco"],"last":"von Holzen"}`, &top)
-	assert.Nil(t, err)
-	assert.NotNil(t, top)
+	tm := NewJsonParser(`{"first":["marc","marco"],"last":"von Holzen"}`)
 
 	src := NewTriples()
-	err = src.Transform(tm)
+	err := src.Transform(tm.Transformer)
 	assert.Nil(t, err)
 	assert.Len(t, src.TripleSet, 4)
-	assert.Len(t, src.GetTriplesForSubject(top), 2)
+	assert.Len(t, src.GetTriplesForSubject(*tm.Result), 2)
 
 	res := NewTriples()
 	dest := NewAnonymousNode()
-	err = src.Transform(NewTraverse(top, AlwaysTripleMatch, dest, res))
+	err = src.Transform(NewTraverse(*tm.Result, AlwaysTripleMatch, dest, res))
 	assert.Nil(t, err)
 	assert.Len(t, res.GetTriplesForSubject(dest), 4)
 
