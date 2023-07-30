@@ -34,6 +34,14 @@ func (n CreatedNode[T]) LessThan(other Node) bool {
 	}
 }
 
+func (s CreatedNode[T]) MarshalJSON() ([]byte, error) {
+	return []byte(fmt.Sprintf(`{
+		"created": "%s",
+		"value": "%s",
+		"type": "%T"
+	}`, s.Created.Format(time.RFC3339), s.Value.String(), s.Value)), nil
+}
+
 func NewCreatedNode[T Value[T]](value T) CreatedNode[T] {
 	return CreatedNode[T]{
 		Value:   value,
@@ -68,6 +76,14 @@ type ComparableValue[T Value[T]] interface {
 type CreatedComparableNode[T ComparableValue[T]] struct {
 	Value   T
 	Created time.Time
+}
+
+func (s CreatedComparableNode[T]) MarshalJSON() ([]byte, error) {
+	return []byte(fmt.Sprintf(`{
+		"created": "%s",
+		"value": "%s",
+		"type": "%T"
+	}`, s.Created.Format(time.RFC3339), s.Value.String(), s.Value)), nil
 }
 
 func (n CreatedComparableNode[T]) String() string {

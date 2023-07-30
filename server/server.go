@@ -10,6 +10,7 @@ import (
 	"text/template"
 
 	"github.com/mholzen/information/triples"
+	"github.com/mholzen/information/triples/transforms"
 
 	"github.com/labstack/echo/v4"
 )
@@ -80,10 +81,33 @@ func ObjectsHandler(c echo.Context) error {
 
 }
 
+func NodeLinkHandler(c echo.Context) error {
+	src, err := GetTripleList(c)
+	if err != nil {
+		return err
+	}
+	tr := transforms.NewNodeLinkTransformer()
+	err = src.Transform(tr.Transformer)
+	if err != nil {
+		return err
+	}
+	return c.JSON(http.StatusOK, tr.Result)
+}
+
+func GraphHandler(c echo.Context) error {
+	data := map[string]interface{}{
+		"url": "/nodelink/" + c.Param("file"),
+	}
+	return c.Render(http.StatusOK, "graph.html", data)
+}
+
 func main() {
 	e := echo.New()
 	e.GET("/html/:file", HtmlHandler)
 	e.GET("/objects/:file", ObjectsHandler)
+	e.GET("/nodelink/:file", NodeLinkHandler)
+	e.GET("/graph/:file", GraphHandler)
+
 	e.Static("/static", "public")
 	renderer := &TemplateRenderer{
 		templates: template.Must(template.ParseGlob("public/*.html")),

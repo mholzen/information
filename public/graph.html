@@ -1,0 +1,76 @@
+{{define "graph.html"}}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+</head>
+
+<body>
+    <script>
+        function nodeLabel(node) {
+            if (node["Node"]["text"] != undefined) {
+                return node.Node.text
+            }
+            if (node["Node"]["type"] == "triples.FloatType") {
+                return node.Node.value
+            }
+            return ""
+        }
+        fetch('{{.url}}')
+            .then(response => response.json())
+            .then(data => {
+                width = 2000;
+                height = 1200;
+                var svg = d3.select("body").append("svg")
+                    .attr("width", width)
+                    .attr("height", height)
+                    .attr("viewBox", [-width / 2, -height / 2, width, height]);
+
+                var force = d3.forceSimulation(data.nodes)
+                    .force("charge", d3.forceManyBody().strength(-200))
+                    .force("link",
+                        d3.forceLink(data.links)
+                            .distance(20)
+                    )
+                    .force("center", d3.forceCenter().x(250).y(250))
+                    ;
+
+                var link = svg.selectAll(".link")
+                    .data(data.links)
+                    .enter().append("line")
+                    .attr("class", "link")
+                    .attr("stroke", "black")
+                    ;
+
+                var node = svg.selectAll(".node")
+                    .data(data.nodes)
+                    .enter()
+                    .append("g")
+                    .attr("class", "node")
+                    ;
+
+                node.append("circle")
+                    .attr("r", 2)
+                    ;
+
+                node.append("text")
+                    .attr("dy", ".3em")
+                    .style("text-anchor", "middle")
+                    .style("color", "black")
+                    .text(nodeLabel);
+
+                force.on("tick", function () {
+                    link.attr("x1", function (d) { return d.source.x; })
+                        .attr("y1", function (d) { return d.source.y; })
+                        .attr("x2", function (d) { return d.target.x; })
+                        .attr("y2", function (d) { return d.target.y; });
+
+                    node.attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")" });
+                });
+            });
+    </script>
+</body>
+
+</html>
+{{end}}

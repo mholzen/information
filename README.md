@@ -8,5 +8,13 @@ A Go library and web server to:
 
 ## Motivation
 
-- use representation of knowlege as a graph to facilitate both
-  highly abstract conceptual thinking and mundane data management
+Use representation of knowlege as a graph to facilitate both
+highly abstract conceptual thinking and mundane data management.
+
+The recent development in LLMA has confirmed my intuiton that
+a tremenudous amount of knowledge (if not all) is encoding in language.
+
+While taking a more traditional approach in storing and processing language,
+I am interesting in whether we can express some fundamental truths about
+our experience.
+

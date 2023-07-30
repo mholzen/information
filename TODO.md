@@ -20,6 +20,9 @@
     - [ ] generalize TripleSet.Compute() into functions that accept Triples
 
 
+- visualize
+    - [ ] export as node and links
+
 - setup a set for all nodes using the name of the class as a string prefix
 
 - create a way to organize statements using concepts, words, ideas, dimensions, values about myself, my world

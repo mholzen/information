@@ -3,8 +3,8 @@ package triples
 import "time"
 
 type StringNode struct {
-	Value   string
-	Created time.Time
+	Value   string    `json:"text"`
+	Created time.Time `json:"created"`
 }
 
 func NewStringNode(value string) StringNode {
