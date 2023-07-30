@@ -7,12 +7,6 @@ import (
 	"github.com/google/uuid"
 )
 
-type Node interface {
-	String() string
-	LessThan(Node) bool
-	// TODO: consider Created field
-}
-
 func (source *Triples) NewNode(value interface{}) (Node, error) {
 	return NewNode(value)
 }

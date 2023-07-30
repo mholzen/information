@@ -43,7 +43,7 @@ func (source *Triples) NewTripleFromNodes(subject Node, predicate Node, object N
 	return triple
 }
 
-func (source *Triples) NewTriple(subject, predicate, object any) (Triple, error) {
+func (source *Triples) AddTriple(subject, predicate, object any) (Triple, error) {
 	var err error
 	var s, p, o Node
 	s, err = source.NewNode(subject)
@@ -64,7 +64,7 @@ func (source *Triples) NewTriple(subject, predicate, object any) (Triple, error)
 	return triple, nil
 }
 
-func (source *Triples) NewTripleString(subject string, predicate string, object string) Triple {
+func (source *Triples) AddTripleString(subject string, predicate string, object string) Triple {
 	triple := Triple{NewStringNode(subject), NewStringNode(predicate), NewStringNode(object)}
 	source.Add(triple)
 	return triple

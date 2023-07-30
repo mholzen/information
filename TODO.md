@@ -2,8 +2,8 @@
 
 - edit files to express relationships
     - [ ] in CSV
-        - [ ] parse a CSV file NewCSVParser
-            - each row is a subject, each column a property, the value the object
+        - [x] parse a CSV file NewCSVParser
+            - a definition could define each column using a predicate
         - [ ] generate a CSV from a query, to edit it, to parse it
         - [ ] edit a table in html, save to CSV, support lists in cells, hierarchies as rows, columns that span hiearchies
 

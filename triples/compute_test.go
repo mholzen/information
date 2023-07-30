@@ -25,15 +25,15 @@ func Test_compute_square(t *testing.T) {
 	assert.True(t, triples.Contains(newTriple))
 }
 
-func test_compute_search(t *testing.T) { // TODO: implement query as a mapper
-	triples := NewTriples()
-	x := NewAnonymousNode()
-	triples.NewTripleFromNodes(x, NewStringNode("first"), NewStringNode("marc"))
-	triples.NewTripleFromNodes(NewStringNode("x?"), NewStringNode("first"), NewStringNode("marc"))
-	triples.Compute()
-	assert.Len(t, triples.TripleSet, 3)
-	assert.Contains(t, triples.TripleSet, Triple{NewStringNode("x"), NewStringNode("equals"), x})
-}
+// func Test_compute_search(t *testing.T) { // TODO: implement query as a mapper
+// 	triples := NewTriples()
+// 	x := NewAnonymousNode()
+// 	triples.NewTripleFromNodes(x, NewStringNode("first"), NewStringNode("marc"))
+// 	triples.NewTripleFromNodes(NewStringNode("x?"), NewStringNode("first"), NewStringNode("marc"))
+// 	triples.Compute()
+// 	assert.Len(t, triples.TripleSet, 3)
+// 	assert.Contains(t, triples.TripleSet, Triple{NewStringNode("x"), NewStringNode("equals"), x})
+// }
 
 // func Test_Compute_Reducer(t *testing.T) {
 // 	triples := NewTriples()

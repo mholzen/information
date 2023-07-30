@@ -39,7 +39,7 @@ func (source *Parser) ParseAdd(subject Node, predicate, object any) error {
 	if err != nil {
 		return err
 	}
-	_, err = source.NewTriple(subject, predicate, object)
+	_, err = source.AddTriple(subject, predicate, object)
 	if err != nil {
 		return err
 	}
@@ -59,12 +59,12 @@ func (source *Parser) Parse(data any) (Node, error) {
 		for i, stringArray := range data {
 			row := NewAnonymousNode()
 			for j, val := range stringArray {
-				_, err := source.NewTriple(row, j, val)
+				_, err := source.AddTriple(row, j, val)
 				if err != nil {
 					return array, err
 				}
 			}
-			_, err := source.NewTriple(array, i, row)
+			_, err := source.AddTriple(array, i, row)
 			if err != nil {
 				return array, err
 			}
