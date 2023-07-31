@@ -38,9 +38,9 @@ func NewSubjectTripleMatch(subject Node) TripleMatch {
 	}
 }
 
-func NewPredicateTripleMatch(predicate string) TripleMatch {
+func NewPredicateTripleMatch(predicate Node) TripleMatch {
 	return func(triple Triple) bool {
-		return triple.Predicate.String() == predicate
+		return triple.Predicate == predicate
 	}
 }
 
@@ -55,18 +55,44 @@ func NewObjectTripleMatch(nodeFn UnaryFunctionNode) TripleMatch {
 	}
 }
 
-func NewTripleFilter(target *Triples, filter TripleMatch) Transformer {
-	if target == nil {
-		target = NewTriples()
+func NewOrMatch(matches ...TripleMatch) TripleMatch {
+	return func(triple Triple) bool {
+		for _, match := range matches {
+			if match(triple) {
+				return true
+			}
+		}
+		return false
+	}
+}
+
+func NewPredicateOrMatch(predicates ...Node) TripleMatch {
+	return func(triple Triple) bool {
+		for _, predicate := range predicates {
+			if triple.Predicate == predicate {
+				return true
+			}
+		}
+		return false
+	}
+}
+
+func NewTripleFilter(destination *Triples, filter TripleMatch) Transformer {
+	if destination == nil {
+		destination = NewTriples()
 	}
 	return func(source *Triples) error {
 		for _, triple := range source.TripleSet {
 			if filter(triple) {
-				target.Add(triple)
+				destination.Add(triple)
 			}
 		}
 		return nil
 	}
+}
+
+func NewPredicateFilter(destination *Triples, predicate Node) Transformer {
+	return NewTripleFilter(destination, NewPredicateTripleMatch(predicate))
 }
 
 func NewTraverse(start Node, filter TripleMatch, dest Node, output *Triples) Transformer {

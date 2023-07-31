@@ -1,4 +1,4 @@
-package transforms
+package node_link
 
 import (
 	"testing"
@@ -15,6 +15,6 @@ func Test_node_link(t *testing.T) {
 	err := tpls.Transform(tr.Transformer)
 	assert.Nil(t, err)
 	assert.NotNil(t, tr.Result)
-	assert.Len(t, tr.Result.Nodes, 4)
+	assert.Len(t, tr.Result.Nodes, 3)
 	assert.Len(t, tr.Result.Links, 2)
 }

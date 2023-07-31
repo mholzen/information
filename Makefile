@@ -7,4 +7,4 @@ open:
 	open http://localhost:1323/html/data/examples.jsonc
 
 test:
-	(cd triples; make test) | grcat ~/.grc/go.conf
+	go test ./... | grcat ~/.grc/go.conf

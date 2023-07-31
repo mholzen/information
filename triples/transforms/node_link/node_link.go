@@ -1,4 +1,4 @@
-package transforms
+package node_link
 
 import "github.com/mholzen/information/triples"
 

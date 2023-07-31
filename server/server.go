@@ -10,7 +10,7 @@ import (
 	"text/template"
 
 	"github.com/mholzen/information/triples"
-	"github.com/mholzen/information/triples/transforms"
+	"github.com/mholzen/information/triples/transforms/node_link"
 
 	"github.com/labstack/echo/v4"
 )
@@ -86,7 +86,7 @@ func NodeLinkHandler(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	tr := transforms.NewNodeLinkTransformer()
+	tr := node_link.NewNodeLinkTransformer()
 	err = src.Transform(tr.Transformer)
 	if err != nil {
 		return err

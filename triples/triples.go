@@ -256,6 +256,7 @@ func (source *Triples) AddReachableTriples(node Node, triples *Triples) *Triples
 
 	return triples
 }
+
 func (source *Triples) GetTripleList() TripleList {
 	tripleList := make(TripleList, 0)
 	for _, triple := range source.TripleSet {

@@ -1,27 +1,28 @@
 # TODO
 
 - edit files to express relationships
-    - [ ] in CSV
+    - in CSV
         - [x] parse a CSV file NewCSVParser
             - a definition could define each column using a predicate
-        - [ ] generate a CSV from a query, to edit it, to parse it
-        - [ ] edit a table in html, save to CSV, support lists in cells, hierarchies as rows, columns that span hiearchies
+        - [ ] generate a table from a query, to edit it, to parse it
+          - [ ] can a column definition have multiple predicates? because that's the implication of defining it using a graph
+      - edit a table in html, save to CSV, support lists in cells, hierarchies as rows, columns that span hiearchies
 
-    - [ ] in JSON
+    - in JSON
 
 - express computations (eg. mathematical, search, generation) in triples
     - [x] express mathematical unary function as a node, use it as a predicate with the argument is the object
-    - [ ] express queries as transformation that copy nodes that match a function
-    - [ ] express mathematical binary functions as reducers
+    - express queries as transformation that copy nodes that match a function
+    - express mathematical binary functions as reducers
         - eg: (x sum 1, x sum 2, sum = `(acc, x)->acc+x` ) -> (x equal 3)
         - sum is a reducer (accumulator, currentValue)
 
 
-    - [ ] generalize TripleSet.Compute() into functions that accept Triples
+    - generalize TripleSet.Compute() into functions that accept Triples
 
 
 - visualize
-    - [ ] export as node and links
+    - export as node and links
 
 - setup a set for all nodes using the name of the class as a string prefix
 

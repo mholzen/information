@@ -1,7 +1,6 @@
 package triples
 
 import (
-	"log"
 	"sort"
 	"testing"
 
@@ -31,7 +30,8 @@ func Test_predicate_filter(t *testing.T) {
 	assert.Nil(t, err)
 
 	res := NewTriples()
-	f := NewTripleFilter(res, NewPredicateTripleMatch("first"))
+	first, _ := NewNode("first") // Can avoid using a function that returns an error?
+	f := NewTripleFilter(res, NewPredicateTripleMatch(first))
 	err = src.Transform(f)
 	assert.Nil(t, err)
 
@@ -60,7 +60,7 @@ func Test_traverse(t *testing.T) {
 	assert.Nil(t, err)
 
 	answer := res2.GetTriplesForSubject(dest2)
-	log.Printf("answer: %s", answer.GetObjects())
+	assert.Len(t, answer, 4)
 }
 
 func Test_traverse_file(t *testing.T) {
