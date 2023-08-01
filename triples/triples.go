@@ -2,6 +2,7 @@ package triples
 
 import (
 	"fmt"
+	"sort"
 )
 
 type Triple struct {
@@ -221,6 +222,23 @@ func (source *Triples) GetTriplesForObject(node Node, triples *Triples) *Triples
 
 func (source *Triples) GetTriples(subject, predicate, object Node) *Triples {
 	return nil
+}
+
+func (source *Triples) GetPredicates() NodeList {
+	set := make(map[string]Node)
+	for _, triple := range source.TripleSet {
+		set[triple.Predicate.String()] = triple.Predicate
+	}
+	keys := make([]string, 0)
+	for key := range set {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	res := make(NodeList, 0)
+	for _, key := range keys {
+		res = append(res, set[key])
+	}
+	return res
 }
 
 func (source *Triples) AddReachableTriples(node Node, triples *Triples) *Triples {

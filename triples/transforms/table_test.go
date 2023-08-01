@@ -32,10 +32,10 @@ func Test_NewTableDefinition(t *testing.T) {
 	table := NewTableGenerator(def)
 	err = src.Transform(table.Transformer)
 	assert.Nil(t, err)
-	log.Println(table.Result[0])
-	log.Println(table.Result[1])
-	log.Println(table.Result[2])
-	log.Println(table.Result[3])
-	assert.Equal(t, 12, len(table.Result)) // TODO: should be 3 -- is 12 because all triples are evaluated
-	assert.Equal(t, 4, len(table.Result[0]))
+	log.Println(table.Rows[0])
+	log.Println(table.Rows[1])
+	log.Println(table.Rows[2])
+	log.Println(table.Rows[3])
+	assert.Equal(t, 12, len(table.Rows)) // TODO: should be 3 -- is 12 because all triples are evaluated
+	assert.Equal(t, 4, len(table.Rows[0]))
 }

@@ -10,6 +10,7 @@ import (
 	"text/template"
 
 	"github.com/mholzen/information/triples"
+	"github.com/mholzen/information/triples/transforms"
 	"github.com/mholzen/information/triples/transforms/node_link"
 
 	"github.com/labstack/echo/v4"
@@ -101,12 +102,27 @@ func GraphHandler(c echo.Context) error {
 	return c.Render(http.StatusOK, "graph.html", data)
 }
 
+func TableHandler(c echo.Context) error {
+	src, err := GetTripleList(c)
+	if err != nil {
+		return err
+	}
+	def := transforms.NewDefaultTableDefinition(src)
+	tr := transforms.NewTableGenerator(def)
+	err = src.Transform(tr.Transformer)
+	if err != nil {
+		return err
+	}
+	return c.HTML(http.StatusOK, tr.Html())
+}
+
 func main() {
 	e := echo.New()
 	e.GET("/html/:file", HtmlHandler)
 	e.GET("/objects/:file", ObjectsHandler)
 	e.GET("/nodelink/:file", NodeLinkHandler)
 	e.GET("/graph/:file", GraphHandler)
+	e.GET("/table/:file", TableHandler)
 
 	e.Static("/static", "public")
 	renderer := &TemplateRenderer{

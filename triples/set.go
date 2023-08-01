@@ -28,3 +28,5 @@ func (set NodeSet) ContainsOrAdd(node Node) bool {
 		return false
 	}
 }
+
+type NodeList []Node

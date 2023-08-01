@@ -1,16 +1,23 @@
 package transforms
 
-import "github.com/mholzen/information/triples"
+import (
+	"strings"
+
+	"github.com/mholzen/information/triples"
+)
+
+type Rows [][][]triples.Node
 
 type TableGenerator struct {
 	Transformer triples.Transformer
-	Result      [][][]triples.Node
+	Definition  TableDefinition
+	Rows        Rows
 }
 
 type TableDefinition struct {
 	Columns       [][]triples.Node
 	ColumnFilters []triples.TripleMatch
-	SortColumn    int // TODO: should become a function
+	// SortColumn    int // TODO: should become a function
 }
 
 func NewTableDefinition(definition *triples.Triples) TableDefinition {
@@ -41,8 +48,11 @@ func NewTableDefinition(definition *triples.Triples) TableDefinition {
 }
 
 func NewTableGenerator(definition *triples.Triples) *TableGenerator {
-	res := TableGenerator{}
 	def := NewTableDefinition(definition)
+	res := TableGenerator{
+		Definition: def,
+	}
+
 	res.Transformer = func(source *triples.Triples) error {
 		for _, triple := range source.GetTripleList() {
 			row := make([][]triples.Node, len(def.Columns))
@@ -53,9 +63,49 @@ func NewTableGenerator(definition *triples.Triples) *TableGenerator {
 				}
 				row[j] = cell
 			}
-			res.Result = append(res.Result, row)
+			res.Rows = append(res.Rows, row)
 		}
 		return nil
 	}
 	return &res
+}
+
+func (g TableGenerator) Html() string {
+	res := make([]string, 0)
+	for _, row := range g.Rows {
+		cells := make([]string, 0)
+		for _, cell := range row {
+			nodes := make([]string, 0)
+			for _, node := range cell {
+				nodes = append(nodes, node.String())
+			}
+			cells = append(cells, "<td>"+strings.Join(nodes, "<br>")+"</td>")
+		}
+		res = append(res, "<tr>"+strings.Join(cells, "\n")+"</tr>")
+	}
+	return "<table>\n" +
+		g.Definition.Html() +
+		strings.Join(res, "\n") +
+		"\n</table>"
+}
+
+func (d TableDefinition) Html() string {
+	res := make([]string, 0)
+	for _, col := range d.Columns {
+		nodes := make([]string, 0)
+		for _, node := range col {
+			nodes = append(nodes, node.String())
+		}
+		res = append(res, "<th>"+strings.Join(nodes, "<br>")+"</th>")
+	}
+	return "<tr>\n" + strings.Join(res, "\n") + "\n</tr>"
+}
+
+func NewDefaultTableDefinition(source *triples.Triples) *triples.Triples {
+	res := triples.NewTriples()
+	container := triples.NewAnonymousNode()
+	for i, predicate := range source.GetPredicates() {
+		res.AddTriple(container, triples.NewIndexNode(i), predicate)
+	}
+	return res
 }
