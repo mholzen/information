@@ -95,24 +95,6 @@ func DecodeJson(input string) (interface{}, error) {
 	return data, err
 }
 
-func NewJsonParserOld(json string, top *Node) (Transformer, error) {
-	data, err := DecodeJson(json)
-	if err != nil {
-		return nil, err
-	}
-	parser := Parser{}
-	return func(target *Triples) error {
-		parser.Triples = target
-		res, err := parser.Parse(data)
-		*top = res
-
-		if top != nil {
-			*top = res
-		}
-		return err
-	}, nil
-}
-
 func NewJsonParser(json string) *TransformerWithResult {
 	transformer := TransformerWithResult{}
 	transformer.Transformer = func(target *Triples) error {
@@ -145,10 +127,25 @@ func NewCsvParser(data string) *TransformerWithResult {
 	return &transformer
 }
 
-func NewFileJsonParser(filename string, top *Node) (Transformer, error) {
-	buffer, err := Read(filename)
-	if err != nil {
-		return nil, err
+func NewFileJsonParser(filename string) *TransformerWithResult {
+	transformer := TransformerWithResult{}
+	transformer.Transformer = func(target *Triples) error {
+		buffer, err := Read(filename)
+		if err != nil {
+			return err
+		}
+		data, err := DecodeJson(buffer.String())
+		if err != nil {
+			return err
+		}
+
+		parser := Parser{}
+		parser.Triples = target
+		res, err := parser.Parse(data)
+		target.AddTriple(res, "filename", filename)
+		transformer.Result = &res
+
+		return err
 	}
-	return NewJsonParserOld(buffer.String(), top)
+	return &transformer
 }

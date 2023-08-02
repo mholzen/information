@@ -66,6 +66,12 @@ func NewOrMatch(matches ...TripleMatch) TripleMatch {
 	}
 }
 
+func NewNotMatch(match TripleMatch) TripleMatch {
+	return func(triple Triple) bool {
+		return !match(triple)
+	}
+}
+
 func NewPredicateOrMatch(predicates ...Node) TripleMatch {
 	return func(triple Triple) bool {
 		for _, predicate := range predicates {

@@ -41,6 +41,16 @@ func Test_slice_as_object(t *testing.T) {
 	assert.Len(t, src.TripleSet, 6)
 }
 
+func Test_NewFileJsonParser(t *testing.T) {
+	tm := NewFileJsonParser("../data/object.jsonc")
+
+	dest := NewTriples()
+	err := dest.Transform(tm.Transformer)
+	assert.Nil(t, err)
+
+	assert.Greater(t, len(dest.TripleSet), 10)
+}
+
 func Test_csv_parse(t *testing.T) {
 	tm := NewCsvParser("a,b,c\nd,e,f")
 

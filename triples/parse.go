@@ -35,14 +35,6 @@ func Read(filename string) (bytes.Buffer, error) {
 	return buffer, nil
 }
 
-func Parse(filename string) (*Triples, error) {
-	buffer, err := Read(filename)
-	if err != nil {
-		return nil, err
-	}
-	return parseString(buffer)
-}
-
 func RemoveComment(line string) string {
 	re := regexp.MustCompile(`(//)(?:([^"]|"[^"]*")*)$`)
 	lines := re.Split(line, 2)
@@ -89,6 +81,4 @@ func parseString(input bytes.Buffer) (*Triples, error) {
 	transformer := NewParser(data)
 	err = res.Transform(transformer)
 	return res, err
-
-	// return oldParse(data, res)
 }

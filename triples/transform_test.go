@@ -65,11 +65,10 @@ func Test_traverse(t *testing.T) {
 
 func Test_traverse_file(t *testing.T) {
 	var top Node = NewAnonymousNode()
-	tm, err := NewFileJsonParser("../data/verbs.jsonc", &top)
-	assert.Nil(t, err)
+	tm := NewFileJsonParser("../data/verbs.jsonc")
 
 	src := NewTriples()
-	err = src.Transform(tm)
+	err := src.Transform(tm.Transformer)
 	assert.Nil(t, err)
 
 	dest := NewAnonymousNode()

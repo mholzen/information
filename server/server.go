@@ -27,11 +27,13 @@ func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c 
 func GetTripleList(c echo.Context) (*triples.Triples, error) {
 	root := os.Getenv("ROOT")
 	path := filepath.Join(root, c.Param("file"))
-	all, err := triples.Parse(path)
+	tm := triples.NewFileJsonParser(path)
+	res := triples.NewTriples()
+	err := res.Transform(tm.Transformer)
 	if err != nil {
 		return nil, echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
-	return all, nil
+	return res, nil
 }
 
 func HtmlHandler(c echo.Context) error {
