@@ -2,7 +2,7 @@ package triples
 
 import "sort"
 
-func (s TripleList) Sort() {
+func (s TripleList) Sort() TripleList {
 	sort.Sort(TripleSort{s, func(i, j int) bool {
 
 		if s[i].Subject.LessThan(s[j].Subject) {
@@ -21,6 +21,7 @@ func (s TripleList) Sort() {
 
 		return s[i].Object.LessThan(s[j].Object)
 	}})
+	return s
 }
 
 type TripleSort struct {

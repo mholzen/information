@@ -3,32 +3,32 @@ package transforms
 import (
 	"strings"
 
-	"github.com/mholzen/information/triples"
+	. "github.com/mholzen/information/triples"
 )
 
-type Rows [][][]triples.Node
+type Rows [][][]Node
 
 type TableGenerator struct {
-	Transformer triples.Transformer
+	Transformer Transformer
 	Definition  TableDefinition
 	Rows        Rows
 }
 
 type TableDefinition struct {
-	Columns       [][]triples.Node
-	ColumnFilters []triples.TripleMatch
+	Columns       [][]Node
+	ColumnFilters []TripleMatch
 	// SortColumn    int // TODO: should become a function
 }
 
-func NewTableDefinition(definition *triples.Triples) TableDefinition {
+func NewTableDefinition(definition *Triples) TableDefinition {
 	columnNo := 0
 	res := TableDefinition{
-		Columns:       make([][]triples.Node, 0),
-		ColumnFilters: make([]triples.TripleMatch, 0),
+		Columns:       make([][]Node, 0),
+		ColumnFilters: make([]TripleMatch, 0),
 	}
 	for {
-		column := triples.NewTriples()
-		f := triples.NewPredicateFilter(column, triples.NewIndexNode(columnNo))
+		column := NewTriples()
+		f := NewPredicateFilter(column, NewIndexNode(columnNo))
 		err := definition.Transform(f) // TODO: why can a transform fail?
 		if err != nil {
 			panic(err)
@@ -36,28 +36,28 @@ func NewTableDefinition(definition *triples.Triples) TableDefinition {
 		if len(column.TripleSet) == 0 {
 			break
 		}
-		col := make([]triples.Node, 0)
+		col := make([]Node, 0)
 		for _, triple := range column.GetTripleList() {
 			col = append(col, triple.Object)
 		}
 		res.Columns = append(res.Columns, col)
-		res.ColumnFilters = append(res.ColumnFilters, triples.NewPredicateOrMatch(col...))
+		res.ColumnFilters = append(res.ColumnFilters, NewPredicateOrMatch(col...))
 		columnNo++
 	}
 	return res
 }
 
-func NewTableGenerator(definition *triples.Triples) *TableGenerator {
+func NewTableGenerator(definition *Triples) *TableGenerator {
 	def := NewTableDefinition(definition)
 	res := TableGenerator{
 		Definition: def,
 	}
 
-	res.Transformer = func(source *triples.Triples) error {
+	res.Transformer = func(source *Triples) error {
 		for _, triple := range source.GetTripleList() {
-			row := make([][]triples.Node, len(def.Columns))
+			row := make([][]Node, len(def.Columns))
 			for j, filter := range def.ColumnFilters {
-				cell := make([]triples.Node, 0)
+				cell := make([]Node, 0)
 				if filter(triple) {
 					cell = append(cell, triple.Object)
 				}
@@ -101,11 +101,11 @@ func (d TableDefinition) Html() string {
 	return "<tr>\n" + strings.Join(res, "\n") + "\n</tr>"
 }
 
-func NewDefaultTableDefinition(source *triples.Triples) *triples.Triples {
-	res := triples.NewTriples()
-	container := triples.NewAnonymousNode()
+func NewDefaultTableDefinition(source *Triples) *Triples {
+	res := NewTriples()
+	container := NewAnonymousNode()
 	for i, predicate := range source.GetPredicates() {
-		res.AddTriple(container, triples.NewIndexNode(i), predicate)
+		res.AddTriple(container, NewIndexNode(i), predicate)
 	}
 	return res
 }

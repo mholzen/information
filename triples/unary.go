@@ -52,3 +52,9 @@ func NewStringNodeMatch(re string) UnaryFunctionNode {
 		return NewNumberNode(0), nil
 	}
 }
+
+func NewNodeMatchAny() UnaryFunctionNode {
+	return func(node Node) (Node, error) {
+		return NewNumberNode(1), nil
+	}
+}

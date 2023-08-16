@@ -16,3 +16,21 @@ func Test_NewTriplesFromMap(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Len(t, triples.TripleSet, 3)
 }
+
+func Test_Contains(t *testing.T) {
+	tpls := NewTriples()
+	tpls.AddTriple("a", "b", 1)
+	tpls.AddTriple("d", "e", 2)
+	triple, _ := NewTriple("a", "b", 1)
+
+	assert.True(t, tpls.Contains(triple))
+}
+
+// func Test_Contains_unary(t *testing.T) {
+// 	tpls := NewTriples()
+// 	tpls.AddTriple("a", "b", 1)
+// 	tpls.AddTriple("d", "e", 2)
+// 	triple, _ := NewTriple("a", NewNodeMatchAny(), 1)
+
+// 	assert.True(t, tpls.Contains(triple))
+// }

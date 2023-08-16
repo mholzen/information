@@ -23,6 +23,26 @@ func shortString(n Node) string {
 	}
 }
 
+func NewTriple(subject, predicate, object any) (Triple, error) {
+	var err error
+	var s, p, o Node
+	s, err = NewNode(subject)
+	if err != nil {
+		return Triple{}, err
+	}
+	p, err = NewNode(predicate)
+	if err != nil {
+		return Triple{}, err
+	}
+	o, err = NewNode(object)
+	if err != nil {
+		return Triple{}, err
+	}
+
+	triple := Triple{s, p, o}
+	return triple, nil
+}
+
 type TripleList []Triple
 type TripleSet map[string]Triple
 
@@ -45,22 +65,10 @@ func (source *Triples) NewTripleFromNodes(subject Node, predicate Node, object N
 }
 
 func (source *Triples) AddTriple(subject, predicate, object any) (Triple, error) {
-	var err error
-	var s, p, o Node
-	s, err = source.NewNode(subject)
+	triple, err := NewTriple(subject, predicate, object)
 	if err != nil {
 		return Triple{}, err
 	}
-	p, err = source.NewNode(predicate)
-	if err != nil {
-		return Triple{}, err
-	}
-	o, err = source.NewNode(object)
-	if err != nil {
-		return Triple{}, err
-	}
-
-	triple := Triple{s, p, o}
 	source.Add(triple)
 	return triple, nil
 }
@@ -181,7 +189,17 @@ func (source *Triples) NewTriplesFromSlice(slice []interface{}) (TripleList, err
 }
 
 func (source *Triples) Contains(triple Triple) bool {
-	return source.TripleSet[triple.String()] == triple
+	_, ok := source.TripleSet[triple.String()]
+	return ok
+}
+
+func (source *Triples) ContainsTriples(triples *Triples) bool {
+	for _, triple := range triples.TripleSet {
+		if !source.Contains(triple) {
+			return false
+		}
+	}
+	return true
 }
 
 func (source *Triples) GetTriplesForSubject(node Node) TripleList {
@@ -197,7 +215,7 @@ func (source *Triples) GetTriplesForSubject(node Node) TripleList {
 
 func (source Triples) String() string {
 	res := ""
-	for _, triple := range source.TripleSet {
+	for _, triple := range source.GetTripleList().Sort() {
 		res += fmt.Sprintf("%s\n", triple)
 	}
 	return res
@@ -310,6 +328,14 @@ func (l TripleList) NewTriples() *Triples {
 }
 
 func (source TripleSet) String() string {
+	res := ""
+	for _, triple := range source {
+		res += fmt.Sprintf("%s\n", triple)
+	}
+	return res
+}
+
+func (source TripleList) String() string {
 	res := ""
 	for _, triple := range source {
 		res += fmt.Sprintf("%s\n", triple)

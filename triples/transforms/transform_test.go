@@ -1,8 +1,10 @@
-package triples
+package transforms
 
 import (
 	"sort"
 	"testing"
+
+	. "github.com/mholzen/information/triples"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -65,7 +67,7 @@ func Test_traverse(t *testing.T) {
 
 func Test_traverse_file(t *testing.T) {
 	var top Node = NewAnonymousNode()
-	tm := NewFileJsonParser("../data/verbs.jsonc")
+	tm := NewFileJsonParser("../../data/verbs.jsonc")
 
 	src := NewTriples()
 	err := src.Transform(tm.Transformer)

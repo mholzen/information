@@ -27,7 +27,7 @@ func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c 
 func GetTripleList(c echo.Context) (*triples.Triples, error) {
 	root := os.Getenv("ROOT")
 	path := filepath.Join(root, c.Param("file"))
-	tm := triples.NewFileJsonParser(path)
+	tm := transforms.NewFileJsonParser(path)
 	res := triples.NewTriples()
 	err := res.Transform(tm.Transformer)
 	if err != nil {
@@ -44,7 +44,7 @@ func HtmlHandler(c echo.Context) error {
 	tripleList := src.GetTripleList()
 	tripleList.Sort()
 
-	html := triples.NewHtmlTransformer(*src, tripleList, 0)
+	html := transforms.NewHtmlTransformer(*src, tripleList, 0)
 
 	data := map[string]interface{}{
 		"tripleList": tripleList,
@@ -66,14 +66,14 @@ func ObjectsHandler(c echo.Context) error {
 	}
 
 	dest2 := triples.NewAnonymousNode()
-	objectMapper := triples.NewTripleObjectTransformer(dest2, src)
-	err = src.Transform(triples.NewMap(dest, objectMapper, src))
+	objectMapper := transforms.NewTripleObjectTransformer(dest2, src)
+	err = src.Transform(transforms.NewMap(dest, objectMapper, src))
 	if err != nil {
 		return err
 	}
 
 	res := triples.NewTriples()
-	err = src.Transform(triples.NewFlatMap(dest2, triples.GetStringObjectMapper, res))
+	err = src.Transform(transforms.NewFlatMap(dest2, transforms.GetStringObjectMapper, res))
 	if err != nil {
 		return err
 	}

@@ -185,23 +185,3 @@ func NewNode(value any) (Node, error) {
 		return nil, fmt.Errorf("unsupported type: %T", value)
 	}
 }
-
-type VariableNode struct {
-	CreatedNode[uuid.UUID]
-	Excludes NodeSet
-}
-
-func NewVariableNode() VariableNode {
-	value, err := uuid.New()
-	if err != nil {
-		log.Fatal(err)
-	}
-	return VariableNode{
-		CreatedNode: NewCreatedNode(value),
-		Excludes:    NewNodeSet(),
-	}
-}
-
-func (n VariableNode) Exclude(value Node) {
-	n.Excludes.Add(value)
-}

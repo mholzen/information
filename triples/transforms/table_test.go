@@ -19,7 +19,7 @@ func Test_NewTableDefinition(t *testing.T) {
 	assert.Equal(t, 4, len(col.Columns))
 	assert.Equal(t, 2, len(col.Columns[3]))
 
-	data := triples.NewJsonParser(`[
+	data := NewJsonParser(`[
 		{"first":"marc","last":"von Holzen", "age": 52},
 		{"first":"John","last":"Doe", "age": 22},
 		{"first":"Jane","last":"Wilkenson", "age": 28}

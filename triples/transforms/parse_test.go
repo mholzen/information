@@ -1,4 +1,4 @@
-package triples
+package transforms
 
 import (
 	"testing"

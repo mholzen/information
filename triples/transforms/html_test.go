@@ -1,13 +1,15 @@
-package triples
+package transforms
 
 import (
 	"testing"
+
+	. "github.com/mholzen/information/triples"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func Test_html(t *testing.T) {
-	tm := NewFileJsonParser("../data/examples.jsonc")
+	tm := NewFileJsonParser("../../data/examples.jsonc")
 	// all, err := Parse("../data/examples.jsonc")
 	res := NewTriples()
 	err := res.Transform(tm.Transformer)

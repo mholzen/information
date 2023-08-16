@@ -1,7 +1,9 @@
-package triples
+package transforms
 
 import (
 	"fmt"
+
+	. "github.com/mholzen/information/triples"
 )
 
 type HtmlTransformer struct {
