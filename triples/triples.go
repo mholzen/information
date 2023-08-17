@@ -43,7 +43,6 @@ func NewTriple(subject, predicate, object any) (Triple, error) {
 	return triple, nil
 }
 
-type TripleList []Triple
 type TripleSet map[string]Triple
 
 type Triples struct {
@@ -56,6 +55,10 @@ func NewTriples() *Triples {
 		TripleSet: make(TripleSet),
 		Nodes:     NewNodeSet(),
 	}
+}
+
+func (source *Triples) NewNode(value interface{}) (Node, error) {
+	return NewNode(value)
 }
 
 func (source *Triples) NewTripleFromNodes(subject Node, predicate Node, object Node) Triple {

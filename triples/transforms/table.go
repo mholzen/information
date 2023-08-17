@@ -1,7 +1,6 @@
 package transforms
 
 import (
-	"log"
 	"strings"
 
 	. "github.com/mholzen/information/triples"
@@ -61,7 +60,6 @@ func NewTableGenerator(definition *Triples) *TableGenerator {
 				cell := make([]Node, 0)
 				for _, triple := range source.GetTriplesForSubject(subject) {
 					if filter(triple) {
-						log.Printf("triple %v matches filter %v", triple, filter)
 						cell = append(cell, triple.Object)
 					}
 				}

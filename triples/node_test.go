@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_node_compare(t *testing.T) {
+func Test_Compare(t *testing.T) {
 	a1, _ := NewNode("a")
 	a2, _ := NewNode("a")
 	assert.True(t, a1 == a2)
@@ -14,4 +14,12 @@ func Test_node_compare(t *testing.T) {
 	n1, _ := NewNode(1)
 	n2, _ := NewNode(1)
 	assert.True(t, n1 == n2)
+}
+
+func Test_LessThan(t *testing.T) {
+	ten, err := NewNode(10)
+	assert.Nil(t, err)
+	two, err := NewNode(2)
+	assert.Nil(t, err)
+	assert.True(t, two.LessThan(ten))
 }
