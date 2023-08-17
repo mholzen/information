@@ -213,14 +213,6 @@ func (source *Triples) GetTriplesForSubject(node Node) TripleList {
 	return res
 }
 
-func (source Triples) String() string {
-	res := ""
-	for _, triple := range source.GetTripleList().Sort() {
-		res += fmt.Sprintf("%s\n", triple)
-	}
-	return res
-}
-
 func (source *Triples) GetTriplesForObject(node Node, triples *Triples) *Triples {
 	if triples == nil {
 		triples = NewTriples()
@@ -238,15 +230,38 @@ func (source *Triples) GetTriplesForObject(node Node, triples *Triples) *Triples
 	return triples
 }
 
-func (source *Triples) GetTriples(subject, predicate, object Node) *Triples {
-	return nil
+func (source *Triples) GetSubjects() NodeSet {
+	res := NewNodeSet()
+	for _, triple := range source.TripleSet {
+		res.Add(triple.Subject)
+	}
+	return res
 }
 
-func (source *Triples) GetPredicates() NodeList {
-	set := make(map[string]Node)
+func (source *Triples) GetPredicates() NodeSet {
+	res := NewNodeSet()
 	for _, triple := range source.TripleSet {
-		set[triple.Predicate.String()] = triple.Predicate
+		res.Add(triple.Predicate)
 	}
+	return res
+}
+
+func (source *Triples) GetSubjectList() NodeList {
+	set := source.GetSubjects()
+	keys := make([]string, 0)
+	for key := range set {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	res := make(NodeList, 0)
+	for _, key := range keys {
+		res = append(res, set[key])
+	}
+	return res
+}
+
+func (source *Triples) GetPredicateList() NodeList { // TODO: refactor to avoid boilerplate with GetSubjectList
+	set := source.GetPredicates()
 	keys := make([]string, 0)
 	for key := range set {
 		keys = append(keys, key)
@@ -317,6 +332,14 @@ func (source *Triples) Compute() error { // TODO: convert to a Triples mapper
 		}
 	}
 	return nil
+}
+
+func (source Triples) String() string {
+	res := ""
+	for _, triple := range source.GetTripleList().Sort() {
+		res += fmt.Sprintf("%s\n", triple)
+	}
+	return res
 }
 
 func (l TripleList) NewTriples() *Triples {

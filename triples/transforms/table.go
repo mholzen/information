@@ -1,6 +1,7 @@
 package transforms
 
 import (
+	"log"
 	"strings"
 
 	. "github.com/mholzen/information/triples"
@@ -54,12 +55,15 @@ func NewTableGenerator(definition *Triples) *TableGenerator {
 	}
 
 	res.Transformer = func(source *Triples) error {
-		for _, triple := range source.GetTripleList() {
+		for _, subject := range source.GetSubjectList() {
 			row := make([][]Node, len(def.Columns))
 			for j, filter := range def.ColumnFilters {
 				cell := make([]Node, 0)
-				if filter(triple) {
-					cell = append(cell, triple.Object)
+				for _, triple := range source.GetTriplesForSubject(subject) {
+					if filter(triple) {
+						log.Printf("triple %v matches filter %v", triple, filter)
+						cell = append(cell, triple.Object)
+					}
 				}
 				row[j] = cell
 			}
@@ -104,7 +108,7 @@ func (d TableDefinition) Html() string {
 func NewDefaultTableDefinition(source *Triples) *Triples {
 	res := NewTriples()
 	container := NewAnonymousNode()
-	for i, predicate := range source.GetPredicates() {
+	for i, predicate := range source.GetPredicateList() {
 		res.AddTriple(container, NewIndexNode(i), predicate)
 	}
 	return res

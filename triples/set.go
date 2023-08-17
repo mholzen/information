@@ -1,6 +1,6 @@
 package triples
 
-type NodeSet map[string]*Node
+type NodeSet map[string]Node
 
 func NewNodeSet() NodeSet {
 	return make(NodeSet)
@@ -10,13 +10,13 @@ func (set NodeSet) Add(n Node) Node {
 	if _, ok := set[n.String()]; ok {
 		return n
 	} else {
-		set[n.String()] = &n
+		set[n.String()] = n
 		return n
 	}
 }
 
-func (set NodeSet) Get(n Node) *Node {
-	if v, ok := set[n.String()]; ok {
+func (set NodeSet) Get(n string) Node {
+	if v, ok := set[n]; ok {
 		return v
 	} else {
 		return nil
@@ -40,7 +40,7 @@ func (set NodeSet) ContainsOrAdd(node Node) bool {
 func (set NodeSet) GetNodeList() NodeList {
 	res := make(NodeList, 0)
 	for _, node := range set {
-		res = append(res, *node)
+		res = append(res, node)
 	}
 	return res
 }

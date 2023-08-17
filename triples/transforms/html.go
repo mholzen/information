@@ -33,10 +33,8 @@ func (html HtmlTransformer) HtmlObject(object Node) string {
 		tripleList := html.Triples.GetTriplesForSubject(typedObject)
 		res = NewHtmlTransformer(html.Triples, tripleList, html.Depth-1).String()
 
-	case StringNode, CreatedNode[FloatType], IndexNode:
-		res = fmt.Sprintf("<p class=string>%s</p>", typedObject.String())
 	default:
-		res = "<unknown>"
+		res = fmt.Sprintf("<p class=string>%s</p>", typedObject.String())
 	}
 	return res
 

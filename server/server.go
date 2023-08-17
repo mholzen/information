@@ -60,7 +60,7 @@ func ObjectsHandler(c echo.Context) error {
 	}
 
 	dest := triples.NewAnonymousNode()
-	err = src.Transform(triples.NewTraverse(dest, triples.AlwaysTripleMatch, dest, src))
+	err = src.Transform(transforms.NewTraverse(dest, transforms.AlwaysTripleMatch, dest, src))
 	if err != nil {
 		return err
 	}
