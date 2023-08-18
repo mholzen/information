@@ -81,7 +81,6 @@ func ObjectsHandler(c echo.Context) error {
 	answer := res.GetTripleList().GetObjectStrings()
 	sort.Strings(answer)
 	return c.String(http.StatusOK, strings.Join(answer, "\n"))
-
 }
 
 func NodeLinkHandler(c echo.Context) error {

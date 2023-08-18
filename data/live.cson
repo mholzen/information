@@ -1,0 +1,22 @@
+live:
+    organize:
+        pre: "compare"
+        post: "delegate"
+    maintain:
+        pre: "differentiate"
+        post: "remediate"
+    respond:
+        pre: "detect"
+        post: "do"
+    metabolize:
+        pre: "break"
+        post: "stock"
+    grow:
+        pre: "need"
+        post: "reach"
+    reproduce:
+        pre: "age"
+        post: "copy"
+    adapt:
+        pre: "fail"
+        post: "learn"
