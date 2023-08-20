@@ -32,7 +32,7 @@ func main() {
 		})
 	}
 
-	e.GET("/files/:file", handlers.StatsHandler)
+	e.GET("/stats/:file", handlers.StatsHandler)
 	e.GET("/triples/:file", handlers.TriplesHandler)
 	e.GET("/html/:file", handlers.HtmlHandler)
 	e.GET("/objects/:file", handlers.ObjectsHandler)
