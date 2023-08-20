@@ -1,6 +1,7 @@
 package transforms
 
 import (
+	"strings"
 	"testing"
 
 	. "github.com/mholzen/information/triples"
@@ -54,7 +55,7 @@ func Test_NewFileJsonParser(t *testing.T) {
 }
 
 func Test_csv_parse(t *testing.T) {
-	tm := NewCsvParser("a,b,c\nd,e,f")
+	tm := NewCsvParser(strings.NewReader("a,b,c\nd,e,f"))
 
 	src := NewTriples()
 	err := src.Transform(tm.Transformer)

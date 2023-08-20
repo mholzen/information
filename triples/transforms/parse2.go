@@ -6,6 +6,8 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"io"
+	"log"
 	"os"
 	"regexp"
 	"strings"
@@ -100,11 +102,29 @@ func DecodeJson(input string) (interface{}, error) {
 	return data, err
 }
 
+func NewParserFromContentType(mimeType string, data io.Reader) (*TransformerWithResult, error) {
+	switch {
+	case strings.HasPrefix(mimeType, "application/json"), strings.HasPrefix(mimeType, "text/plain"):
+		var buffer bytes.Buffer
+		_, err := buffer.ReadFrom(data)
+		if err != nil {
+			return nil, err
+		}
+		return NewJsonParser(buffer.String()), nil
+
+	case strings.HasPrefix(mimeType, "text/csv"):
+		return NewCsvParser(data), nil
+	default:
+		return nil, fmt.Errorf("unsupported content-type: %s", mimeType)
+	}
+}
+
 func NewJsonParser(json string) *TransformerWithResult {
 	transformer := TransformerWithResult{}
 	transformer.Transformer = func(target *Triples) error {
 		data, err := DecodeJson(json)
 		if err != nil {
+			log.Printf("Error decoding '%s' %s", json, err)
 			return err
 		}
 		parser := Parser{}
@@ -116,10 +136,10 @@ func NewJsonParser(json string) *TransformerWithResult {
 	return &transformer
 }
 
-func NewCsvParser(data string) *TransformerWithResult {
+func NewCsvParser(data io.Reader) *TransformerWithResult {
 	transformer := TransformerWithResult{}
 	transformer.Transformer = func(target *Triples) error {
-		array, err := csv.NewReader(strings.NewReader(data)).ReadAll()
+		array, err := csv.NewReader(data).ReadAll()
 		if err != nil {
 			return err
 		}
@@ -153,6 +173,30 @@ func NewFileJsonParser(filename string) *TransformerWithResult {
 		return err
 	}
 	return &transformer
+}
+
+func ReadAndStripComments(filename string) (io.Reader, error) {
+	var buffer bytes.Buffer
+
+	// read the file
+	file, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	// remove comments
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		// remove comments from line
+		line = RemoveComment(line)
+
+		buffer.WriteString(line + "\n")
+	}
+
+	return bytes.NewReader(buffer.Bytes()), nil
 }
 
 func Read(filename string) (bytes.Buffer, error) {
