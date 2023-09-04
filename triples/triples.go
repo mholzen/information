@@ -205,18 +205,6 @@ func (source *Triples) ContainsTriples(triples *Triples) bool {
 	return true
 }
 
-func (source *Triples) GetTripleListForSubject(node Node) TripleList {
-	return source.GetTriplesForSubject(node).GetTripleList()
-	// res := make(TripleList, 0)
-	// for _, triple := range source.TripleSet {
-	// 	if triple.Subject.String() == node.String() {
-	// 		res = append(res, triple)
-	// 	}
-	// }
-	// res.Sort()
-	// return res
-}
-
 func (source *Triples) GetTriplesForSubject(subject Node) *Triples {
 	res := NewTriples()
 	for _, triple := range source.TripleSet {
@@ -237,6 +225,10 @@ func (source *Triples) GetTriplesForSubjects(subjects NodeSet) *Triples {
 	return res
 }
 
+func (source *Triples) GetTripleListForSubject(node Node) TripleList {
+	return source.GetTriplesForSubject(node).GetTripleList()
+}
+
 func (source *Triples) GetTriplesForPredicate(predicate Node) *Triples {
 	res := NewTriples()
 	for _, triple := range source.TripleSet {
@@ -245,24 +237,16 @@ func (source *Triples) GetTriplesForPredicate(predicate Node) *Triples {
 		}
 	}
 	return res
-	// TODO: test and refactor others
 }
 
-func (source *Triples) GetTriplesForObject(node Node, triples *Triples) *Triples {
-	if triples == nil {
-		triples = NewTriples()
-	}
-	if triples.Nodes.ContainsOrAdd(node) {
-		return triples
-	}
-
+func (source *Triples) GetTriplesForObject(object Node) *Triples {
+	res := NewTriples()
 	for _, triple := range source.TripleSet {
-		if triple.Object != nil && triple.Object.String() == node.String() {
-			triples.Add(triple)
+		if triple.Object == object {
+			res.Add(triple)
 		}
 	}
-
-	return triples
+	return res
 }
 
 func (source *Triples) GetSubjects() NodeSet {
@@ -273,18 +257,18 @@ func (source *Triples) GetSubjects() NodeSet {
 	return res
 }
 
-func (source *Triples) GetObjects() NodeSet {
-	res := NewNodeSet()
-	for _, triple := range source.TripleSet {
-		res.Add(triple.Object)
-	}
-	return res
-}
-
 func (source *Triples) GetPredicates() NodeSet {
 	res := NewNodeSet()
 	for _, triple := range source.TripleSet {
 		res.Add(triple.Predicate)
+	}
+	return res
+}
+
+func (source *Triples) GetObjects() NodeSet {
+	res := NewNodeSet()
+	for _, triple := range source.TripleSet {
+		res.Add(triple.Object)
 	}
 	return res
 }
@@ -317,64 +301,12 @@ func (source *Triples) GetPredicateList() NodeList { // TODO: refactor to avoid 
 	return res
 }
 
-func (source *Triples) AddReachableTriples(node Node, triples *Triples) *Triples {
-	if triples == nil {
-		triples = NewTriples()
-	}
-	if triples.Nodes.ContainsOrAdd(node) {
-		return triples
-	}
-
-	for _, triple := range source.TripleSet {
-		if triple.Subject.String() == node.String() ||
-			triple.Predicate.String() == node.String() ||
-			(triple.Object != nil && triple.Object.String() == node.String()) {
-
-			if _, ok := triple.Subject.(AnonymousNode); ok {
-				// log.Printf("found subject nil node: %+v", n)
-				source.AddReachableTriples(triple.Subject, triples)
-				if triple.Object != nil {
-					source.AddReachableTriples(triple.Object, triples)
-				}
-			}
-			if _, ok := triple.Object.(AnonymousNode); ok {
-				// log.Printf("found object nil node: %+v", n)
-				source.AddReachableTriples(triple.Subject, triples)
-				if triple.Object != nil {
-					source.AddReachableTriples(triple.Object, triples)
-				}
-			}
-			triples.Add(triple)
-		}
-	}
-
-	return triples
-}
-
 func (source *Triples) GetTripleList() TripleList {
 	tripleList := make(TripleList, 0)
 	for _, triple := range source.TripleSet {
 		tripleList = append(tripleList, triple)
 	}
 	return tripleList
-}
-
-func (source *Triples) Compute() error { // TODO: convert to a Triples mapper
-	// generate new triples based on predicates that are functions
-	for _, triple := range source.TripleSet {
-		if p, ok := triple.Predicate.(UnaryFunctionNode); ok {
-			// find triples describing this node
-
-			object, err := p(triple.Object)
-			if err != nil {
-				return err
-			}
-			predicate := triple.Predicate.String()
-
-			source.NewTripleFromNodes(triple.Subject, NewStringNode(predicate), object)
-		}
-	}
-	return nil
 }
 
 func (source Triples) String() string {

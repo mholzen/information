@@ -1,5 +1,7 @@
 package triples
 
+import "sort"
+
 type NodeSet map[string]Node
 
 func NewNodeSet() NodeSet {
@@ -45,14 +47,13 @@ func (set NodeSet) GetNodeList() NodeList {
 	return res
 }
 
-// func (set NodeSet) GetVariableList() VariableList {
-// 	res := make(VariableList, 0)
-// 	for _, node := range set {
-// 		if variable, ok := (*node).(VariableNode); ok {
-// 			res = append(res, variable)
-// 		}
-// 	}
-// 	return res
-// }
+func (set NodeSet) GetSortedNodeList() NodeList {
+	nodes := set.GetNodeList()
+	sort.Slice(nodes, func(i, j int) bool {
+		return nodes[i].LessThan(nodes[j])
+	})
+
+	return nodes
+}
 
 type NodeList []Node
