@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func Test_NewTriplesFromMap(t *testing.T) {
@@ -13,7 +14,7 @@ func Test_NewTriplesFromMap(t *testing.T) {
 		"last":  "von Holzen",
 		"age":   50,
 	})
-	assert.Nil(t, err)
+	require.Nil(t, err)
 	assert.Len(t, triples.TripleSet, 3)
 }
 
@@ -24,6 +25,14 @@ func Test_Contains(t *testing.T) {
 	triple, _ := NewTriple("a", "b", 1)
 
 	assert.True(t, tpls.Contains(triple))
+	assert.Contains(t, tpls.TripleSet, triple.String())
+
+	t1 := NewTriples()
+	shouldContain, err := NewTriple(NewNumberNode(2), "square", NewNumberNode(4))
+	require.Nil(t, err)
+	t1.Add(shouldContain)
+	assert.Contains(t, t1.TripleSet, shouldContain.String())
+
 }
 
 // func Test_Contains_unary(t *testing.T) {

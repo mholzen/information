@@ -58,7 +58,7 @@ func NewTableGenerator(definition *Triples) *TableGenerator {
 			row := make([][]Node, len(def.Columns))
 			for j, filter := range def.ColumnFilters {
 				cell := make([]Node, 0)
-				for _, triple := range source.GetTriplesForSubject(subject) {
+				for _, triple := range source.GetTripleListForSubject(subject) {
 					if filter(triple) {
 						cell = append(cell, triple.Object)
 					}

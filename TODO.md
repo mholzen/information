@@ -1,11 +1,18 @@
 # TODO
 
+- require.Nil(t, err) doesn't actually stop the test
+
+
 - edit files to express relationships
     - in CSV
         - [x] parse a CSV file NewCSVParser
             - a definition could define each column using a predicate
         - [ ] generate a table from a query, to edit it, to parse it
-          - [ ] can a column definition have multiple predicates? because that's the implication of defining it using a graph
+          - [x] a column definition can have multiple predicates
+          - [ ] a query should select subjects
+            - [ ] query the nodes that represents lines from a CSV
+              - [ ] load a csv in a test harness
+              - [ ] change the query from a Transformer to a Mapper
       - edit a table in html, save to CSV, support lists in cells, hierarchies as rows, columns that span hiearchies
 
     - in JSON

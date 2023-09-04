@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func Test_Compare(t *testing.T) {
@@ -18,8 +19,14 @@ func Test_Compare(t *testing.T) {
 
 func Test_LessThan(t *testing.T) {
 	ten, err := NewNode(10)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 	two, err := NewNode(2)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 	assert.True(t, two.LessThan(ten))
+}
+
+func Test_unary_function_should_be_a_node(t *testing.T) {
+	s := NewNodeSet()
+	s.Add(SquareNode)
+	assert.True(t, s.Contains(SquareNode))
 }

@@ -22,14 +22,9 @@ func NewPredicateTripleMatch(predicate Node) TripleMatch {
 	}
 }
 
-func NewObjectTripleMatch(nodeFn UnaryFunctionNode) TripleMatch {
+func NewObjectTripleMatch(object Node) TripleMatch {
 	return func(triple Triple) bool {
-		value, err := nodeFn(triple.Object)
-		if err != nil {
-			return false
-		}
-
-		return int(value.(NumberNode).Value) != 0
+		return triple.Object == object
 	}
 }
 
@@ -41,6 +36,17 @@ func NewOrMatch(matches ...TripleMatch) TripleMatch {
 			}
 		}
 		return false
+	}
+}
+
+func And(matches ...TripleMatch) TripleMatch {
+	return func(triple Triple) bool {
+		for _, match := range matches {
+			if !match(triple) {
+				return false
+			}
+		}
+		return true
 	}
 }
 
@@ -61,7 +67,11 @@ func NewPredicateOrMatch(predicates ...Node) TripleMatch {
 	}
 }
 
-func NewTripleFilter(destination *Triples, filter TripleMatch) Transformer {
+func NewPredicateFilter(destination *Triples, predicate Node) Transformer {
+	return NewFilterTransformer(destination, NewPredicateTripleMatch(predicate))
+}
+
+func NewFilterTransformer(destination *Triples, filter TripleMatch) Transformer {
 	if destination == nil {
 		destination = NewTriples()
 	}
@@ -75,6 +85,30 @@ func NewTripleFilter(destination *Triples, filter TripleMatch) Transformer {
 	}
 }
 
-func NewPredicateFilter(destination *Triples, predicate Node) Transformer {
-	return NewTripleFilter(destination, NewPredicateTripleMatch(predicate))
+func NewFilterMapper(filter TripleFMatch) Mapper {
+	return func(source *Triples) (*Triples, error) {
+		res := NewTriples()
+		for _, triple := range source.TripleSet {
+			f, err := filter(triple)
+			if err != nil {
+				return nil, err
+			}
+			if f {
+				res.Add(triple)
+			}
+		}
+		return res, nil
+	}
+}
+
+func Filter(filter TripleMatch) Mapper {
+	return func(source *Triples) (*Triples, error) {
+		res := NewTriples()
+		for _, triple := range source.TripleSet {
+			if filter(triple) {
+				res.Add(triple)
+			}
+		}
+		return res, nil
+	}
 }

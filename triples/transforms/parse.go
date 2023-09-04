@@ -146,6 +146,7 @@ func NewCsvParser(data io.Reader) *TransformerWithResult {
 		parser := Parser{}
 		parser.Triples = target
 		res, err := parser.Parse(array)
+		target.AddTriple(res, "source", "CsvParser")
 		transformer.Result = &res
 		return err
 	}

@@ -121,7 +121,15 @@ func (nodes CreatedComparableNodes[T]) NewNode(value T) CreatedComparableNode[T]
 	}
 }
 
-type AnonymousNode = CreatedNode[uuid.UUID]
+type AnonymousNode CreatedNode[uuid.UUID]
+
+func (n AnonymousNode) String() string {
+	return CreatedNode[uuid.UUID](n).String()
+}
+
+func (n AnonymousNode) LessThan(other Node) bool {
+	return CreatedNode[uuid.UUID](n).LessThan(other)
+}
 
 // anonumous nodes need to be compared using their creation time
 
@@ -130,7 +138,7 @@ func NewAnonymousNode() AnonymousNode {
 	if err != nil {
 		log.Fatal(err)
 	}
-	return NewCreatedNode(value)
+	return AnonymousNode(NewCreatedNode(value))
 }
 
 type Index int

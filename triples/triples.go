@@ -205,15 +205,47 @@ func (source *Triples) ContainsTriples(triples *Triples) bool {
 	return true
 }
 
-func (source *Triples) GetTriplesForSubject(node Node) TripleList {
-	res := make(TripleList, 0)
+func (source *Triples) GetTripleListForSubject(node Node) TripleList {
+	return source.GetTriplesForSubject(node).GetTripleList()
+	// res := make(TripleList, 0)
+	// for _, triple := range source.TripleSet {
+	// 	if triple.Subject.String() == node.String() {
+	// 		res = append(res, triple)
+	// 	}
+	// }
+	// res.Sort()
+	// return res
+}
+
+func (source *Triples) GetTriplesForSubject(subject Node) *Triples {
+	res := NewTriples()
 	for _, triple := range source.TripleSet {
-		if triple.Subject.String() == node.String() {
-			res = append(res, triple)
+		if triple.Subject == subject {
+			res.Add(triple)
 		}
 	}
-	res.Sort()
 	return res
+}
+
+func (source *Triples) GetTriplesForSubjects(subjects NodeSet) *Triples {
+	res := NewTriples()
+	for _, triple := range source.TripleSet {
+		if subjects.Contains(triple.Subject) {
+			res.Add(triple)
+		}
+	}
+	return res
+}
+
+func (source *Triples) GetTriplesForPredicate(predicate Node) *Triples {
+	res := NewTriples()
+	for _, triple := range source.TripleSet {
+		if triple.Predicate == predicate {
+			res.Add(triple)
+		}
+	}
+	return res
+	// TODO: test and refactor others
 }
 
 func (source *Triples) GetTriplesForObject(node Node, triples *Triples) *Triples {
@@ -237,6 +269,14 @@ func (source *Triples) GetSubjects() NodeSet {
 	res := NewNodeSet()
 	for _, triple := range source.TripleSet {
 		res.Add(triple.Subject)
+	}
+	return res
+}
+
+func (source *Triples) GetObjects() NodeSet {
+	res := NewNodeSet()
+	for _, triple := range source.TripleSet {
+		res.Add(triple.Object)
 	}
 	return res
 }
