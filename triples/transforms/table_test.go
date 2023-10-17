@@ -5,6 +5,7 @@ import (
 
 	"github.com/mholzen/information/triples"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func Test_NewTableDefinition(t *testing.T) {
@@ -23,11 +24,11 @@ func Test_NewTableDefinition(t *testing.T) {
 		{"first":"John","last":"Doe", "age": 22},
 		{"first":"Jane","last":"Wilkenson", "age": 28}
 		]`)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	table := NewTableGenerator(def)
 	err = src.Transform(table.Transformer)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 	assert.Equal(t, 4, len(table.Rows))
 	assert.Equal(t, 4, len(table.Rows[0]))
 }

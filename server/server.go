@@ -32,6 +32,8 @@ func main() {
 		})
 	}
 
+	e.Static("/static", "public")
+
 	e.GET("/stats/:file", handlers.StatsHandler)
 	e.GET("/triples/:file", handlers.TriplesHandler)
 	e.GET("/html/:file", handlers.HtmlHandler)
@@ -39,8 +41,12 @@ func main() {
 	e.GET("/nodelink/:file", handlers.NodeLinkHandler)
 	e.GET("/graph/:file", handlers.GraphHandler)
 	e.GET("/table/:file", handlers.TableHandler)
+	e.GET("/files/:file", handlers.FilesPostfixHandler)
 
-	e.Static("/static", "public")
+	e.GET("/", func(c echo.Context) error {
+		return c.Redirect(http.StatusFound, "/files/data/index.md/content/html")
+	})
+
 	renderer := &TemplateRenderer{
 		templates: template.Must(template.ParseGlob("public/*.html")),
 	}

@@ -8,6 +8,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func Test_File(t *testing.T) {
@@ -15,7 +16,7 @@ func Test_File(t *testing.T) {
 	os.Setenv("ROOT", "../")
 
 	req, err := http.NewRequest(http.MethodGet, "/stats/data/object.jsonc", nil)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)

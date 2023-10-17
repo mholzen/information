@@ -5,6 +5,7 @@ import (
 
 	. "github.com/mholzen/information/triples"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func Test_replace(t *testing.T) {
@@ -15,7 +16,7 @@ func Test_replace(t *testing.T) {
 	data.AddTriple(x, "h", "i")
 	replace := NewReplaceMapper(NewStringNode("a"), NewStringNode("A"))
 	res, err := data.Map(replace)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	assert.True(t, res.Contains(Triple{
 		Subject:   NewStringNode("A"),
@@ -25,7 +26,7 @@ func Test_replace(t *testing.T) {
 
 	replace = NewReplaceMapper(x, NewStringNode("X"))
 	res, err = data.Map(replace)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	assert.True(t, res.Contains(Triple{
 		Subject:   NewStringNode("X"),

@@ -5,6 +5,7 @@ import (
 
 	. "github.com/mholzen/information/triples"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func Test_References(t *testing.T) {
@@ -16,7 +17,7 @@ func Test_References(t *testing.T) {
 	tpls.AddTripleReference(tpl)
 
 	res, err := tpls.Map(NewReferences())
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	assert.Len(t, res.TripleSet, 2)
 

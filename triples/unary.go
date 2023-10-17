@@ -10,8 +10,8 @@ import (
 type UnaryFunctionNode UnaryOperator
 
 // things you can do with a function:
-// - evaluate it
-// - result
+// - evaluate its output
+// - view its code
 // - time it took to run
 // - memory it used
 // - number of instructions
@@ -42,6 +42,19 @@ func Square(node Node) (Node, error) {
 
 var SquareNode UnaryFunctionNode = UnaryFunctionNode(Square)
 
+var TypeNode UnaryFunctionNode = UnaryFunctionNode(func(node Node) (Node, error) {
+	t := reflect.TypeOf(node).String()
+	return NewStringNode(t), nil
+})
+
+var LengthFunction UnaryFunctionNode = UnaryFunctionNode(func(node Node) (Node, error) {
+	if n, ok := node.(StringNode); ok {
+		return NewIndexNode(len(n.String())), nil
+	} else {
+		return nil, fmt.Errorf("expected StringNode, got %T", node)
+	}
+})
+
 func NewStringNodeMatch(re string) UnaryFunctionNode {
 	return func(node Node) (Node, error) {
 		if node, ok := node.(StringNode); ok {
@@ -57,4 +70,49 @@ func NewNodeMatchAny() UnaryFunctionNode {
 	return func(node Node) (Node, error) {
 		return NewNumberNode(1), nil
 	}
+}
+
+func NewNodeMatchAnyNumber() UnaryFunctionNode {
+	return func(node Node) (Node, error) {
+		if _, ok := node.(NumberNode); ok {
+			return NewNumberNode(1), nil
+		}
+		return NewNumberNode(0), nil
+	}
+}
+
+func NewNodeMatchAnyIndex() UnaryFunctionNode {
+	return func(node Node) (Node, error) {
+		if _, ok := node.(IndexNode); ok {
+			return NewNumberNode(1), nil
+		}
+		return NewNumberNode(0), nil
+	}
+}
+
+// This should be a UnaryTripleFunction
+type TripleFunctionNode func(Triple) (Node, error)
+
+func (n TripleFunctionNode) String() string {
+	return runtime.FuncForPC(reflect.ValueOf(n).Pointer()).Name()
+}
+
+func (n TripleFunctionNode) LessThan(other Node) bool {
+	switch other := other.(type) {
+	case TripleFunctionNode:
+		return n.String() < other.String()
+	default:
+		// TODO: variable ordering
+		return false
+	}
+}
+
+func GetUnaryNodes(list NodeList) []UnaryFunctionNode {
+	res := make([]UnaryFunctionNode, 0)
+	for _, node := range list {
+		if node, ok := node.(UnaryFunctionNode); ok {
+			res = append(res, node)
+		}
+	}
+	return res
 }

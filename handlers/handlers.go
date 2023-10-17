@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
-	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/mholzen/information/triples"
@@ -25,12 +24,8 @@ func Extension(path string) string {
 	return filepath.Ext(path)
 }
 
-func Content(path string) (io.Reader, error) {
-	return transforms.ReadAndStripComments(path)
-}
-
 func Triples(url string) (*triples.Triples, error) {
-	data, err := Content(Filepath(url))
+	data, err := transforms.ReadAndStripComments(url)
 	if err != nil {
 		return nil, err
 	}
@@ -59,11 +54,6 @@ func Triples(url string) (*triples.Triples, error) {
 	return res, nil
 }
 
-func FilesHandler(c echo.Context) error {
-	Content(Filepath(c.Param("file")))
-	return nil
-}
-
 func TriplesHandler(c echo.Context) error {
 	src, err := Triples(c.Param("file"))
 	if err != nil {
@@ -73,60 +63,6 @@ func TriplesHandler(c echo.Context) error {
 	tripleList.Sort()
 
 	return c.JSON(http.StatusOK, tripleList)
-}
-
-func StatsHandler(c echo.Context) error {
-	path := Filepath(c.Param("file"))
-	stat, err := os.Stat(path)
-	if os.IsNotExist(err) {
-		return echo.NewHTTPError(http.StatusNotFound, err.Error())
-	}
-	if err != nil {
-		return err
-	}
-	if stat.IsDir() {
-		entries, err := os.ReadDir(path)
-		if err != nil {
-			return err
-		}
-		list := []FileInfo{}
-
-		for _, entry := range entries {
-
-			stat, err := os.Stat(filepath.Join(path, entry.Name()))
-
-			f := FileInfo{
-				Name:    entry.Name(),
-				Size:    stat.Size(),
-				Mode:    stat.Mode(),
-				ModTime: stat.ModTime(),
-				IsDir:   entry.IsDir(),
-				Error:   err,
-			}
-			list = append(list, f)
-		}
-
-		return c.JSON(http.StatusOK, list)
-	} else {
-		f := FileInfo{
-			Name:    stat.Name(),
-			Size:    stat.Size(),
-			Mode:    stat.Mode(),
-			ModTime: stat.ModTime(),
-			IsDir:   stat.IsDir(),
-		}
-
-		return c.JSON(http.StatusOK, f)
-	}
-}
-
-type FileInfo struct {
-	Name    string
-	Size    int64
-	Mode    os.FileMode
-	ModTime time.Time
-	IsDir   bool
-	Error   error
 }
 
 func HtmlHandler(c echo.Context) error {

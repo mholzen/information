@@ -146,6 +146,7 @@ func NewCsvParser(data io.Reader) *TransformerWithResult {
 		parser := Parser{}
 		parser.Triples = target
 		res, err := parser.Parse(array)
+		target.AddTriple(res, "source", "CsvParser")
 		transformer.Result = &res
 		return err
 	}
@@ -199,6 +200,7 @@ func ReadAndStripComments(filename string) (io.Reader, error) {
 	return bytes.NewReader(buffer.Bytes()), nil
 }
 
+// TODO: refactor with above
 func Read(filename string) (bytes.Buffer, error) {
 	var buffer bytes.Buffer
 

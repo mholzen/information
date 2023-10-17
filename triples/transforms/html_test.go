@@ -6,6 +6,7 @@ import (
 	. "github.com/mholzen/information/triples"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func Test_html(t *testing.T) {
@@ -13,7 +14,7 @@ func Test_html(t *testing.T) {
 	// all, err := Parse("../data/examples.jsonc")
 	res := NewTriples()
 	err := res.Transform(tm.Transformer)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	html := NewHtmlTransformer(*res, res.GetTripleList(), 4)
 	assert.Greater(t, len(html.String()), 1000)

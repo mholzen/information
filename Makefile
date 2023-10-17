@@ -4,7 +4,7 @@ run:
 	env ROOT=$(cwd) go run server/server.go
 
 open:
-	open http://localhost:1323/html/data/examples.jsonc
+	open http://localhost:1323/
 
 test:
-	go test ./... | grcat ~/.grc/go.conf
+	env ROOT=$(cwd) go test ./... | grcat ~/.grc/go.conf

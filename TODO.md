@@ -5,10 +5,17 @@
         - [x] parse a CSV file NewCSVParser
             - a definition could define each column using a predicate
         - [ ] generate a table from a query, to edit it, to parse it
-          - [ ] can a column definition have multiple predicates? because that's the implication of defining it using a graph
+          - [x] a column definition can have multiple predicates
+          - [ ] a query should select subjects
+            - [ ] query the nodes that represents lines from a CSV
+              - [ ] load a csv in a test harness
+              - [ ] change the query from a Transformer to a Mapper
       - edit a table in html, save to CSV, support lists in cells, hierarchies as rows, columns that span hiearchies
 
     - in JSON
+
+- write simple code
+  - [ ] simplifiy New*Node
 
 - express computations (eg. mathematical, search, generation) in triples
     - [x] express mathematical unary function as a node, use it as a predicate with the argument is the object

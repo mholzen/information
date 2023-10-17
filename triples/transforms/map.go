@@ -5,7 +5,7 @@ import . "github.com/mholzen/information/triples"
 func NewMap(start Node, tripleTransform TripleTransform, output *Triples) Transformer {
 
 	return func(source *Triples) error {
-		triples := source.GetTriplesForSubject(start)
+		triples := source.GetTripleListForSubject(start)
 		triples.Sort()
 		for i, triple := range triples {
 			triple, err := tripleTransform(source, triple, i, start)
@@ -23,7 +23,7 @@ func NewTripleObjectTransformer(target Node, dest *Triples) TripleTransform {
 
 		if _, ok := triple.Object.(AnonymousNode); ok {
 			var objectNode Node
-			l := set.GetTriplesForSubject(triple.Object)
+			l := set.GetTripleListForSubject(triple.Object)
 			for _, t := range l {
 				if t.Predicate == Object {
 					objectNode = t.Object
@@ -43,7 +43,7 @@ func NewFlatMap(start Node, mapper TripleMapper, output *Triples) Transformer {
 
 	return func(source *Triples) error {
 
-		triples := source.GetTriplesForSubject(start)
+		triples := source.GetTripleListForSubject(start)
 		triples.Sort()
 		for _, triple := range triples {
 			triples, err := mapper(triple)

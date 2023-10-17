@@ -7,20 +7,21 @@ import (
 	. "github.com/mholzen/information/triples"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func Test_filter(t *testing.T) {
 	data, err := DecodeJson(`{"first":"marc","last":"von Holzen"}`)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	src := NewTriples()
 	err = src.Transform(NewParser(data))
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	fn := NewStringNodeMatch("von.*")
 	res := NewTriples()
 	err = src.Transform(NewObjectFilter(res, fn))
-	assert.Nil(t, err)
+	require.Nil(t, err)
 	assert.Len(t, res.TripleSet, 1)
 }
 
@@ -29,13 +30,13 @@ func Test_predicate_filter(t *testing.T) {
 
 	src := NewTriples()
 	err := src.Transform(data.Transformer)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	res := NewTriples()
 	first, _ := NewNode("first") // Can avoid using a function that returns an error?
-	f := NewTripleFilter(res, NewPredicateTripleMatch(first))
+	f := NewFilterTransformer(res, NewPredicateTripleMatch(first))
 	err = src.Transform(f)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	assert.Len(t, res.TripleSet, 1)
 }
@@ -45,23 +46,23 @@ func Test_traverse(t *testing.T) {
 
 	src := NewTriples()
 	err := src.Transform(tm.Transformer)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 	assert.Len(t, src.TripleSet, 4)
-	assert.Len(t, src.GetTriplesForSubject(*tm.Result), 2)
+	assert.Len(t, src.GetTripleListForSubject(*tm.Result), 2)
 
 	res := NewTriples()
 	dest := NewAnonymousNode()
 	err = src.Transform(NewTraverse(*tm.Result, AlwaysTripleMatch, dest, res))
-	assert.Nil(t, err)
-	assert.Len(t, res.GetTriplesForSubject(dest), 4)
+	require.Nil(t, err)
+	assert.Len(t, res.GetTripleListForSubject(dest), 4)
 
 	res2 := NewTriples()
 	dest2 := NewAnonymousNode()
 	objectMapper := NewTripleObjectTransformer(dest2, res2)
 	err = res.Transform(NewMap(dest, objectMapper, res2))
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
-	answer := res2.GetTriplesForSubject(dest2)
+	answer := res2.GetTripleListForSubject(dest2)
 	assert.Len(t, answer, 4)
 }
 
@@ -71,20 +72,20 @@ func Test_traverse_file(t *testing.T) {
 
 	src := NewTriples()
 	err := src.Transform(tm.Transformer)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	dest := NewAnonymousNode()
 	err = src.Transform(NewTraverse(top, AlwaysTripleMatch, dest, src))
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	dest2 := NewAnonymousNode()
 	objectMapper := NewTripleObjectTransformer(dest2, src)
 	err = src.Transform(NewMap(dest, objectMapper, src))
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	res := NewTriples()
 	err = src.Transform(NewFlatMap(dest2, GetStringObjectMapper, res))
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	answer := res.GetTripleList().GetObjectStrings()
 	sort.Strings(answer)

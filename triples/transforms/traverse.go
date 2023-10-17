@@ -16,7 +16,7 @@ func NewTraverse(start Node, filter TripleMatch, dest Node, output *Triples) Tra
 			node := nodeQueue[0]
 			nodeQueue = nodeQueue[1:]
 
-			for _, triple := range source.GetTriplesForSubject(node) {
+			for _, triple := range source.GetTripleListForSubject(node) {
 				if !filter(triple) {
 					logrus.Debugf("%s fail", triple)
 					continue
