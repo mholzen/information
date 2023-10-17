@@ -1,12 +1,17 @@
 # INFORMATION
 
 A Go library and web server to:
-- parse text files of various types into a graph database
+- parse text files into a graph database
+- express queries and transformations as graphs
 - query, transform, compute on those graphs
 - visualize, edit and output to various file types
 
-
-## Motivation
-
-Use representation of knowlege as a graph to facilitate both
+The goal is to use representation of knowlege as a graph to facilitate both
 highly abstract conceptual thinking and mundane data management.
+
+```
+$ make
+```
+
+Navigate to `http://localhost:1323/`
+

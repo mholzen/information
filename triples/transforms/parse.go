@@ -200,6 +200,7 @@ func ReadAndStripComments(filename string) (io.Reader, error) {
 	return bytes.NewReader(buffer.Bytes()), nil
 }
 
+// TODO: refactor with above
 func Read(filename string) (bytes.Buffer, error) {
 	var buffer bytes.Buffer
 

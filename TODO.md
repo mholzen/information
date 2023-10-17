@@ -1,8 +1,5 @@
 # TODO
 
-- require.Nil(t, err) doesn't actually stop the test
-
-
 - edit files to express relationships
     - in CSV
         - [x] parse a CSV file NewCSVParser
@@ -16,6 +13,9 @@
       - edit a table in html, save to CSV, support lists in cells, hierarchies as rows, columns that span hiearchies
 
     - in JSON
+
+- write simple code
+  - [ ] simplifiy New*Node
 
 - express computations (eg. mathematical, search, generation) in triples
     - [x] express mathematical unary function as a node, use it as a predicate with the argument is the object

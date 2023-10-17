@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	. "github.com/mholzen/information/triples"
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -152,13 +151,9 @@ func Test_NewQuery_for_csv(t *testing.T) {
 	// Load a CSV file
 	tm := NewCsvParser(strings.NewReader("a,b,c\nd,e,f"))
 
-	logrus.SetLevel(logrus.DebugLevel)
-
 	src := NewTriples()
 	err := src.Transform(tm.Transformer)
 	require.Nil(t, err)
-
-	log.Printf("src is:\n%s", src)
 
 	query := NewTriples()
 	file := NewVariableNode()
