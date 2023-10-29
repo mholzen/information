@@ -4,7 +4,6 @@ import (
 	"log"
 
 	. "github.com/mholzen/information/triples"
-	"golang.org/x/exp/maps"
 	"storj.io/common/uuid"
 )
 
@@ -85,7 +84,7 @@ func NewQueryTransformer(query, dest, definitions *Triples) Transformer {
 		for solutionNo, values := range valuesList {
 			nodeMap := NewNodeMap(variables.GetNodeList(), values)
 
-			log.Printf("evaluation solution %d with nodemap: %+v", solutionNo, maps.Values(nodeMap))
+			// log.Printf("evaluation solution %d with nodemap: %+v", solutionNo, maps.Values(nodeMap))
 
 			instantiatedQuery, err := query.Map(NewReplaceNodesMapper(nodeMap))
 			if err != nil {

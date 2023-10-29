@@ -1,0 +1,36 @@
+thank:
+    before:
+        - recognize work, effort, asssets, capabilities
+    after:
+        - communicate appreciation
+
+    defines:
+        - gratitude
+
+resile:
+
+communicate:
+    to:
+        alert (puff up, buck up), threaten (growl, snare, beat), warn (scream, yell, shout), inform (describe):
+            to: respond/(avoid conflict, protect, defend)
+        lure, prey, hunt:
+            to: exchange/eat
+        court, attract, seduce, immitate:
+            to: reproduce
+        defuse, laugh, play:
+            to: adapt/learn
+        teach, educate, inform:
+            to: respond
+        augment, amplify, magnify:
+            to: grow
+        thank, appreciate, praise:
+            to: ?
+        ask, request, demand:
+            to: ?
+
+relationships:
+    - exchance
+    - respond
+    - reproduce?
+    - grow?
+    - adapt?

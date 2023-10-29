@@ -1,9 +1,15 @@
 package main
 
 import (
+	"context"
 	"io"
+	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"text/template"
+	"time"
 
 	"github.com/mholzen/information/handlers"
 
@@ -44,12 +50,38 @@ func main() {
 	e.GET("/files/:file", handlers.FilesPostfixHandler)
 
 	e.GET("/", func(c echo.Context) error {
-		return c.Redirect(http.StatusFound, "/files/data/index.md/content/html")
+		return c.Redirect(http.StatusFound, "/files/data/index.md/text/html")
 	})
 
 	renderer := &TemplateRenderer{
 		templates: template.Must(template.ParseGlob("public/*.html")),
 	}
 	e.Renderer = renderer
-	e.Logger.Fatal(e.Start(":1323"))
+
+	go func() {
+		if err := e.Start(":1323"); err != nil {
+			e.Logger.Info("shutting down the server")
+		}
+	}()
+
+	// Wait for interrupt signal to gracefully shut down the server with
+	// a timeout of 10 seconds.
+	quit := make(chan os.Signal, 1)
+
+	// signal.Notify registers the given channel to receive notifications of the specified signals.
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+
+	log.Printf("here")
+	e.Logger.Info("Signal received: shutting down the server")
+
+	// Create a deadline to wait for.
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// Doesn't block if no connections, but will otherwise wait
+	// until the timeout deadline.
+	if err := e.Shutdown(ctx); err != nil {
+		e.Logger.Fatal(err)
+	}
 }

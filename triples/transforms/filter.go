@@ -1,6 +1,8 @@
 package transforms
 
 import (
+	"fmt"
+
 	. "github.com/mholzen/information/triples"
 )
 
@@ -101,6 +103,33 @@ func NewFilterMapper(filter TripleFMatch) Mapper {
 	}
 }
 
+func NewFilterMapperFromTriples(filter *Triples) Mapper {
+	return func(source *Triples) (*Triples, error) {
+		res := NewTriples()
+		for _, triple := range source.TripleSet {
+			for _, filterTriple := range filter.TripleSet {
+				f, ok := filterTriple.Object.(UnaryFunctionNode)
+				if !ok {
+					return nil, fmt.Errorf("object '%s' must be a UnaryFunctionNode", filterTriple.Object)
+				}
+
+				n, err := triple.GetNode(filterTriple.Predicate)
+				if err != nil {
+					return nil, err
+				}
+				match, err := f(n)
+				if err != nil {
+					return nil, err
+				}
+				if match.(NumberNode).Value == 1 {
+					res.Add(triple)
+				}
+			}
+		}
+		return res, nil
+	}
+}
+
 func Filter(filter TripleMatch) Mapper {
 	return func(source *Triples) (*Triples, error) {
 		res := NewTriples()
@@ -111,4 +140,26 @@ func Filter(filter TripleMatch) Mapper {
 		}
 		return res, nil
 	}
+}
+
+func NewTripleMatchFromTriples(filter *Triples) (TripleMatch, error) {
+	matches := make([]TripleMatch, 0)
+
+	for _, filterTriple := range filter.TripleSet {
+		f, ok := filterTriple.Object.(NodeBoolFunctionNode)
+		if !ok {
+			return nil, fmt.Errorf("object '%s' must be a UnaryFunctionNode", filterTriple.Object)
+		}
+
+		nodeGetter, err := GetNodeFunction(filterTriple.Predicate)
+		if err != nil {
+			return nil, err
+		}
+
+		match := func(triple Triple) bool {
+			return f(nodeGetter(triple))
+		}
+		matches = append(matches, match)
+	}
+	return And(matches...), nil
 }

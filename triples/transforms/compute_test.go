@@ -1,7 +1,6 @@
 package transforms
 
 import (
-	"log"
 	"testing"
 
 	. "github.com/mholzen/information/triples"
@@ -15,8 +14,6 @@ func Test_NewCompute(t *testing.T) {
 
 	err := NewCompute()(tpls)
 	require.Nil(t, err)
-
-	log.Printf("res is:\n%v", tpls)
 
 	assert.Len(t, tpls.TripleSet, 2)
 	shouldContain, _ := NewTriple("a", NewStringNode(TypeNode.String()), "triples.StringNode")

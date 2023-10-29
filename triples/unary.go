@@ -90,6 +90,16 @@ func NewNodeMatchAnyIndex() UnaryFunctionNode {
 	}
 }
 
+func NewNodeMatchAnyAnonymous() UnaryFunctionNode {
+	// TODO: refactor with NewNodeMatchAnyIndex
+	return func(node Node) (Node, error) {
+		if _, ok := node.(AnonymousNode); ok {
+			return NewNumberNode(1), nil
+		}
+		return NewNumberNode(0), nil
+	}
+}
+
 // This should be a UnaryTripleFunction
 type TripleFunctionNode func(Triple) (Node, error)
 

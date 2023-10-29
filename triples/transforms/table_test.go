@@ -29,6 +29,6 @@ func Test_NewTableDefinition(t *testing.T) {
 	table := NewTableGenerator(def)
 	err = src.Transform(table.Transformer)
 	require.Nil(t, err)
-	assert.Equal(t, 4, len(table.Rows))
+	assert.Equal(t, 3, len(table.Rows))
 	assert.Equal(t, 4, len(table.Rows[0]))
 }

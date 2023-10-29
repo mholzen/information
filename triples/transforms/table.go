@@ -3,6 +3,7 @@ package transforms
 import (
 	"strings"
 
+	"github.com/mholzen/information/triples"
 	. "github.com/mholzen/information/triples"
 )
 
@@ -52,9 +53,25 @@ func NewTableGenerator(definition *Triples) *TableGenerator {
 	res := TableGenerator{
 		Definition: def,
 	}
+	rowQuery := triples.NewTriples()
+	rowQuery.AddTriple(triples.NewAnonymousNode(), triples.Predicate, triples.NewNodeMatchAnyIndex1())
+	rowQuery.AddTriple(triples.NewAnonymousNode(), triples.Object, triples.NewNodeMatchAnyAnonymous1())
+
+	match, err := NewTripleMatchFromTriples(rowQuery)
+	if err != nil {
+		panic(err)
+	}
+	rowFilter := Filter(match)
 
 	res.Transformer = func(source *Triples) error {
-		for _, subject := range source.GetSubjectList() {
+		rows, err := source.Map(rowFilter)
+		if err != nil {
+			return err
+		}
+		rowNodes := rows.GetObjects().GetSortedNodeList()
+
+		// for _, subject := range def.GetSubjectList() {
+		for _, subject := range rowNodes {
 			row := make([][]Node, len(def.Columns))
 			for j, filter := range def.ColumnFilters {
 				cell := make([]Node, 0)
@@ -106,7 +123,13 @@ func (d TableDefinition) Html() string {
 func NewDefaultTableDefinition(source *Triples) *Triples {
 	res := NewTriples()
 	container := NewAnonymousNode()
-	for i, predicate := range source.GetPredicateList() {
+
+	root := source.GetSubjectList()[0]
+	t := source.GetTriplesForSubject(root)
+	predicates := t.GetPredicateList()
+	// predicates := source.GetPredicateList()
+
+	for i, predicate := range predicates {
 		res.AddTriple(container, NewIndexNode(i), predicate)
 	}
 	return res

@@ -6,10 +6,11 @@
             - a definition could define each column using a predicate
         - [ ] generate a table from a query, to edit it, to parse it
           - [x] a column definition can have multiple predicates
-          - [ ] a query should select subjects
-            - [ ] query the nodes that represents lines from a CSV
-              - [ ] load a csv in a test harness
-              - [ ] change the query from a Transformer to a Mapper
+          - [x] a query should select subjects
+            - [x] query the nodes that represents lines from a CSV
+          - [ ] rows should be sorted
+            - [ ] sort triples by a predicate
+
       - edit a table in html, save to CSV, support lists in cells, hierarchies as rows, columns that span hiearchies
 
     - in JSON

@@ -1,6 +1,9 @@
 package handlers
 
 import (
+	"bufio"
+	"io"
+	"mime"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -16,6 +19,51 @@ type FileInfo struct {
 	ModTime time.Time
 	IsDir   bool
 	Error   error
+}
+
+func (f FileInfo) Reader() (*bufio.Reader, error) {
+	file, err := os.Open(f.Name)
+	if err != nil {
+		return nil, err
+	}
+	// defer file.Close()	// TODO: associate with context
+	return bufio.NewReader(file), nil
+}
+
+func (f FileInfo) header() ([]byte, error) {
+	reader, err := f.Reader()
+	if err != nil {
+		return nil, err
+	}
+
+	header, err := reader.Peek(512)
+	if err != io.EOF && err != nil {
+		return nil, err
+	}
+	return header, nil
+}
+
+func (f FileInfo) ContentType() (string, error) {
+	if mimeType := mime.TypeByExtension(Extension(f.Name)); mimeType != "" {
+		return mimeType, nil
+	}
+	header, err := f.header()
+	if err != nil {
+		return "", err
+	}
+	return http.DetectContentType(header), nil
+}
+
+func (f FileInfo) String() (string, error) {
+	reader, err := f.Reader()
+	if err != nil {
+		return "", err
+	}
+	res, err := io.ReadAll(reader)
+	if err != nil {
+		return "", err
+	}
+	return string(res), nil
 }
 
 func NewFileInfo(stat os.FileInfo) FileInfo {

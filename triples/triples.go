@@ -15,6 +15,39 @@ func (t Triple) String() string {
 	return fmt.Sprintf("(%s, %s, %s)", shortString(t.Subject), shortString(t.Predicate), shortString(t.Object))
 }
 
+type NodePosition byte
+
+const (
+	Subject1 NodePosition = iota
+	Predicate1
+	Object1
+)
+
+func (t Triple) GetNode(position Node) (Node, error) {
+	switch position {
+	case Subject:
+		return t.Subject, nil
+	case Predicate:
+		return t.Predicate, nil
+	case Object:
+		return t.Object, nil
+	default:
+		return nil, fmt.Errorf("invalid node position %s", position)
+	}
+}
+
+func GetNodeFunction(position Node) (func(Triple) Node, error) {
+	switch position {
+	case Subject:
+		return func(t Triple) Node { return t.Subject }, nil
+	case Predicate:
+		return func(t Triple) Node { return t.Predicate }, nil
+	case Object:
+		return func(t Triple) Node { return t.Object }, nil
+	}
+	return nil, fmt.Errorf("invalid node position %d", position)
+}
+
 func shortString(n Node) string {
 	if a, ok := n.(AnonymousNode); ok {
 		return a.String()[0:8]
@@ -41,6 +74,10 @@ func NewTriple(subject, predicate, object any) (Triple, error) {
 
 	triple := Triple{s, p, o}
 	return triple, nil
+}
+
+func NewTripleFromNodes(subject, predicate, object Node) Triple {
+	return Triple{subject, predicate, object}
 }
 
 type TripleSet map[string]Triple
@@ -104,7 +141,7 @@ func (source *Triples) Add(triple Triple) {
 }
 
 func (source *Triples) AddTriples(triples *Triples) {
-	for _, triple := range triples.TripleSet {
+	for _, triple := range source.TripleSet {
 		source.Add(triple)
 	}
 }
@@ -274,17 +311,7 @@ func (source *Triples) GetObjects() NodeSet {
 }
 
 func (source *Triples) GetSubjectList() NodeList {
-	set := source.GetSubjects()
-	keys := make([]string, 0)
-	for key := range set {
-		keys = append(keys, key)
-	}
-	sort.Strings(keys)
-	res := make(NodeList, 0)
-	for _, key := range keys {
-		res = append(res, set[key])
-	}
-	return res
+	return source.GetSubjects().GetSortedNodeList()
 }
 
 func (source *Triples) GetPredicateList() NodeList { // TODO: refactor to avoid boilerplate with GetSubjectList

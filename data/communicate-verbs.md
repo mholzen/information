@@ -1,0 +1,17 @@
+alert
+warn
+inform
+lure
+prey
+hunt
+threaten
+shout
+scream
+yell
+court
+attract
+seduce
+defuse
+laugh
+play
+teach

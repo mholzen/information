@@ -10,14 +10,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func Split(filePath string) []string {
+func StatWithRemainder(filePath string) (FileInfo, []string, error) {
 	filePath = path.Clean(filePath)
-	return strings.Split(filePath, "/")
-}
+	components := strings.Split(filePath, "/")
 
-func StatWithRemainder(path string) (FileInfo, []string, error) {
-	components := Split(path)
-	currentPath := os.Getenv("ROOT")
+	currentPath := os.Getenv("ROOT") // TODO: put this in a factory
 	var currentFileInfo os.FileInfo
 	for i, component := range components {
 		nextPath := filepath.Join(currentPath, component)
@@ -42,8 +39,15 @@ func StatWithRemainder(path string) (FileInfo, []string, error) {
 }
 
 var HandlerMap = map[string]Transform{
-	"html":    ToHtml,
-	"content": ToText,
+	"content":  ToContent,
+	"graph":    ToGraphPayload,
+	"html":     ToHtml,
+	"list":     ToListPayload,
+	"mime":     ToMimeType,
+	"nodelink": ToNodeLinkPayload,
+	"table":    ToTablePayload,
+	"text":     ToTextPayload,
+	"triples":  ToTriplesPayload,
 }
 
 func FilesPostfixHandler(c echo.Context) error {

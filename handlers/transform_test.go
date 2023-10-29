@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -10,15 +9,14 @@ import (
 
 func Test_ToBytes(t *testing.T) {
 
-	os.Setenv("ROOT", "../")
-	fileInfo, _, err := StatWithRemainder("data/dir1/content")
+	fileInfo, _, err := StatWithRemainder("data/dir1/abc")
 	require.Nil(t, err)
 
 	in := Payload{
 		Content: "application/json+fileinfo",
 		Data:    fileInfo,
 	}
-	out, err := ToText(in)
+	out, err := ToTextPayload(in)
 	require.Nil(t, err)
-	assert.Len(t, out.Data, 1)
+	assert.Len(t, out.Data, 2)
 }
