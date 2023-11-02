@@ -30,3 +30,15 @@ func Test_unary_function_should_be_a_node(t *testing.T) {
 	s.Add(SquareNode)
 	assert.True(t, s.Contains(SquareNode))
 }
+
+func Test_IndexNode_LessThan(t *testing.T) {
+	two := NewIndexNode(2)
+	one := NewIndexNode(1)
+	assert.True(t, one.LessThan(two))
+}
+
+func Test_LessThan_Mixed(t *testing.T) {
+	one := NewIndexNode(1)
+	a := NewStringNode("z")
+	assert.True(t, one.LessThan(a))
+}

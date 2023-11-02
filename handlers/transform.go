@@ -169,7 +169,7 @@ func ToMimeType(input Payload) (Payload, error) {
 }
 
 func ToTriples(input Payload) (*triples.Triples, error) {
-	if input.Content == "application/json+triples" { // TODO: decide whether we test on type of .Data or value of .Content
+	if strings.HasPrefix(input.Content, "application/json+triples") { // TODO: decide whether we test on type of .Data or value of .Content
 		return input.Data.(*triples.Triples), nil
 	}
 	text, err := ToText(input)
@@ -243,13 +243,40 @@ func ToGraphPayload(input Payload) (Payload, error) {
 	}, nil
 }
 
+func ToTableDefinition(input Payload) (*triples.Triples, error) {
+	src, err := ToTriples(input)
+	if err != nil {
+		return nil, err
+	}
+	return src.Map(transforms.PredicatesSortedByString)
+}
+
+// TODO: if TableDefinition is a transformer, we should need a specific Payload method
+func ToTableDefinitionPayload(input Payload) (Payload, error) {
+	tr, err := ToTableDefinition(input)
+	if err != nil {
+		return input, err
+	}
+	return Payload{
+		Content: "application/json+triples+TableDefinition",
+		Data:    tr,
+	}, nil
+}
+
 func ToTablePayload(input Payload) (Payload, error) {
 	src, err := ToTriples(input)
 	if err != nil {
 		return input, err
 	}
-	def := transforms.NewDefaultTableDefinition(src)
+	def, err := transforms.PredicatesSortedByString(src)
+	if err != nil {
+		return input, err
+	}
 	tr := transforms.NewTableGenerator(def)
+	if err != nil {
+		return input, err
+	}
+
 	err = src.Transform(tr.Transformer)
 	if err != nil {
 		return input, err
@@ -273,5 +300,22 @@ func ToListPayload(input Payload) (Payload, error) {
 	return Payload{
 		Content: "text/html",
 		Data:    (*tr.Result).(triples.StringNode).Value,
+	}, nil
+}
+
+func ToRowsPayload(input Payload) (Payload, error) {
+	res, err := ToTriples(input)
+	if err != nil {
+		return input, err
+	}
+	a := transforms.NewFilterMapperFromTriples(transforms.RowQuery())
+	res, err = res.Map(a)
+	if err != nil {
+		return input, err
+	}
+
+	return Payload{
+		Content: "application/json+triples",
+		Data:    res,
 	}, nil
 }

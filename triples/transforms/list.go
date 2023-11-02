@@ -15,7 +15,8 @@ func NewListGenerator() *TransformerWithResult {
 			res := NewStringNode("")
 
 			res.Value = "<table>\n"
-			for _, triple := range source.GetTripleList().Sort() {
+			s := source.GetTripleList().Sort()
+			for _, triple := range s {
 				res.Value += tablerow(triple)
 			}
 			res.Value += "\n</table>\n"

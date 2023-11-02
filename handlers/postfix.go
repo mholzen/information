@@ -39,15 +39,18 @@ func StatWithRemainder(filePath string) (FileInfo, []string, error) {
 }
 
 var HandlerMap = map[string]Transform{
-	"content":  ToContent,
-	"graph":    ToGraphPayload,
-	"html":     ToHtml,
-	"list":     ToListPayload,
-	"mime":     ToMimeType,
-	"nodelink": ToNodeLinkPayload,
-	"table":    ToTablePayload,
-	"text":     ToTextPayload,
-	"triples":  ToTriplesPayload,
+	"content":         ToContent,
+	"graph":           ToGraphPayload,
+	"html":            ToHtml,
+	"list":            ToListPayload,
+	"mime":            ToMimeType,
+	"nodelink":        ToNodeLinkPayload,
+	"table":           ToTablePayload,
+	"tableDefinition": ToTableDefinitionPayload,
+	"predicates":      ToTableDefinitionPayload,
+	"text":            ToTextPayload,
+	"triples":         ToTriplesPayload,
+	"transform,rows":  ToRowsPayload,
 }
 
 func FilesPostfixHandler(c echo.Context) error {

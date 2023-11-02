@@ -137,7 +137,10 @@ func TableHandler(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
-	def := transforms.NewDefaultTableDefinition(src)
+	def, err := transforms.PredicatesSortedByString(src)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
 	tr := transforms.NewTableGenerator(def)
 	err = src.Transform(tr.Transformer)
 	if err != nil {

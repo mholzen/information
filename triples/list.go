@@ -42,6 +42,11 @@ func (l TripleList) Sort() TripleList {
 	return l
 }
 
+func (l TripleList) SortBy(f func(i, j int) bool) TripleList {
+	sort.Sort(TripleSort{l, f})
+	return l
+}
+
 type TripleSort struct {
 	data     TripleList
 	lessFunc func(i, j int) bool
