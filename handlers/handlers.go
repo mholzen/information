@@ -7,8 +7,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"sort"
-	"strings"
 
 	"github.com/labstack/echo/v4"
 	"github.com/mholzen/information/triples"
@@ -82,36 +80,6 @@ func HtmlHandler(c echo.Context) error {
 	return c.Render(http.StatusOK, "index.html", data)
 }
 
-func ObjectsHandler(c echo.Context) error {
-	src, err := Triples(c.Param("file"))
-	if err != nil {
-		return err
-	}
-
-	dest := triples.NewAnonymousNode()
-	err = src.Transform(transforms.NewTraverse(dest, transforms.AlwaysTripleMatch, dest, src))
-	if err != nil {
-		return err
-	}
-
-	dest2 := triples.NewAnonymousNode()
-	objectMapper := transforms.NewTripleObjectTransformer(dest2, src)
-	err = src.Transform(transforms.NewMap(dest, objectMapper, src))
-	if err != nil {
-		return err
-	}
-
-	res := triples.NewTriples()
-	err = src.Transform(transforms.NewFlatMap(dest2, transforms.GetStringObjectMapper, res))
-	if err != nil {
-		return err
-	}
-
-	answer := res.GetTripleList().GetObjectStrings()
-	sort.Strings(answer)
-	return c.String(http.StatusOK, strings.Join(answer, "\n"))
-}
-
 func NodeLinkHandler(c echo.Context) error {
 	src, err := Triples(c.Param("file"))
 	if err != nil {
@@ -130,21 +98,4 @@ func GraphHandler(c echo.Context) error {
 		"url": "/nodelink/" + c.Param("file"),
 	}
 	return c.Render(http.StatusOK, "graph.html", data)
-}
-
-func TableHandler(c echo.Context) error {
-	src, err := Triples(c.Param("file"))
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
-	def, err := transforms.PredicatesSortedByString(src)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
-	tr := transforms.NewTableGenerator(def)
-	err = src.Transform(tr.Transformer)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
-	return c.HTML(http.StatusOK, tr.Html())
 }

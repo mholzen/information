@@ -6,6 +6,12 @@ func (source *Triples) Map(mapper Mapper) (*Triples, error) {
 	return mapper(source)
 }
 
+func (source *Triples) MapToNode(mapper MapperToNode) (Node, error) {
+	return mapper(source)
+}
+
+type MapperToNode func(source *Triples) (Node, error)
+
 type TripleTransform func(source *Triples, triple Triple, i int, root Node) (Triple, error)
 
 type TripleMapper func(triple Triple) (*Triples, error)

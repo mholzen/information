@@ -3,16 +3,16 @@ package transforms
 import (
 	"fmt"
 
-	. "github.com/mholzen/information/triples"
+	t "github.com/mholzen/information/triples"
 )
 
 type HtmlTransformer struct {
-	Triples    Triples
-	TripleList TripleList
+	Triples    t.Triples
+	TripleList t.TripleList
 	Depth      int
 }
 
-func NewHtmlTransformer(triples Triples, tripleList TripleList, depth int) *HtmlTransformer {
+func NewHtmlTransformer(triples t.Triples, tripleList t.TripleList, depth int) *HtmlTransformer {
 	return &HtmlTransformer{
 		Triples:    triples,
 		TripleList: tripleList,
@@ -26,10 +26,10 @@ func (html HtmlTransformer) String() string {
 	return res.ToHtml(html)
 }
 
-func (html HtmlTransformer) HtmlObject(object Node) string {
+func (html HtmlTransformer) HtmlObject(object t.Node) string {
 	res := ""
 	switch typedObject := object.(type) {
-	case AnonymousNode:
+	case t.AnonymousNode:
 		tripleList := html.Triples.GetTripleListForSubject(typedObject)
 		res = NewHtmlTransformer(html.Triples, tripleList, html.Depth-1).String()
 
@@ -40,9 +40,9 @@ func (html HtmlTransformer) HtmlObject(object Node) string {
 
 }
 
-type ObjectList []Node
+type ObjectList []t.Node
 
-func (list *ObjectList) Add(node Node) {
+func (list *ObjectList) Add(node t.Node) {
 	*list = append(*list, node)
 }
 func NewObjectList() *ObjectList {
@@ -59,7 +59,7 @@ func (list *ObjectList) ToHtml(html HtmlTransformer) string {
 }
 
 type PredicateObjectList []struct {
-	Predicate Node
+	Predicate t.Node
 	Objects   *ObjectList
 }
 
@@ -68,7 +68,7 @@ func NewPredicateObjectList() *PredicateObjectList {
 	return &res
 }
 
-func (list *PredicateObjectList) Add(predicate, object Node) {
+func (list *PredicateObjectList) Add(predicate, object t.Node) {
 	lastIndex := len(*list) - 1
 	if lastIndex >= 0 {
 		lastItem := (*list)[lastIndex]
@@ -81,9 +81,9 @@ func (list *PredicateObjectList) Add(predicate, object Node) {
 	list.Add(predicate, object)
 }
 
-func (list *PredicateObjectList) AddPredicate(predicate Node) {
+func (list *PredicateObjectList) AddPredicate(predicate t.Node) {
 	*list = append(*list, struct {
-		Predicate Node
+		Predicate t.Node
 		Objects   *ObjectList
 	}{
 		Predicate: predicate,
@@ -100,7 +100,7 @@ func (list *PredicateObjectList) ToHtml(html HtmlTransformer) string {
 }
 
 type SubjectPredicateObjectList []struct {
-	Subject          Node
+	Subject          t.Node
 	PredicateObjects *PredicateObjectList
 }
 
@@ -108,7 +108,7 @@ func NewSubjectPredicateObjectList() SubjectPredicateObjectList {
 	return make(SubjectPredicateObjectList, 0)
 }
 
-func (list *SubjectPredicateObjectList) Add(triple Triple) {
+func (list *SubjectPredicateObjectList) Add(triple t.Triple) {
 	lastIndex := len(*list) - 1
 	if lastIndex >= 0 {
 		lastItem := (*list)[lastIndex]
@@ -121,9 +121,9 @@ func (list *SubjectPredicateObjectList) Add(triple Triple) {
 	list.Add(triple)
 }
 
-func (list *SubjectPredicateObjectList) AddSubject(subject Node) {
+func (list *SubjectPredicateObjectList) AddSubject(subject t.Node) {
 	*list = append(*list, struct {
-		Subject          Node
+		Subject          t.Node
 		PredicateObjects *PredicateObjectList
 	}{
 		Subject:          subject,
@@ -131,7 +131,7 @@ func (list *SubjectPredicateObjectList) AddSubject(subject Node) {
 	})
 }
 
-func (list *SubjectPredicateObjectList) AddTriples(triples TripleList) {
+func (list *SubjectPredicateObjectList) AddTriples(triples t.TripleList) {
 	for _, triple := range triples {
 		list.Add(triple)
 	}
@@ -140,7 +140,7 @@ func (list *SubjectPredicateObjectList) AddTriples(triples TripleList) {
 func (list *SubjectPredicateObjectList) ToHtml(html HtmlTransformer) string {
 	if len(html.TripleList) == 3 {
 		html.TripleList.Sort()
-		if html.TripleList[0].Predicate == Subject && html.TripleList[1].Predicate == Predicate && html.TripleList[2].Predicate == Object {
+		if html.TripleList[0].Predicate == t.Subject && html.TripleList[1].Predicate == t.Predicate && html.TripleList[2].Predicate == t.Object {
 			return fmt.Sprintf("<table><tr><td class=subject><p>%s</p></td><td class=predicate><p>%s</p></td><td class=object><p>%s</p></td></tr></table>\n",
 				html.HtmlObject(html.TripleList[0].Object),
 				html.HtmlObject(html.TripleList[1].Object),

@@ -23,3 +23,20 @@ func Test_FilterForIndexNodes(t *testing.T) {
 	require.Nil(t, err)
 	require.Len(t, res.TripleSet, 1)
 }
+
+func Test_FilterForSubjectPredicate(t *testing.T) {
+	src := triples.NewTriples()
+	subject := triples.NewAnonymousNode()
+	src.AddTriple(subject, "first", "marc")
+
+	filter := triples.NewTriples()
+	filter.AddTriple(triples.NewAnonymousNode(), triples.Subject, subject)
+	filter.AddTriple(triples.NewAnonymousNode(), triples.Predicate, "first")
+
+	m, err := NewTripleMatchFromTriples(filter)
+	require.Nil(t, err)
+
+	res, err := src.Map(Filter(m))
+	require.Nil(t, err)
+	require.Len(t, res.TripleSet, 1)
+}

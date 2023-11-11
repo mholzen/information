@@ -4,8 +4,16 @@ import "sort"
 
 type TripleList []Triple
 
-func (l TripleList) GetObjects() []Node {
-	var objects []Node
+func (l TripleList) GetSubjects() NodeList {
+	var objects NodeList
+	for _, triple := range l {
+		objects = append(objects, triple.Subject)
+	}
+	return objects
+}
+
+func (l TripleList) GetObjects() NodeList {
+	var objects NodeList
 	for _, triple := range l {
 		objects = append(objects, triple.Object)
 	}

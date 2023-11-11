@@ -91,10 +91,13 @@ func (n CreatedComparableNode[T]) String() string {
 }
 
 func (n CreatedComparableNode[T]) LessThan(other Node) bool {
-	if same, ok := other.(CreatedComparableNode[T]); ok {
-		return n.Value.Compare(same.Value) < 0
-	} else {
-		return n.Created.Compare(same.Created) < 0
+	switch typedValue := other.(type) {
+	case CreatedComparableNode[T]:
+		return n.Value.Compare(typedValue.Value) < 0
+	case CreatedNode[T]:
+		return n.Created.Compare(typedValue.Created) < 0
+	default:
+		return n.Value.String() < other.String()
 	}
 }
 

@@ -1,36 +1,35 @@
 package transforms
 
 import (
-	. "github.com/mholzen/information/triples"
+	t "github.com/mholzen/information/triples"
 )
 
-func NewReferences() Mapper {
-	return func(source *Triples) (*Triples, error) {
-		references := make(map[Node]Triple)
+func GetReferences(source *t.Triples) (*t.Triples, error) {
+	references := make(map[t.Node]t.Triple)
 
-		for _, t := range source.TripleSet {
-			if t.Predicate == Subject {
-				ref := references[t.Subject]
-				ref.Subject = t.Object
-				references[t.Subject] = ref
-			}
-			if t.Predicate == Predicate {
-				ref := references[t.Subject]
-				ref.Predicate = t.Object
-				references[t.Subject] = ref
-			}
-			if t.Predicate == Object {
-				ref := references[t.Subject]
-				ref.Object = t.Object
-				references[t.Subject] = ref
-			}
+	for _, triple := range source.TripleSet {
+		if triple.Predicate == t.Subject {
+			ref := references[triple.Subject]
+			ref.Subject = triple.Object
+			references[triple.Subject] = ref
 		}
-
-		res := NewTriples()
-		for _, t := range references {
-			res.Add(t)
+		if triple.Predicate == t.Predicate {
+			ref := references[triple.Subject]
+			ref.Predicate = triple.Object
+			references[triple.Subject] = ref
 		}
-		return res, nil
+		if triple.Predicate == t.Object {
+			ref := references[triple.Subject]
+			ref.Object = triple.Object
+			references[triple.Subject] = ref
+		}
 	}
 
+	res := t.NewTriples()
+	for _, t := range references {
+		if t.Subject != nil && t.Predicate != nil && t.Object != nil {
+			res.Add(t)
+		}
+	}
+	return res, nil
 }

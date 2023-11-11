@@ -39,6 +39,6 @@ func Test_IndexNode_LessThan(t *testing.T) {
 
 func Test_LessThan_Mixed(t *testing.T) {
 	one := NewIndexNode(1)
-	a := NewStringNode("z")
-	assert.True(t, one.LessThan(a))
+	z := NewStringNode("z")
+	assert.True(t, one.LessThan(z))
 }

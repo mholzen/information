@@ -12,15 +12,15 @@ import (
 	"regexp"
 	"strings"
 
-	. "github.com/mholzen/information/triples"
+	t "github.com/mholzen/information/triples"
 )
 
 type Parser struct {
-	*Triples
+	*t.Triples
 }
 
-func (source *Parser) ParseMap(m map[string]interface{}) (Node, error) {
-	container := NewAnonymousNode()
+func (source *Parser) ParseMap(m map[string]interface{}) (t.Node, error) {
+	container := t.NewAnonymousNode()
 	for key, val := range m {
 		err := source.ParseAdd(container, key, val)
 		if err != nil {
@@ -30,8 +30,8 @@ func (source *Parser) ParseMap(m map[string]interface{}) (Node, error) {
 	return container, nil
 }
 
-func (source *Parser) ParseSlice(slice []interface{}) (Node, error) {
-	container := NewAnonymousNode()
+func (source *Parser) ParseSlice(slice []interface{}) (t.Node, error) {
+	container := t.NewAnonymousNode()
 	for i, val := range slice {
 		err := source.ParseAdd(container, i, val)
 		if err != nil {
@@ -41,7 +41,7 @@ func (source *Parser) ParseSlice(slice []interface{}) (Node, error) {
 	return container, nil
 }
 
-func (source *Parser) ParseAdd(subject Node, predicate, object any) error {
+func (source *Parser) ParseAdd(subject t.Node, predicate, object any) error {
 	object, err := source.Parse(object)
 	if err != nil {
 		return err
@@ -53,7 +53,7 @@ func (source *Parser) ParseAdd(subject Node, predicate, object any) error {
 	return nil
 }
 
-func (source *Parser) Parse(data any) (Node, error) {
+func (source *Parser) Parse(data any) (t.Node, error) {
 	switch data := data.(type) {
 	case float64, string:
 		return source.NewNode(data)
@@ -62,9 +62,9 @@ func (source *Parser) Parse(data any) (Node, error) {
 	case []interface{}:
 		return source.ParseSlice(data)
 	case [][]string:
-		array := NewAnonymousNode()
+		array := t.NewAnonymousNode()
 		for i, stringArray := range data {
-			row := NewAnonymousNode()
+			row := t.NewAnonymousNode()
 			for j, val := range stringArray {
 				_, err := source.AddTriple(row, j, val)
 				if err != nil {
@@ -85,9 +85,9 @@ func (source *Parser) Parse(data any) (Node, error) {
 	}
 }
 
-func NewParser(data any) Transformer {
+func NewParser(data any) t.Transformer {
 	parser := Parser{}
-	return func(target *Triples) error {
+	return func(target *t.Triples) error {
 		parser.Triples = target
 		_, err := parser.Parse(data)
 		return err
@@ -102,7 +102,7 @@ func DecodeJson(input string) (interface{}, error) {
 	return data, err
 }
 
-func NewParserFromContentType(mimeType string, data io.Reader) (*TransformerWithResult, error) {
+func NewParserFromContentType(mimeType string, data io.Reader) (*t.TransformerWithResult, error) {
 	switch {
 	case strings.HasPrefix(mimeType, "application/json"), strings.HasPrefix(mimeType, "text/plain"):
 		var buffer bytes.Buffer
@@ -119,9 +119,9 @@ func NewParserFromContentType(mimeType string, data io.Reader) (*TransformerWith
 	}
 }
 
-func NewJsonParser(json string) *TransformerWithResult {
-	transformer := TransformerWithResult{}
-	transformer.Transformer = func(target *Triples) error {
+func NewJsonParser(json string) *t.TransformerWithResult {
+	transformer := t.TransformerWithResult{}
+	transformer.Transformer = func(target *t.Triples) error {
 		data, err := DecodeJson(json)
 		if err != nil {
 			log.Printf("Error decoding '%s' %s", json, err)
@@ -136,9 +136,9 @@ func NewJsonParser(json string) *TransformerWithResult {
 	return &transformer
 }
 
-func NewCsvParser(data io.Reader) *TransformerWithResult {
-	transformer := TransformerWithResult{}
-	transformer.Transformer = func(target *Triples) error {
+func NewCsvParser(data io.Reader) *t.TransformerWithResult {
+	transformer := t.TransformerWithResult{}
+	transformer.Transformer = func(target *t.Triples) error {
 		array, err := csv.NewReader(data).ReadAll()
 		if err != nil {
 			return err
@@ -153,9 +153,9 @@ func NewCsvParser(data io.Reader) *TransformerWithResult {
 	return &transformer
 }
 
-func NewFileJsonParser(filename string) *TransformerWithResult {
-	transformer := TransformerWithResult{}
-	transformer.Transformer = func(target *Triples) error {
+func NewFileJsonParser(filename string) *t.TransformerWithResult {
+	transformer := t.TransformerWithResult{}
+	transformer.Transformer = func(target *t.Triples) error {
 		buffer, err := Read(filename)
 		if err != nil {
 			return err
@@ -272,8 +272,8 @@ func RemoveComment(line string) string {
 // 	return res, err
 // }
 
-func NewJsonTriples(data string) (*Triples, error) {
-	res := NewTriples()
+func NewJsonTriples(data string) (*t.Triples, error) {
+	res := t.NewTriples()
 	err := res.Transform(NewJsonParser(data).Transformer)
 	return res, err
 }

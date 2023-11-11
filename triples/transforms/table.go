@@ -1,148 +1,98 @@
 package transforms
 
 import (
-	"strings"
-
 	"github.com/mholzen/information/triples"
-	. "github.com/mholzen/information/triples"
 )
 
-type Rows [][][]Node
-
-type TableGenerator struct {
-	Transformer Transformer
-	Definition  TableDefinition
-	Rows        Rows
-}
-
-func (g TableGenerator) Html() string {
-	res := make([]string, 0)
-	for _, row := range g.Rows {
-		cells := make([]string, 0)
-		for _, cell := range row {
-			nodes := make([]string, 0)
-			for _, node := range cell {
-				nodes = append(nodes, node.String())
+func NewTable(headers *triples.Triples, rowQuery *triples.Triples) triples.Mapper {
+	if rowQuery == nil {
+		rowQuery = RowQuery()
+	}
+	return func(source *triples.Triples) (*triples.Triples, error) {
+		if headers == nil {
+			var err error
+			headers, err = PredicatesSortedByString(source)
+			if err != nil {
+				return nil, err
 			}
-			cells = append(cells, "<td>"+strings.Join(nodes, "<br>")+"</td>")
 		}
-		res = append(res, "<tr>"+strings.Join(cells, "\n")+"</tr>")
-	}
-	return "<table>\n" +
-		g.Definition.Html() +
-		strings.Join(res, "\n") +
-		"\n</table>"
-}
 
-func NewTableGenerator(definition *Triples) *TableGenerator {
-	def := NewTableDefinition(definition)
-	res := TableGenerator{
-		Definition: def,
-	}
-
-	rowFilter := Filter(def.RowFilter)
-
-	res.Transformer = func(source *Triples) error {
-		rows, err := source.Map(rowFilter)
+		queryTripleMatch, err := NewTripleMatchFromTriples(rowQuery)
 		if err != nil {
-			return err
+			return nil, err
 		}
-		rowNodes := rows.GetObjects().GetSortedNodeList()
+		rows, err := source.Map(Filter(queryTripleMatch))
+		if err != nil {
+			return nil, err
+		}
 
-		// for _, subject := range def.GetSubjectList() {
-		for _, subject := range rowNodes {
-			row := make([][]Node, len(def.Columns))
-			for j, filter := range def.ColumnFilters {
-				cell := make([]Node, 0)
-				for _, triple := range source.GetTripleListForSubject(subject) {
-					if filter(triple) {
-						cell = append(cell, triple.Object)
-					}
+		res := triples.NewTriples()
+		root := triples.NewAnonymousNode()
+		for i, row := range rows.GetTripleList().Sort() {
+			resultRow := triples.NewAnonymousNode()
+			for j, header := range headers.GetTripleList().Sort() {
+
+				query := triples.NewTriples()
+				query.AddTriple(triples.NewAnonymousNode(), triples.Subject, row.Object)
+				query.AddTriple(triples.NewAnonymousNode(), triples.Predicate, header.Object)
+				queryTripleMatch, err := NewTripleMatchFromTriples(query)
+				if err != nil {
+					return nil, err
 				}
-				row[j] = cell
+				cellTriples, err := source.Map(Filter(queryTripleMatch))
+				if err != nil {
+					return nil, err
+				}
+				resultCell := triples.NewAnonymousNode()
+				for k, cellTriple := range cellTriples.GetTripleList() {
+					res.AddTriple(resultCell, triples.NewIndexNode(k), cellTriple.Object)
+				}
+				res.AddTriple(resultRow, triples.NewIndexNode(j), resultCell)
 			}
-			res.Rows = append(res.Rows, row)
+			res.AddTriple(root, triples.NewIndexNode(i), resultRow)
 		}
-		return nil
+		return res, nil
 	}
-	return &res
+
 }
 
-type TableDefinition struct {
-	Columns       [][]Node
-	ColumnFilters []TripleMatch
-	RowQuery      *Triples
-	RowFilter     TripleMatch
-	// SortColumn    int // TODO: should become a function
-}
+var Table = NewTable(nil, nil)
 
-func (d TableDefinition) Html() string {
-	res := make([]string, 0)
-	for _, col := range d.Columns {
-		nodes := make([]string, 0)
-		for _, node := range col {
-			nodes = append(nodes, node.String())
-		}
-		res = append(res, "<th>"+strings.Join(nodes, "<br>")+"</th>")
-	}
-	return "<tr>\n" + strings.Join(res, "\n") + "\n</tr>"
-}
-
-func NewTableDefinition(definition *Triples) TableDefinition {
-	columnNo := 0
-	res := TableDefinition{
-		Columns:       make([][]Node, 0),
-		ColumnFilters: make([]TripleMatch, 0),
-	}
-	for {
-		column := NewTriples()
-		f := NewPredicateFilter(column, NewIndexNode(columnNo))
-		err := definition.Transform(f) // TODO: why can a transform fail?
-		if err != nil {
-			panic(err)
-		}
-		if len(column.TripleSet) == 0 {
-			break
-		}
-		col := make([]Node, 0)
-		for _, triple := range column.GetTripleList() {
-			col = append(col, triple.Object)
-		}
-		res.Columns = append(res.Columns, col)
-		res.ColumnFilters = append(res.ColumnFilters, NewPredicateOrMatch(col...))
-		columnNo++
-	}
-
-	res.RowQuery = RowQuery()
-	filter, err := NewTripleMatchFromTriples(res.RowQuery)
+func Table2(source *triples.Triples) (*triples.Triples, error) {
+	headers, err := PredicatesSortedByString(source)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	res.RowFilter = filter
 
-	return res
-}
+	rows, err := RowTriples(source)
+	if err != nil {
+		return nil, err
+	}
 
-// TODO: make this into a transform
-func OrderedPredicateList(rows *Triples) *Triples {
-	res := NewTriples()
-	container := NewAnonymousNode()
+	res := triples.NewTriples()
+	root := triples.NewAnonymousNode()
+	for i, row := range rows.GetTripleList().Sort() {
+		resultRow := triples.NewAnonymousNode()
+		for j, header := range headers.GetTripleList().Sort() {
 
-	var columns = make(map[Node]int, 0)
-
-	for _, row := range rows.GetTripleList() { // TODO: Sort
-		predicate := row.Predicate
-		if _, ok := columns[predicate]; !ok {
-			columns[predicate] = len(columns)
-			res.AddTriple(container, NewIndexNode(columns[predicate]), predicate)
+			query := triples.NewTriples()
+			query.AddTriple(triples.NewAnonymousNode(), triples.Subject, row.Object)
+			query.AddTriple(triples.NewAnonymousNode(), triples.Predicate, header.Object)
+			queryTripleMatch, err := NewTripleMatchFromTriples(query)
+			if err != nil {
+				return nil, err
+			}
+			cellTriples, err := source.Map(Filter(queryTripleMatch))
+			if err != nil {
+				return nil, err
+			}
+			resultCell := triples.NewAnonymousNode()
+			for k, cellTriple := range cellTriples.GetTripleList() {
+				res.AddTriple(resultCell, triples.NewIndexNode(k), cellTriple.Object)
+			}
+			res.AddTriple(resultRow, triples.NewIndexNode(j), resultCell)
 		}
+		res.AddTriple(root, triples.NewIndexNode(i), resultRow)
 	}
-	return res
-}
-
-func RowQuery() *Triples {
-	rowQuery := triples.NewTriples()
-	rowQuery.AddTriple(triples.NewAnonymousNode(), triples.Predicate, triples.NewNodeMatchAnyIndex1())
-	rowQuery.AddTriple(triples.NewAnonymousNode(), triples.Object, triples.NewNodeMatchAnyAnonymous1())
-	return rowQuery
+	return res, nil
 }

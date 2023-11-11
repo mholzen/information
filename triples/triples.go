@@ -39,11 +39,17 @@ func (t Triple) GetNode(position Node) (Node, error) {
 func GetNodeFunction(position Node) (func(Triple) Node, error) {
 	switch position {
 	case Subject:
-		return func(t Triple) Node { return t.Subject }, nil
+		return func(t Triple) Node {
+			return t.Subject
+		}, nil
 	case Predicate:
-		return func(t Triple) Node { return t.Predicate }, nil
+		return func(t Triple) Node {
+			return t.Predicate
+		}, nil
 	case Object:
-		return func(t Triple) Node { return t.Object }, nil
+		return func(t Triple) Node {
+			return t.Object
+		}, nil
 	}
 	return nil, fmt.Errorf("invalid node position %d", position)
 }
@@ -51,6 +57,8 @@ func GetNodeFunction(position Node) (func(Triple) Node, error) {
 func shortString(n Node) string {
 	if a, ok := n.(AnonymousNode); ok {
 		return a.String()[0:8]
+	} else if n == nil {
+		return "<nil>"
 	} else {
 		return n.String()
 	}
@@ -266,6 +274,10 @@ func (source *Triples) GetTripleListForSubject(node Node) TripleList {
 	return source.GetTriplesForSubject(node).GetTripleList()
 }
 
+func (source *Triples) GetTripleListForObject(node Node) TripleList {
+	return source.GetTriplesForObject(node).GetTripleList()
+}
+
 func (source *Triples) GetTriplesForPredicate(predicate Node) *Triples {
 	res := NewTriples()
 	for _, triple := range source.TripleSet {
@@ -326,6 +338,10 @@ func (source *Triples) GetPredicateList() NodeList { // TODO: refactor to avoid 
 		res = append(res, set[key])
 	}
 	return res
+}
+
+func (source *Triples) GetObjectList() NodeList {
+	return source.GetObjects().GetSortedNodeList()
 }
 
 func (source *Triples) GetTripleList() TripleList {

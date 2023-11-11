@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/mholzen/information/triples"
+	"github.com/mholzen/information/triples/html"
 	"github.com/mholzen/information/triples/transforms"
 	"github.com/mholzen/information/triples/transforms/node_link"
 	"github.com/russross/blackfriday/v2"
@@ -263,30 +264,6 @@ func ToTableDefinitionPayload(input Payload) (Payload, error) {
 	}, nil
 }
 
-func ToTablePayload(input Payload) (Payload, error) {
-	src, err := ToTriples(input)
-	if err != nil {
-		return input, err
-	}
-	def, err := transforms.PredicatesSortedByString(src)
-	if err != nil {
-		return input, err
-	}
-	tr := transforms.NewTableGenerator(def)
-	if err != nil {
-		return input, err
-	}
-
-	err = src.Transform(tr.Transformer)
-	if err != nil {
-		return input, err
-	}
-	return Payload{
-		Content: "text/html",
-		Data:    tr.Html(),
-	}, nil
-}
-
 func ToListPayload(input Payload) (Payload, error) {
 	src, err := ToTriples(input)
 	if err != nil {
@@ -308,14 +285,54 @@ func ToRowsPayload(input Payload) (Payload, error) {
 	if err != nil {
 		return input, err
 	}
-	a := transforms.NewFilterMapperFromTriples(transforms.RowQuery())
-	res, err = res.Map(a)
+	tripleMatch, err := transforms.NewTripleMatchFromTriples(transforms.RowQuery())
+	if err != nil {
+		return input, err
+	}
+	res, err = res.Map(transforms.Filter(tripleMatch))
+	if err != nil {
+		return input, err
+	}
+	return Payload{
+		Content: "application/json+triples",
+		Data:    res,
+	}, nil
+}
+
+func ToTableTransformPayload(input Payload) (Payload, error) {
+	res, err := ToTriples(input)
+	if err != nil {
+		return input, err
+	}
+
+	res, err = res.Map(transforms.Table)
+	if err != nil {
+		return input, err
+	}
+	return Payload{
+		Content: "application/json+triples",
+		Data:    res,
+	}, nil
+}
+
+func ToHtmlTransformPayload(input Payload) (Payload, error) {
+	res, err := ToTriples(input)
+	if err != nil {
+		return input, err
+	}
+
+	res, err = res.Map(transforms.HtmlTable)
+	if err != nil {
+		return input, err
+	}
+
+	h, err := html.FromTriples(res)
 	if err != nil {
 		return input, err
 	}
 
 	return Payload{
-		Content: "application/json+triples",
-		Data:    res,
+		Content: "text/html",
+		Data:    string(h),
 	}, nil
 }

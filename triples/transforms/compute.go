@@ -1,7 +1,7 @@
 package transforms
 
 import (
-	. "github.com/mholzen/information/triples"
+	t "github.com/mholzen/information/triples"
 )
 
 // does (x, f, y) means "f(x) = y"
@@ -26,15 +26,15 @@ import (
 // if it can't find it, it looks for a way to compute it
 // (3, "square", 9)
 
-func NewCompute() Transformer {
-	return func(source *Triples) error {
+func NewCompute() t.Transformer {
+	return func(source *t.Triples) error {
 		for _, triple := range source.TripleSet {
-			if f, ok := triple.Predicate.(UnaryFunctionNode); ok {
+			if f, ok := triple.Predicate.(t.UnaryFunctionNode); ok {
 				value, err := f(triple.Subject)
 				if err != nil {
 					return err
 				}
-				name := NewStringNode(f.String())
+				name := t.NewStringNode(f.String())
 				source.AddTriple(triple.Subject, name, value)
 			}
 		}
@@ -42,11 +42,11 @@ func NewCompute() Transformer {
 	}
 }
 
-func NewComputeWithDefinitions(definitions *Triples) Transformer {
-	return func(source *Triples) error {
+func NewComputeWithDefinitions(definitions *t.Triples) t.Transformer {
+	return func(source *t.Triples) error {
 
 		for _, definition := range definitions.GetTriplesForPredicate(ComputeNode).TripleSet {
-			if f, ok := definition.Subject.(UnaryFunctionNode); !ok {
+			if f, ok := definition.Subject.(t.UnaryFunctionNode); !ok {
 				continue
 			} else {
 				label := definition.Object
@@ -68,10 +68,10 @@ func NewComputeWithDefinitions(definitions *Triples) Transformer {
 	}
 }
 
-var ComputeNode = NewStringNode("compute")
+var ComputeNode = t.NewStringNode("compute")
 
-func ComputeTripleTransformer(subject Node, predicate UnaryFunctionNode, label Node) Transformer {
-	return func(source *Triples) error {
+func ComputeTripleTransformer(subject t.Node, predicate t.UnaryFunctionNode, label t.Node) t.Transformer {
+	return func(source *t.Triples) error {
 		object, err := predicate(subject)
 		if err != nil {
 			return err
@@ -84,10 +84,10 @@ func ComputeTripleTransformer(subject Node, predicate UnaryFunctionNode, label N
 	}
 }
 
-func GetDefinitions() *Triples {
-	var Definitions = NewTriples()
-	Definitions.AddTriple(TypeNode, ComputeNode, "type")
-	Definitions.AddTriple(SquareNode, ComputeNode, "square")
-	Definitions.AddTriple(LengthFunction, ComputeNode, "length")
+func GetDefinitions() *t.Triples {
+	var Definitions = t.NewTriples()
+	Definitions.AddTriple(t.TypeNode, ComputeNode, "type")
+	Definitions.AddTriple(t.SquareNode, ComputeNode, "square")
+	Definitions.AddTriple(t.LengthFunction, ComputeNode, "length")
 	return Definitions
 }

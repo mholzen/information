@@ -43,10 +43,8 @@ func main() {
 	e.GET("/stats/:file", handlers.StatsHandler)
 	e.GET("/triples/:file", handlers.TriplesHandler)
 	e.GET("/html/:file", handlers.HtmlHandler)
-	e.GET("/objects/:file", handlers.ObjectsHandler)
 	e.GET("/nodelink/:file", handlers.NodeLinkHandler)
 	e.GET("/graph/:file", handlers.GraphHandler)
-	e.GET("/table/:file", handlers.TableHandler)
 	e.GET("/files/:file", handlers.FilesPostfixHandler)
 
 	e.GET("/", func(c echo.Context) error {

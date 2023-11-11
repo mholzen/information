@@ -3,37 +3,37 @@ package transforms
 import (
 	"fmt"
 
-	. "github.com/mholzen/information/triples"
+	t "github.com/mholzen/information/triples"
 )
 
-type NodeMatch func(node Node) (bool, error)
+type NodeMatch func(node t.Node) (bool, error)
 
-func NewNodeMatch(node Node) NodeMatch {
+func NewNodeMatch(node t.Node) NodeMatch {
 	switch node := node.(type) {
-	case UnaryFunctionNode:
-		return func(n Node) (bool, error) {
+	case t.UnaryFunctionNode:
+		return func(n t.Node) (bool, error) {
 			v, err := node(n)
 			if err != nil {
 				return false, err
 			}
-			return v == NewNumberNode(1), nil
+			return v == t.NewNumberNode(1), nil
 		}
 	default:
-		return func(n Node) (bool, error) {
+		return func(n t.Node) (bool, error) {
 			return n == node, nil
 		}
 	}
 }
 
-type TripleFMatch func(triple Triple) (bool, error)
+type TripleFMatch func(triple t.Triple) (bool, error)
 
-func NewTripleFMatch(triple Triple) TripleFMatch {
-	tripleFunction, tripleFunctionOk := triple.Predicate.(TripleFunctionNode)
+func NewTripleFMatch(triple t.Triple) TripleFMatch {
+	tripleFunction, tripleFunctionOk := triple.Predicate.(t.TripleFunctionNode)
 
 	subjectMatch := NewNodeMatch(triple.Subject)
 	predicateMatch := NewNodeMatch(triple.Predicate)
 	objectMatch := NewNodeMatch(triple.Object)
-	return func(t Triple) (bool, error) {
+	return func(t t.Triple) (bool, error) {
 		// log.Printf("testing for %v (is function: %v)", triple, tripleFunctionOk)
 
 		if tripleFunctionOk {
@@ -74,9 +74,9 @@ func NewTripleFMatch(triple Triple) TripleFMatch {
 	}
 }
 
-func NewContains(triple Triple, dest *Triples) Transformer {
+func NewContains(triple t.Triple, dest *t.Triples) t.Transformer {
 	match := NewTripleFMatch(triple)
-	return func(source *Triples) error {
+	return func(source *t.Triples) error {
 		for _, t := range source.TripleSet {
 			m, err := match(t)
 			if err != nil {
@@ -95,13 +95,13 @@ func NewContains(triple Triple, dest *Triples) Transformer {
 
 }
 
-func NewContainsTriples(needles *Triples) Mapper {
+func NewContainsTriples(needles *t.Triples) t.Mapper {
 	matches := make([]TripleFMatch, 0)
 	for _, triple := range needles.TripleSet {
 		matches = append(matches, NewTripleFMatch(triple))
 	}
-	return func(haystack *Triples) (*Triples, error) {
-		res := NewTriples()
+	return func(haystack *t.Triples) (*t.Triples, error) {
+		res := t.NewTriples()
 		for _, match := range matches {
 			matched := false
 			for _, t := range haystack.TripleSet {
@@ -125,7 +125,7 @@ func NewContainsTriples(needles *Triples) Mapper {
 
 }
 
-func ContainsTriples(needles, haystack *Triples) (bool, error) {
+func ContainsTriples(needles, haystack *t.Triples) (bool, error) {
 	res, err := NewContainsTriples(needles)(haystack)
 	if err != nil {
 		return false, err
@@ -133,10 +133,10 @@ func ContainsTriples(needles, haystack *Triples) (bool, error) {
 	return len(res.TripleSet) == len(needles.TripleSet)*3, nil
 }
 
-func NewContainsMapper(triple Triple) Mapper {
+func NewContainsMapper(triple t.Triple) t.Mapper {
 
-	return func(source *Triples) (*Triples, error) {
-		res := NewTriples()
+	return func(source *t.Triples) (*t.Triples, error) {
+		res := t.NewTriples()
 		transformer := NewContains(triple, res)
 		err := transformer(source)
 		if err != nil {
@@ -146,7 +146,7 @@ func NewContainsMapper(triple Triple) Mapper {
 	}
 }
 
-func NewContainsOrComputeMapper(triple Triple, functions *Triples) Mapper {
+func NewContainsOrComputeMapper(triple t.Triple, functions *t.Triples) t.Mapper {
 
 	// do we have a function that computes this label?
 	functionFinder := Filter(
@@ -156,10 +156,10 @@ func NewContainsOrComputeMapper(triple Triple, functions *Triples) Mapper {
 		),
 	)
 	functions, functionFinderErr := functionFinder(functions)
-	subjects := GetUnaryNodes(functions.GetSubjectList())
+	subjects := t.GetUnaryNodes(functions.GetSubjectList())
 
-	return func(source *Triples) (*Triples, error) {
-		res := NewTriples()
+	return func(source *t.Triples) (*t.Triples, error) {
+		res := t.NewTriples()
 		finder := NewContains(triple, res)
 		// logrus.Debugf("searching for %v", triple)
 		err := finder(source)
@@ -208,13 +208,13 @@ func NewContainsOrComputeMapper(triple Triple, functions *Triples) Mapper {
 	}
 }
 
-func NewMultiContainsOrComputeMapper(toFind *Triples, functions *Triples) Mapper {
-	mappers := make([]Mapper, 0)
+func NewMultiContainsOrComputeMapper(toFind *t.Triples, functions *t.Triples) t.Mapper {
+	mappers := make([]t.Mapper, 0)
 	for _, triple := range toFind.TripleSet {
 		mappers = append(mappers, NewContainsOrComputeMapper(triple, functions))
 	}
-	return func(source *Triples) (*Triples, error) {
-		res := NewTriples()
+	return func(source *t.Triples) (*t.Triples, error) {
+		res := t.NewTriples()
 		for _, mapper := range mappers {
 			m, err := mapper(source)
 			if err != nil {

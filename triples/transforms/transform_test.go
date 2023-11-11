@@ -1,7 +1,6 @@
 package transforms
 
 import (
-	"sort"
 	"testing"
 
 	. "github.com/mholzen/information/triples"
@@ -51,44 +50,26 @@ func Test_traverse(t *testing.T) {
 	assert.Len(t, src.GetTripleListForSubject(*tm.Result), 2)
 
 	res := NewTriples()
-	dest := NewAnonymousNode()
-	err = src.Transform(NewTraverse(*tm.Result, AlwaysTripleMatch, dest, res))
+	err = src.Transform(NewTraverse(*tm.Result, AlwaysTripleMatch, res))
 	require.Nil(t, err)
-	assert.Len(t, res.GetTripleListForSubject(dest), 4)
+	assert.Len(t, res.TripleSet, 4 /*nodes*/ +4*3 /*references per node*/)
 
-	res2 := NewTriples()
-	dest2 := NewAnonymousNode()
-	objectMapper := NewTripleObjectTransformer(dest2, res2)
-	err = res.Transform(NewMap(dest, objectMapper, res2))
+	references, err := GetReferences(res)
 	require.Nil(t, err)
-
-	answer := res2.GetTripleListForSubject(dest2)
-	assert.Len(t, answer, 4)
+	assert.Len(t, references.TripleSet, 4)
 }
 
 func Test_traverse_file(t *testing.T) {
-	var top Node = NewAnonymousNode()
 	tm := NewFileJsonParser("../../data/verbs.jsonc")
 
 	src := NewTriples()
 	err := src.Transform(tm.Transformer)
 	require.Nil(t, err)
-
-	dest := NewAnonymousNode()
-	err = src.Transform(NewTraverse(top, AlwaysTripleMatch, dest, src))
-	require.Nil(t, err)
-
-	dest2 := NewAnonymousNode()
-	objectMapper := NewTripleObjectTransformer(dest2, src)
-	err = src.Transform(NewMap(dest, objectMapper, src))
-	require.Nil(t, err)
-
-	res := NewTriples()
-	err = src.Transform(NewFlatMap(dest2, GetStringObjectMapper, res))
-	require.Nil(t, err)
-
-	answer := res.GetTripleList().GetObjectStrings()
-	sort.Strings(answer)
-
 	assert.Greater(t, len(src.TripleSet), 100)
+
+	dest := NewTriples()
+	err = src.Transform(NewTraverse(*tm.Result, AlwaysTripleMatch, dest))
+	require.Nil(t, err)
+
+	assert.Greater(t, len(dest.TripleSet), 10)
 }

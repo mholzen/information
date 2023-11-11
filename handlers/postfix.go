@@ -45,12 +45,13 @@ var HandlerMap = map[string]Transform{
 	"list":            ToListPayload,
 	"mime":            ToMimeType,
 	"nodelink":        ToNodeLinkPayload,
-	"table":           ToTablePayload,
 	"tableDefinition": ToTableDefinitionPayload,
 	"predicates":      ToTableDefinitionPayload,
 	"text":            ToTextPayload,
 	"triples":         ToTriplesPayload,
 	"transform,rows":  ToRowsPayload,
+	"transform,table": ToTableTransformPayload,
+	"transform,html":  ToHtmlTransformPayload,
 }
 
 func FilesPostfixHandler(c echo.Context) error {

@@ -1,10 +1,12 @@
 package transforms
 
-import . "github.com/mholzen/information/triples"
+import (
+	t "github.com/mholzen/information/triples"
+)
 
-func NewMap(start Node, tripleTransform TripleTransform, output *Triples) Transformer {
+func NewMap(start t.Node, tripleTransform t.TripleTransform, output *t.Triples) t.Transformer {
 
-	return func(source *Triples) error {
+	return func(source *t.Triples) error {
 		triples := source.GetTripleListForSubject(start)
 		triples.Sort()
 		for i, triple := range triples {
@@ -18,30 +20,9 @@ func NewMap(start Node, tripleTransform TripleTransform, output *Triples) Transf
 	}
 }
 
-func NewTripleObjectTransformer(target Node, dest *Triples) TripleTransform {
-	return func(set *Triples, triple Triple, i int, root Node) (Triple, error) {
+func NewFlatMap(start t.Node, mapper t.TripleMapper, output *t.Triples) t.Transformer {
 
-		if _, ok := triple.Object.(AnonymousNode); ok {
-			var objectNode Node
-			l := set.GetTripleListForSubject(triple.Object)
-			for _, t := range l {
-				if t.Predicate == Object {
-					objectNode = t.Object
-					break
-				}
-			}
-			if objectNode != nil {
-				newTriple := set.NewTripleFromNodes(target, NewIndexNode(i), objectNode)
-				return newTriple, nil
-			}
-		}
-		return Triple{}, nil
-	}
-}
-
-func NewFlatMap(start Node, mapper TripleMapper, output *Triples) Transformer {
-
-	return func(source *Triples) error {
+	return func(source *t.Triples) error {
 
 		triples := source.GetTripleListForSubject(start)
 		triples.Sort()
@@ -56,9 +37,9 @@ func NewFlatMap(start Node, mapper TripleMapper, output *Triples) Transformer {
 	}
 }
 
-func GetStringObjectMapper(triple Triple) (*Triples, error) {
-	triples := NewTriples()
-	if _, ok := triple.Object.(StringNode); ok {
+func GetStringObjectMapper(triple t.Triple) (*t.Triples, error) {
+	triples := t.NewTriples()
+	if _, ok := triple.Object.(t.StringNode); ok {
 		triples.Add(triple)
 	}
 	return triples, nil

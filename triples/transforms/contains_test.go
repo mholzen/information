@@ -33,7 +33,7 @@ func Test_Contains(t *testing.T) {
 	err = NewContains(toFind, tpls)(tpls)
 	require.Nil(t, err)
 
-	res, err := tpls.Map(NewReferences())
+	res, err := tpls.Map(GetReferences)
 	require.Nil(t, err)
 
 	assert.Len(t, res.TripleSet, 1)
@@ -57,9 +57,6 @@ func Test_Contains_triples(t *testing.T) {
 
 	res, err := NewContainsTriples(toFind)(tpls)
 	require.Nil(t, err)
-
-	// res, err := tpls.Map(NewReferences())
-	// require.Nil(t, err)
 
 	assert.Len(t, res.TripleSet, 2)
 
@@ -89,9 +86,6 @@ func Test_Contains_triples_utility(t *testing.T) {
 
 	res, err := NewContainsTriples(toFind)(tpls)
 	require.Nil(t, err)
-
-	// res, err := tpls.Map(NewReferences())
-	// require.Nil(t, err)
 
 	assert.Len(t, res.TripleSet, 2)
 

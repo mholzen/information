@@ -3,12 +3,12 @@ package transforms
 import (
 	"log"
 
-	. "github.com/mholzen/information/triples"
+	t "github.com/mholzen/information/triples"
 	"storj.io/common/uuid"
 )
 
 type VariableNode struct {
-	CreatedNode[uuid.UUID]
+	t.CreatedNode[uuid.UUID]
 }
 
 func NewVariableNode() VariableNode {
@@ -17,20 +17,20 @@ func NewVariableNode() VariableNode {
 		log.Fatal(err)
 	}
 	return VariableNode{
-		CreatedNode: NewCreatedNode(value),
+		CreatedNode: t.NewCreatedNode(value),
 	}
 }
 
 type VariableList []VariableNode
 
-func (v VariableList) Traverse(nodes NodeList) []NodeList {
-	res := make([]NodeList, 0)
+func (v VariableList) Traverse(nodes t.NodeList) []t.NodeList {
+	res := make([]t.NodeList, 0)
 	indices := make([]int, len(v))
 	i := 0
 	for {
 		if i < len(v) && indices[i] < len(nodes) {
 			// output
-			row := make(NodeList, 0)
+			row := make(t.NodeList, 0)
 			for _, j := range indices {
 				row = append(row, nodes[j])
 			}
@@ -61,7 +61,7 @@ func (v VariableList) Traverse(nodes NodeList) []NodeList {
 	return res
 }
 
-func GetVariableList(nodes NodeList) VariableList {
+func GetVariableList(nodes t.NodeList) VariableList {
 	res := make(VariableList, 0)
 	for _, node := range nodes {
 		if variable, ok := node.(VariableNode); ok {
@@ -72,8 +72,8 @@ func GetVariableList(nodes NodeList) VariableList {
 }
 
 // The results can contain multiple solutions, each identified by the predicate "solution" and the object being an index node.
-func NewQueryTransformer(query, dest, definitions *Triples) Transformer {
-	return func(source *Triples) error {
+func NewQueryTransformer(query, dest, definitions *t.Triples) t.Transformer {
+	return func(source *t.Triples) error {
 		// find list of variables from query
 		variables := GetVariableList(query.Nodes.GetNodeList())
 
@@ -109,8 +109,8 @@ func NewQueryTransformer(query, dest, definitions *Triples) Transformer {
 			// log.Printf("len(query):\n%v", len(query.TripleSet))
 			if len(matches.TripleSet) == (len(query.TripleSet) * 3) { // TODO: magic number
 				// log.Printf("found match")
-				container := NewAnonymousNode()
-				dest.AddTriple(container, NewStringNode("solution"), NewIndexNode(solutionNo))
+				container := t.NewAnonymousNode()
+				dest.AddTriple(container, t.NewStringNode("solution"), t.NewIndexNode(solutionNo))
 
 				// Add NodeMap to dest
 				// TODO: refactor to method of NodeMap
@@ -122,7 +122,7 @@ func NewQueryTransformer(query, dest, definitions *Triples) Transformer {
 				// dest.AddTriples(matches)
 				for _, triple := range matches.TripleSet {
 					dest.Add(triple) // should already be a reference
-					dest.AddTriple(container, NewStringNode("contains"), triple.Subject)
+					dest.AddTriple(container, t.NewStringNode("contains"), triple.Subject)
 				}
 			}
 		}
@@ -131,8 +131,8 @@ func NewQueryTransformer(query, dest, definitions *Triples) Transformer {
 	}
 }
 
-func (v VariableList) GetNodeList() NodeList {
-	res := make(NodeList, 0)
+func (v VariableList) GetNodeList() t.NodeList {
+	res := make(t.NodeList, 0)
 	for _, variable := range v {
 		res = append(res, variable)
 	}

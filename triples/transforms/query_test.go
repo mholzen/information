@@ -17,7 +17,7 @@ func Test_VariableNode(t *testing.T) {
 	assert.True(t, ok)
 }
 
-func Test_Traverse(t *testing.T) {
+func Test_VariableList_Traverse(t *testing.T) {
 	nodes := NodeList{NewStringNode("a"), NewStringNode("b"), NewStringNode("c")}
 	vars := VariableList{NewVariableNode(), NewVariableNode()}
 	r := vars.Traverse(nodes)
@@ -55,7 +55,7 @@ func Test_NewQuery(t *testing.T) {
 	statements = res.GetTriplesForSubjects(objects)
 	require.Len(t, statements.TripleSet, 3)
 
-	references, err := NewReferences()(statements)
+	references, err := GetReferences(statements)
 	require.Nil(t, err)
 
 	assert.Len(t, references.TripleSet, 1)
@@ -67,7 +67,8 @@ func Test_NewQuery(t *testing.T) {
 	}))
 }
 
-func test_NewQuery_with_multiple_conditions(t *testing.T) {
+func Test_NewQuery_with_multiple_conditions(t *testing.T) {
+	t.Skip()
 	src, err := NewJsonTriples(`[{"a":1,"b":2},{"b":2},{"c":3}]`)
 	require.Nil(t, err)
 
@@ -79,7 +80,7 @@ func test_NewQuery_with_multiple_conditions(t *testing.T) {
 	res := NewTriples()
 	err = src.Transform(NewQueryTransformer(query, res, GetDefinitions()))
 	require.Nil(t, err)
-	res, err = res.Map(NewReferences())
+	res, err = res.Map(GetReferences)
 	require.Nil(t, err)
 
 	assert.Len(t, res.TripleSet, 2)
@@ -135,7 +136,7 @@ func Test_NewQuery_with_matching(t *testing.T) {
 	require.Nil(t, err)
 	assert.Greater(t, len(res.TripleSet), 1) // ContainsTriples modifies the triples
 
-	res, err = res.Map(NewReferences())
+	res, err = res.Map(GetReferences)
 	require.Nil(t, err)
 
 	assert.Len(t, res.TripleSet, 1)

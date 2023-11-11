@@ -1,21 +1,20 @@
 package transforms
 
 import (
-	"github.com/mholzen/information/triples"
-	. "github.com/mholzen/information/triples"
+	t "github.com/mholzen/information/triples"
 )
 
-func Predicates(source *Triples) (*Triples, error) {
-	res := NewTriples()
-	container := NewAnonymousNode()
+func Predicates(source *t.Triples) (*t.Triples, error) {
+	res := t.NewTriples()
+	container := t.NewAnonymousNode()
 
 	for _, row := range source.GetTripleList() {
-		res.AddTriple(container, triples.Predicate, row.Predicate)
+		res.AddTriple(container, t.Predicate, row.Predicate)
 	}
 	return res, nil
 }
 
-func PredicatesSortedByString(source *Triples) (*Triples, error) {
+func PredicatesSortedByString(source *t.Triples) (*t.Triples, error) {
 	predicates, err := source.Map(Predicates)
 	if err != nil {
 		return nil, err
@@ -25,10 +24,10 @@ func PredicatesSortedByString(source *Triples) (*Triples, error) {
 		return predicateList[i].Object.String() < predicateList[j].Object.String()
 	})
 
-	res := NewTriples()
-	container := NewAnonymousNode()
+	res := t.NewTriples()
+	container := t.NewAnonymousNode()
 	for i, triple := range predicateList {
-		res.AddTriple(container, NewIndexNode(i), triple.Object)
+		res.AddTriple(container, t.NewIndexNode(i), triple.Object)
 	}
 	return res, nil
 }
