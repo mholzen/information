@@ -7,6 +7,15 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func Test_CompareTriple(t *testing.T) {
+	t1, _ := NewTriple("a", "b", 1)
+	t2, _ := NewTriple("a", "b", 1)
+	t3, _ := NewTriple("a", "c", 1)
+
+	assert.Equal(t, t1, t2)
+	assert.NotEqual(t, t1, t3)
+}
+
 func Test_NewTriplesFromMap(t *testing.T) {
 	triples := NewTriples()
 	_, err := triples.NewTriplesFromMap(map[string]interface{}{

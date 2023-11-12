@@ -54,7 +54,7 @@ func Test_traverse(t *testing.T) {
 	require.Nil(t, err)
 	assert.Len(t, res.TripleSet, 4 /*nodes*/ +4*3 /*references per node*/)
 
-	references, err := GetReferences(res)
+	references, err := ReferencesMapper(res)
 	require.Nil(t, err)
 	assert.Len(t, references.TripleSet, 4)
 }

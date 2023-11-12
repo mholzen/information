@@ -16,7 +16,7 @@ func Test_References(t *testing.T) {
 	tpl, _ = NewTriple(container, "c", 2)
 	tpls.AddTripleReference(tpl)
 
-	res, err := tpls.Map(GetReferences)
+	res, err := tpls.Map(ReferencesMapper)
 	require.Nil(t, err)
 
 	assert.Len(t, res.TripleSet, 2)

@@ -70,9 +70,47 @@ func GetVariableList(nodes t.NodeList) VariableList {
 	}
 	return res
 }
+func NewQueryMapper(query *t.Triples) t.Mapper {
+	// for each triple in the query
+	// find the set of triples that match it
+	// then generate the cartesian product of those sets
+
+	return func(source *t.Triples) (*t.Triples, error) {
+		solutions := make([]*t.Triples, 0)
+		for _, triple := range query.TripleSet {
+			tripleFilter := NewTripleQueryMapper(triple)
+			matches, err := source.Map(tripleFilter)
+			if err != nil {
+				return nil, err
+			}
+			solutions = append(solutions, matches)
+		}
+		products := Cartesian(solutions)
+
+		res := t.NewTriples()
+		root := t.NewAnonymousNode()
+		for i, triples := range products {
+			node := res.AddTripleReferences(triples)
+			res.AddTriple(root, t.NewIndexNode(i), node)
+		}
+		return res, nil
+	}
+}
+
+func NewTripleQueryMapper(query t.Triple) t.Mapper {
+	return func(source *t.Triples) (*t.Triples, error) {
+		res := t.NewTriples()
+		for _, triple := range source.TripleSet {
+			if query == triple {
+				res.Add(triple)
+			}
+		}
+		return res, nil
+	}
+}
 
 // The results can contain multiple solutions, each identified by the predicate "solution" and the object being an index node.
-func NewQueryTransformer(query, dest, definitions *t.Triples) t.Transformer {
+func NewQueryTransformerWithDefinitions(query, dest, definitions *t.Triples) t.Transformer {
 	return func(source *t.Triples) error {
 		// find list of variables from query
 		variables := GetVariableList(query.Nodes.GetNodeList())

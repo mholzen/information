@@ -33,7 +33,7 @@ func Test_Contains(t *testing.T) {
 	err = NewContains(toFind, tpls)(tpls)
 	require.Nil(t, err)
 
-	res, err := tpls.Map(GetReferences)
+	res, err := tpls.Map(ReferencesMapper)
 	require.Nil(t, err)
 
 	assert.Len(t, res.TripleSet, 1)

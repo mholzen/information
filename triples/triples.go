@@ -102,6 +102,10 @@ func NewTriples() *Triples {
 	}
 }
 
+func (source *Triples) Length() int {
+	return len(source.TripleSet)
+}
+
 func (source *Triples) NewNode(value interface{}) (Node, error) {
 	return NewNode(value)
 }
@@ -135,6 +139,15 @@ func (source *Triples) AddTripleReference(triple Triple) Node {
 	return container
 }
 
+func (source *Triples) AddTripleReferences(triples *Triples) Node {
+	container := NewAnonymousNode()
+	for _, triple := range triples.TripleSet {
+		node := source.AddTripleReference(triple)
+		source.Add(NewTripleFromNodes(container, Contains, node))
+	}
+	return container
+}
+
 func (source *Triples) Add(triple Triple) {
 	if _, ok := source.TripleSet[triple.String()]; ok {
 		return
@@ -148,8 +161,14 @@ func (source *Triples) Add(triple Triple) {
 	}
 }
 
+func (source *Triples) Delete(triple Triple) {
+	// should we delete nodes?
+
+	delete(source.TripleSet, triple.String())
+}
+
 func (source *Triples) AddTriples(triples *Triples) {
-	for _, triple := range source.TripleSet {
+	for _, triple := range triples.TripleSet {
 		source.Add(triple)
 	}
 }
@@ -350,6 +369,14 @@ func (source *Triples) GetTripleList() TripleList {
 		tripleList = append(tripleList, triple)
 	}
 	return tripleList
+}
+
+func (source *Triples) Pop() (Triple, error) {
+	for _, triple := range source.TripleSet {
+		source.Delete(triple)
+		return triple, nil
+	}
+	return Triple{}, fmt.Errorf("cannot pop from empty Triples")
 }
 
 func (source Triples) String() string {

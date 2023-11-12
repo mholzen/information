@@ -4,7 +4,7 @@ import (
 	t "github.com/mholzen/information/triples"
 )
 
-func GetReferences(source *t.Triples) (*t.Triples, error) {
+func References(source *t.Triples) *t.Triples {
 	references := make(map[t.Node]t.Triple)
 
 	for _, triple := range source.TripleSet {
@@ -31,5 +31,8 @@ func GetReferences(source *t.Triples) (*t.Triples, error) {
 			res.Add(t)
 		}
 	}
-	return res, nil
+	return res
+}
+func ReferencesMapper(source *t.Triples) (*t.Triples, error) {
+	return References(source), nil
 }

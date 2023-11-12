@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func Test_Compare(t *testing.T) {
+func Test_CompareNode(t *testing.T) {
 	a1, _ := NewNode("a")
 	a2, _ := NewNode("a")
 	assert.True(t, a1 == a2)
