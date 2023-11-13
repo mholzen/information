@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/mholzen/information/triples"
+	"github.com/mholzen/information/triples/data"
 	"github.com/mholzen/information/triples/html"
 	"github.com/mholzen/information/triples/transforms"
 	"github.com/mholzen/information/triples/transforms/node_link"
@@ -334,5 +335,12 @@ func ToHtmlTransformPayload(input Payload) (Payload, error) {
 	return Payload{
 		Content: "text/html",
 		Data:    string(h),
+	}, nil
+}
+
+func ToDataPayload(input Payload) (Payload, error) {
+	return Payload{
+		Content: "application/json+triples",
+		Data:    data.Data,
 	}, nil
 }

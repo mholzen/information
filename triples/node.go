@@ -182,6 +182,10 @@ func (i FloatType) Compare(other FloatType) int {
 
 func NewNode(value any) (Node, error) {
 	switch typedValue := value.(type) {
+	case NodeBoolFunction:
+		return typedValue, nil
+	case func(Node) bool:
+		return NodeBoolFunction(typedValue), nil
 	case Node:
 		return typedValue, nil
 	case string:

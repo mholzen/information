@@ -154,7 +154,7 @@ func NewTripleMatchFromTriples(filter *t.Triples) (TripleMatch, error) {
 			return nil, err
 		}
 
-		f, ok := filterTriple.Object.(t.NodeBoolFunctionNode)
+		f, ok := filterTriple.Object.(t.NodeBoolFunction)
 		if !ok {
 			f = func(n t.Node) bool {
 				return n == filterTriple.Object

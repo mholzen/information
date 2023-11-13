@@ -16,10 +16,15 @@ func Test_FilterForIndexNodes(t *testing.T) {
 	filter := triples.NewTriples()
 	container := triples.NewAnonymousNode()
 	// filter.AddTriple(container, triples.Subject, triples.NewNodeMatchAny())
-	filter.AddTriple(container, triples.Predicate, triples.NewNodeMatchAnyIndex())
+	_, err := filter.AddTriple(container, triples.Predicate, triples.NodeMatchIndex)
+	require.Nil(t, err)
 	// filter.AddTriple(container, triples.Subject, triples.NewNodeMatchAny())
 
-	res, err := src.Map(NewFilterMapperFromTriples(filter))
+	// res, err := src.Map(NewFilterMapperFromTriples(filter))
+	tripleMatch, err := NewTripleMatchFromTriples(filter)
+	require.Nil(t, err)
+
+	res, err := src.Map(Filter(tripleMatch))
 	require.Nil(t, err)
 	require.Len(t, res.TripleSet, 1)
 }

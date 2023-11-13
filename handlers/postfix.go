@@ -52,6 +52,7 @@ var HandlerMap = map[string]Transform{
 	"transform,rows":  ToRowsPayload,
 	"transform,table": ToTableTransformPayload,
 	"transform,html":  ToHtmlTransformPayload,
+	"data":            ToDataPayload,
 }
 
 func FilesPostfixHandler(c echo.Context) error {

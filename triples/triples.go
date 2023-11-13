@@ -173,6 +173,15 @@ func (source *Triples) AddTriples(triples *Triples) {
 	}
 }
 
+func (source *Triples) AddTriplesAsContainer(triples *Triples) Node {
+	container := NewAnonymousNode()
+	for _, triple := range triples.TripleSet {
+		source.Add(triple)
+		source.NewTripleFromNodes(container, Contains, triple.Subject)
+	}
+	return container
+}
+
 func (source *Triples) NewTriplesFromMap(m map[string]interface{}) (TripleList, error) {
 	res := make(TripleList, 0)
 	is_spo_form := false

@@ -99,3 +99,10 @@ func GraphHandler(c echo.Context) error {
 	}
 	return c.Render(http.StatusOK, "graph.html", data)
 }
+
+func DataHandler(c echo.Context) error {
+	data := map[string]interface{}{
+		"url": "/nodelink/" + c.Param("file"),
+	}
+	return c.Render(http.StatusOK, "graph.html", data)
+}

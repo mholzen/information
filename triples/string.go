@@ -39,6 +39,7 @@ var Subject = NewStringNode("1-subject")
 var Predicate = NewStringNode("2-predicate")
 var Object = NewStringNode("3-object")
 var Contains = NewStringNode("contains")
+var Name = NewStringNode("name")
 
 type StringNodes map[string]StringNode
 

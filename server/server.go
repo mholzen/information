@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -12,6 +11,7 @@ import (
 	"time"
 
 	"github.com/mholzen/information/handlers"
+	"github.com/mholzen/information/triples/data"
 
 	"github.com/labstack/echo/v4"
 )
@@ -26,6 +26,11 @@ func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c 
 
 func main() {
 	e := echo.New()
+
+	err := data.InitData()
+	if err != nil {
+		e.Logger.Fatal(err)
+	}
 
 	e.HTTPErrorHandler = func(err error, c echo.Context) {
 		code := http.StatusInternalServerError
@@ -46,6 +51,7 @@ func main() {
 	e.GET("/nodelink/:file", handlers.NodeLinkHandler)
 	e.GET("/graph/:file", handlers.GraphHandler)
 	e.GET("/files/:file", handlers.FilesPostfixHandler)
+	e.GET("/data", handlers.FilesPostfixHandler)
 
 	e.GET("/", func(c echo.Context) error {
 		return c.Redirect(http.StatusFound, "/files/data/index.md/text/html")
@@ -70,7 +76,6 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
-	log.Printf("here")
 	e.Logger.Info("Signal received: shutting down the server")
 
 	// Create a deadline to wait for.
