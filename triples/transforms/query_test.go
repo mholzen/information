@@ -40,16 +40,8 @@ func Test_NewQueryMapper(t *testing.T) {
 
 	refs := References(res)
 	require.Len(t, refs.TripleSet, 2)
-	assert.True(t, refs.Contains(Triple{
-		Subject:   NewStringNode("a"),
-		Predicate: NewStringNode("b"),
-		Object:    NewIndexNode(1),
-	}))
-	assert.True(t, refs.Contains(Triple{
-		Subject:   NewStringNode("c"),
-		Predicate: NewStringNode("d"),
-		Object:    NewIndexNode(1),
-	}))
+	assert.True(t, refs.ContainsTriple("a", "b", 1))
+	assert.True(t, refs.ContainsTriple("c", "d", 1))
 }
 
 func Test_NewQueryMapperWithMatches(t *testing.T) {
@@ -58,6 +50,7 @@ func Test_NewQueryMapperWithMatches(t *testing.T) {
 	tpls.AddTriple("a", "b", 2)
 	tpls.AddTriple("c", "d", 1)
 	tpls.AddTriple("c", "d", 2)
+	tpls.AddTriple("c", "d", "c")
 
 	query := NewTriples()
 	query.AddTriple("c", "d", NodeMatchIndex)
@@ -67,16 +60,9 @@ func Test_NewQueryMapperWithMatches(t *testing.T) {
 
 	refs := References(res)
 	require.Len(t, refs.TripleSet, 2)
-	assert.True(t, refs.Contains(Triple{
-		Subject:   NewStringNode("c"),
-		Predicate: NewStringNode("d"),
-		Object:    NewIndexNode(1),
-	}))
-	assert.True(t, refs.Contains(Triple{
-		Subject:   NewStringNode("c"),
-		Predicate: NewStringNode("d"),
-		Object:    NewIndexNode(2),
-	}))
+	assert.True(t, refs.ContainsTriple("c", "d", 1))
+	assert.True(t, refs.ContainsTriple("c", "d", 2))
+	assert.False(t, refs.ContainsTriple("c", "d", "c"))
 }
 
 func Test_NewQuery_with_multiple_conditions(t *testing.T) {

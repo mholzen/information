@@ -269,6 +269,14 @@ func (source *Triples) Contains(triple Triple) bool {
 	return ok
 }
 
+func (source *Triples) ContainsTriple(subject, predicate, object any) bool {
+	triple, err := NewTriple(subject, predicate, object)
+	if err != nil {
+		return false
+	}
+	return source.Contains(triple)
+}
+
 func (source *Triples) ContainsTriples(triples *Triples) bool {
 	for _, triple := range triples.TripleSet {
 		if !source.Contains(triple) {
