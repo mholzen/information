@@ -7,6 +7,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func Test_TripleMatch(t *testing.T) {
+	src := triples.NewTriples()
+	triple, _ := src.AddTriple("a", "b", 1)
+	require.True(t, NewSubjectTripleMatch(triples.NewStringNode("a"))(triple))
+	require.True(t, NewPredicateTripleMatch(triples.NewStringNode("b"))(triple))
+	require.True(t, NewObjectTripleMatch(triples.NewIndexNode(1))(triple))
+}
+
 func Test_FilterForIndexNodes(t *testing.T) {
 	src := triples.NewTriples()
 	src.AddTriple("a", "b", 1)

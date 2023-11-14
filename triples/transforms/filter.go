@@ -8,7 +8,7 @@ import (
 
 type TripleMatch func(triple t.Triple) bool
 
-var AlwaysTripleMatch TripleMatch = func(triple t.Triple) bool {
+func AlwaysTripleMatch(triple t.Triple) bool {
 	return true
 }
 
@@ -30,7 +30,7 @@ func NewObjectTripleMatch(object t.Node) TripleMatch {
 	}
 }
 
-func NewOrMatch(matches ...TripleMatch) TripleMatch {
+func OrMatches(matches ...TripleMatch) TripleMatch {
 	return func(triple t.Triple) bool {
 		for _, match := range matches {
 			if match(triple) {
@@ -41,7 +41,7 @@ func NewOrMatch(matches ...TripleMatch) TripleMatch {
 	}
 }
 
-func And(matches ...TripleMatch) TripleMatch {
+func AndMatches(matches ...TripleMatch) TripleMatch {
 	return func(triple t.Triple) bool {
 		for _, match := range matches {
 			if !match(triple) {
@@ -52,20 +52,9 @@ func And(matches ...TripleMatch) TripleMatch {
 	}
 }
 
-func NewNotMatch(match TripleMatch) TripleMatch {
+func NotMatch(match TripleMatch) TripleMatch {
 	return func(triple t.Triple) bool {
 		return !match(triple)
-	}
-}
-
-func NewPredicateOrMatch(predicates ...t.Node) TripleMatch {
-	return func(triple t.Triple) bool {
-		for _, predicate := range predicates {
-			if triple.Predicate == predicate {
-				return true
-			}
-		}
-		return false
 	}
 }
 
@@ -141,11 +130,47 @@ func Filter(filter TripleMatch) t.Mapper {
 		return res, nil
 	}
 }
+func NewNodeTester(node t.Node) t.NodeBoolFunction {
+	if f, ok := node.(t.NodeBoolFunction); ok {
+		return f
+	} else {
+		return func(n t.Node) bool {
+			return node == n
+		}
+	}
+}
+func NewTripleMatch(query t.Triple) TripleMatch {
+	subjectTester := NewNodeTester(query.Subject)
+	predicateTester := NewNodeTester(query.Predicate)
+	objectTester := NewNodeTester(query.Object)
+	return func(triple t.Triple) bool {
+		return subjectTester(triple.Subject) &&
+			predicateTester(triple.Predicate) &&
+			objectTester(triple.Object)
+	}
+}
+
+// TODO: refactor with NewTripleMatch
+func NewTripleMatchReference(triple t.Triple) (TripleMatch, error) {
+	nodeGetter, err := t.GetNodeFunction(triple.Predicate)
+	if err != nil {
+		return nil, err
+	}
+
+	f, ok := triple.Object.(t.NodeBoolFunction)
+	if !ok {
+		f = func(n t.Node) bool {
+			return n == triple.Object
+		}
+	}
+
+	return func(triple t.Triple) bool {
+		return f(nodeGetter(triple))
+	}, nil
+}
 
 func NewTripleMatchFromTriples(filter *t.Triples) (TripleMatch, error) {
 	matches := make([]TripleMatch, 0)
-
-	// log.Printf("filter query: %s", filter)
 
 	for _, filterTriple := range filter.TripleSet {
 		filterTriple := filterTriple
@@ -166,5 +191,5 @@ func NewTripleMatchFromTriples(filter *t.Triples) (TripleMatch, error) {
 		}
 		matches = append(matches, match)
 	}
-	return And(matches...), nil
+	return AndMatches(matches...), nil
 }

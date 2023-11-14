@@ -6,6 +6,7 @@ import (
 	t "github.com/mholzen/information/triples"
 )
 
+// TODO: refactor with NodeBoolFunction
 type NodeMatch func(node t.Node) (bool, error)
 
 func NewNodeMatch(node t.Node) NodeMatch {
@@ -150,7 +151,7 @@ func NewContainsOrComputeMapper(triple t.Triple, functions *t.Triples) t.Mapper 
 
 	// do we have a function that computes this label?
 	functionFinder := Filter(
-		And(
+		AndMatches(
 			NewPredicateTripleMatch(ComputeNode),
 			NewObjectTripleMatch(triple.Predicate),
 		),

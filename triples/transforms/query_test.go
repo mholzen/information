@@ -27,20 +27,55 @@ func Test_VariableList_Traverse(t *testing.T) {
 func Test_NewQueryMapper(t *testing.T) {
 	tpls := NewTriples()
 	tpls.AddTriple("a", "b", 1)
+	tpls.AddTriple("a", "b", 2)
+	tpls.AddTriple("c", "d", 1)
 	tpls.AddTriple("c", "d", 2)
 
 	query := NewTriples()
 	query.AddTriple("a", "b", 1)
+	query.AddTriple("c", "d", 1)
 
 	res, err := tpls.Map(NewQueryMapper(query))
 	require.Nil(t, err)
 
 	refs := References(res)
-	require.Len(t, refs.TripleSet, 1)
+	require.Len(t, refs.TripleSet, 2)
 	assert.True(t, refs.Contains(Triple{
 		Subject:   NewStringNode("a"),
 		Predicate: NewStringNode("b"),
 		Object:    NewIndexNode(1),
+	}))
+	assert.True(t, refs.Contains(Triple{
+		Subject:   NewStringNode("c"),
+		Predicate: NewStringNode("d"),
+		Object:    NewIndexNode(1),
+	}))
+}
+
+func Test_NewQueryMapperWithMatches(t *testing.T) {
+	tpls := NewTriples()
+	tpls.AddTriple("a", "b", 1)
+	tpls.AddTriple("a", "b", 2)
+	tpls.AddTriple("c", "d", 1)
+	tpls.AddTriple("c", "d", 2)
+
+	query := NewTriples()
+	query.AddTriple("c", "d", NodeMatchIndex)
+
+	res, err := tpls.Map(NewQueryMapper(query))
+	require.Nil(t, err)
+
+	refs := References(res)
+	require.Len(t, refs.TripleSet, 2)
+	assert.True(t, refs.Contains(Triple{
+		Subject:   NewStringNode("c"),
+		Predicate: NewStringNode("d"),
+		Object:    NewIndexNode(1),
+	}))
+	assert.True(t, refs.Contains(Triple{
+		Subject:   NewStringNode("c"),
+		Predicate: NewStringNode("d"),
+		Object:    NewIndexNode(2),
 	}))
 }
 
