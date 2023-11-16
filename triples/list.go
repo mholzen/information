@@ -4,6 +4,14 @@ import "sort"
 
 type TripleList []Triple
 
+func (l TripleList) StringLine() string {
+	res := ""
+	for _, triple := range l {
+		res += triple.String() + " "
+	}
+	return res
+}
+
 func (l TripleList) GetSubjects() NodeList {
 	var objects NodeList
 	for _, triple := range l {

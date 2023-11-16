@@ -131,9 +131,12 @@ func Filter(filter TripleMatch) t.Mapper {
 	}
 }
 func NewNodeTester(node t.Node) t.NodeBoolFunction {
-	if f, ok := node.(t.NodeBoolFunction); ok {
-		return f
-	} else {
+	switch n := node.(type) {
+	case t.NodeBoolFunction:
+		return n
+	case VariableNode:
+		return t.NodeMatchAny
+	default:
 		return func(n t.Node) bool {
 			return node == n
 		}

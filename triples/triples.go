@@ -102,6 +102,14 @@ func NewTriples() *Triples {
 	}
 }
 
+func NewTriplesFromList(triples TripleList) *Triples {
+	res := NewTriples()
+	for _, triple := range triples {
+		res.Add(triple)
+	}
+	return res
+}
+
 func (source *Triples) Length() int {
 	return len(source.TripleSet)
 }
@@ -400,6 +408,14 @@ func (source Triples) String() string {
 	res := ""
 	for _, triple := range source.GetTripleList().Sort() {
 		res += fmt.Sprintf("%s\n", triple)
+	}
+	return res
+}
+
+func (source Triples) StringLine() string {
+	res := ""
+	for _, triple := range source.GetTripleList().Sort() {
+		res += fmt.Sprintf("%s ", triple)
 	}
 	return res
 }

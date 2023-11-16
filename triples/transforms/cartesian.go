@@ -4,8 +4,8 @@ import (
 	t "github.com/mholzen/information/triples"
 )
 
-func Cartesian(sets []*t.Triples) []*t.Triples {
-	res := make([]*t.Triples, 0)
+func Cartesian(sets TriplesList) TripleArray {
+	res := make(TripleArray, 0)
 
 	if len(sets) == 0 {
 		return res
@@ -16,14 +16,16 @@ func Cartesian(sets []*t.Triples) []*t.Triples {
 
 	restProducts := Cartesian(rest)
 
-	for _, triple := range first.TripleSet {
-		restTriples := t.NewTriples()
-		restTriples.Add(triple)
+	for _, triple := range first.GetTripleList().Sort() {
 		if len(restProducts) == 0 {
+			restTriples := make(t.TripleList, 0)
+			restTriples = append(restTriples, triple)
 			res = append(res, restTriples)
 		} else {
 			for _, restProduct := range restProducts {
-				restTriples.AddTriples(restProduct)
+				restTriples := make(t.TripleList, 0)
+				restTriples = append(restTriples, triple)
+				restTriples = append(restTriples, restProduct...)
 				res = append(res, restTriples)
 			}
 		}
