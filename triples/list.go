@@ -12,6 +12,16 @@ func (l TripleList) StringLine() string {
 	return res
 }
 
+func (l TripleList) GetNodes() NodeSet {
+	res := make(NodeSet)
+	for _, triple := range l {
+		res.Add(triple.Subject)
+		res.Add(triple.Predicate)
+		res.Add(triple.Object)
+	}
+	return res
+}
+
 func (l TripleList) GetSubjects() NodeList {
 	var objects NodeList
 	for _, triple := range l {

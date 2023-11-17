@@ -7,9 +7,9 @@ func RowQuery() *triples.Triples {
 
 	rowQuery := triples.NewTriples()
 	x := triples.NewAnonymousNode()
-	rowQuery.AddTriple(x, triples.Subject, triples.NodeMatchAnonymous)
-	rowQuery.AddTriple(x, triples.Predicate, triples.NodeMatchIndex)
-	rowQuery.AddTriple(x, triples.Object, triples.NodeMatchAnonymous)
+	rowQuery.AddTriple(x, triples.Subject, triples.NodeMatchAnyAnonymous)
+	rowQuery.AddTriple(x, triples.Predicate, triples.NodeMatchAnyIndex)
+	rowQuery.AddTriple(x, triples.Object, triples.NodeMatchAnyAnonymous)
 	return rowQuery
 }
 

@@ -1,36 +1,93 @@
 package transforms
 
 import (
-	"log"
+	"fmt"
 
 	t "github.com/mholzen/information/triples"
 )
+
+type TriplesList []*t.Triples
+
+func (tl TriplesList) String() string {
+	res := "[\n"
+
+	for i, triples := range tl {
+		res += fmt.Sprintf("%d: %s\n", i, triples.StringLine())
+	}
+	res += "]\n"
+	return res
+}
+
+type TripleArray []t.TripleList
+
+func (ta TripleArray) String() string {
+	res := "[\n"
+
+	for _, triples := range ta {
+		res += fmt.Sprintf("[%s]\n", triples.StringLine())
+	}
+	res += "]\n"
+	return res
+}
 
 func NewQueryMapper(query *t.Triples) t.Mapper {
 	// for each triple in the query
 	// find the set of triples that match it
 	// then generate the cartesian product of those sets
+	// then filter solutions to those where variables match
+	queryTriples := query.GetTripleList()
 
 	return func(source *t.Triples) (*t.Triples, error) {
-		solutions := make([]*t.Triples, 0)
-		for _, triple := range query.TripleSet {
-			tripleFilter := NewTripleQueryMatchMapper(triple)
-			matches, err := source.Map(tripleFilter)
-			if err != nil {
-				return nil, err
-			}
-			solutions = append(solutions, matches)
+		solutionsPerQueryTriple, err := SolutionsPerQueryTriple(queryTriples, source)
+		if err != nil {
+			return nil, err
 		}
-		products := Cartesian(solutions)
 
-		res := t.NewTriples()
-		root := t.NewAnonymousNode()
-		for i, triples := range products {
-			node := res.AddTripleReferences(triples)
-			res.AddTriple(root, t.NewIndexNode(i), node)
-		}
-		return res, nil
+		products := Cartesian(solutionsPerQueryTriple)
+
+		solutions := FilterByVariables(queryTriples, products)
+
+		return solutions, nil
 	}
+}
+
+func SolutionsPerQueryTriple(queryTriples t.TripleList, source *t.Triples) (TriplesList, error) {
+	solutionsPerQueryTriple := make(TriplesList, 0)
+
+	for _, triple := range queryTriples {
+		tripleFilter := NewTripleQueryMatchMapper(triple)
+		matches, err := source.Map(tripleFilter)
+		if err != nil {
+			return nil, err
+		}
+		solutionsPerQueryTriple = append(solutionsPerQueryTriple, matches)
+	}
+	return solutionsPerQueryTriple, nil
+}
+
+func FilterByVariables(queryTriples t.TripleList, products TripleArray) *t.Triples {
+	res := t.NewTriples()
+	root := t.NewAnonymousNode()
+
+	variables := NewVariableMap(queryTriples)
+
+	for i, solution := range products {
+
+		variables.Clear()
+		breakOuter := false
+		for j, triple := range solution {
+			if variables.TestOrSetTriple(queryTriples[j], triple) != nil {
+				breakOuter = true
+				break
+			}
+		}
+		if breakOuter {
+			continue
+		}
+		node := res.AddTripleReferences(t.NewTriplesFromList(solution))
+		res.AddTriple(root, t.NewIndexNode(i), node)
+	}
+	return res
 }
 
 func NewTripleQueryMatchMapper(query t.Triple) t.Mapper {
@@ -44,65 +101,5 @@ func NewTripleQueryMatchMapper(query t.Triple) t.Mapper {
 			}
 		}
 		return res, nil
-	}
-}
-
-// The results can contain multiple solutions, each identified by the predicate "solution" and the object being an index node.
-func NewQueryTransformerWithDefinitions(query, dest, definitions *t.Triples) t.Transformer {
-	return func(source *t.Triples) error {
-		// find list of variables from query
-		variables := GetVariableList(query.Nodes.GetNodeList())
-
-		valuesList := variables.Traverse(source.Nodes.GetNodeList())
-
-		// log.Printf("source is:\n%v", source.String())
-
-		for solutionNo, values := range valuesList {
-			nodeMap := NewNodeMap(variables.GetNodeList(), values)
-
-			// log.Printf("evaluation solution %d with nodemap: %+v", solutionNo, maps.Values(nodeMap))
-
-			instantiatedQuery, err := query.Map(NewReplaceNodesMapper(nodeMap))
-			if err != nil {
-				return err
-			}
-
-			// compute any needed triples
-			// err = NewComputeWithDefinitions(definitions)(instantiatedQuery)
-			// if err != nil {
-			// 	return err
-			// }
-
-			// filter := NewContainsTriples(instantiatedQuery)
-			filter := NewMultiContainsOrComputeMapper(instantiatedQuery, definitions) // TODO: must support multiple triples
-
-			matches, err := filter(source)
-			if err != nil {
-				return err
-			}
-			// logrus.Debugf("=== matches:\n%v", matches)
-			// log.Printf("len(matches):\n%v", len(matches.TripleSet))
-			// log.Printf("len(query):\n%v", len(query.TripleSet))
-			if len(matches.TripleSet) == (len(query.TripleSet) * 3) { // TODO: magic number
-				// log.Printf("found match")
-				container := t.NewAnonymousNode()
-				dest.AddTriple(container, t.NewStringNode("solution"), t.NewIndexNode(solutionNo))
-
-				// Add NodeMap to dest
-				// TODO: refactor to method of NodeMap
-				for variable, value := range nodeMap {
-					dest.AddTriple(container, variable, value)
-				}
-
-				log.Printf("solution %d contains:\n%s", solutionNo, matches.String())
-				// dest.AddTriples(matches)
-				for _, triple := range matches.TripleSet {
-					dest.Add(triple) // should already be a reference
-					dest.AddTriple(container, t.NewStringNode("contains"), triple.Subject)
-				}
-			}
-		}
-		log.Printf("results:\n%s", dest.String())
-		return nil
 	}
 }

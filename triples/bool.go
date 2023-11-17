@@ -32,12 +32,17 @@ func NodeMatchAny(node Node) bool {
 	return true
 }
 
-func NodeMatchIndex(node Node) bool {
+func NodeMatchAnyString(node Node) bool {
+	_, ok := node.(StringNode)
+	return ok
+}
+
+func NodeMatchAnyIndex(node Node) bool {
 	_, ok := node.(IndexNode)
 	return ok
 }
 
-func NodeMatchAnonymous(node Node) bool {
+func NodeMatchAnyAnonymous(node Node) bool {
 	_, ok := node.(AnonymousNode)
 	return ok
 }

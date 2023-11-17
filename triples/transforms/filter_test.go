@@ -24,7 +24,7 @@ func Test_FilterForIndexNodes(t *testing.T) {
 	filter := triples.NewTriples()
 	container := triples.NewAnonymousNode()
 	// filter.AddTriple(container, triples.Subject, triples.NewNodeMatchAny())
-	_, err := filter.AddTriple(container, triples.Predicate, triples.NodeMatchIndex)
+	_, err := filter.AddTriple(container, triples.Predicate, triples.NodeMatchAnyIndex)
 	require.Nil(t, err)
 	// filter.AddTriple(container, triples.Subject, triples.NewNodeMatchAny())
 
