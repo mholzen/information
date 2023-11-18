@@ -7,18 +7,24 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func Test_Variable_Set(t *testing.T) {
-	x := NewVariableNode()
-	require.Nil(t, x.TestOrSet(tr.NewStringNode("a")))
-	require.Nil(t, x.TestOrSet(tr.NewStringNode("a")))
-	require.NotNil(t, x.TestOrSet(tr.NewStringNode("b")))
-}
+func Test_VariableMap_Set(t *testing.T) {
+	triples := tr.NewTriples()
+	v1 := NewVariableNode()
+	v2 := NewVariableNode()
+	v3 := NewVariableNode()
+	triples.AddTriple(v1, v2, v3)
+	variables := NewVariableMap(triples.GetTripleList())
 
-func Test_VariableList_Clear(t *testing.T) {
-	vars := VariableList{NewVariableNode(), NewVariableNode()}
-	vars[0].TestOrSet(tr.NewStringNode("a"))
-	vars[1].TestOrSet(tr.NewStringNode("b"))
-	vars.Clear()
-	require.Nil(t, vars[0].Value)
-	require.Nil(t, vars[1].Value)
+	err := variables.TestOrSet(v1, tr.NewStringNode("a"))
+	require.Nil(t, err)
+	err = variables.TestOrSet(v1, tr.NewStringNode("a"))
+	require.Nil(t, err)
+	err = variables.TestOrSet(v1, tr.NewStringNode("b"))
+	require.NotNil(t, err)
+
+	variables.Clear()
+	err = variables.TestOrSet(v1, tr.NewStringNode("b"))
+	require.Nil(t, err)
+	err = variables.TestOrSet(v1, tr.NewStringNode("a"))
+	require.NotNil(t, err)
 }

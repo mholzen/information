@@ -13,7 +13,7 @@ type VariableNode struct {
 	Value *t.Node
 }
 
-func NewVariableNode() VariableNode {
+func NewVariableNode() VariableNode { // CONSIDER: can named variables in a query be handled by a triple?
 	value, err := uuid.New()
 	if err != nil {
 		log.Fatal(err)
@@ -21,21 +21,6 @@ func NewVariableNode() VariableNode {
 	return VariableNode{
 		CreatedNode: t.NewCreatedNode(value),
 	}
-}
-
-func (v *VariableNode) TestOrSet(n t.Node) error {
-	if v.Value != nil {
-		if (*v.Value).String() == n.String() {
-			return nil
-		}
-		return fmt.Errorf("variable already set to '%s'", (*v.Value).String())
-	}
-	v.Value = &n
-	return nil
-}
-
-func (v *VariableNode) Clear() {
-	v.Value = nil
 }
 
 type VariableList []VariableNode
@@ -94,31 +79,6 @@ func (v VariableList) GetNodeList() t.NodeList {
 		res = append(res, variable)
 	}
 	return res
-}
-
-func (v VariableList) Clear() {
-	for _, variable := range v {
-		variable.Clear()
-	}
-}
-
-func TestOrSet(query, triple t.Triple) error {
-	if v, ok := query.Subject.(VariableNode); ok {
-		if err := v.TestOrSet(triple.Subject); err != nil {
-			return err
-		}
-	}
-	if v, ok := query.Predicate.(VariableNode); ok {
-		if err := v.TestOrSet(triple.Predicate); err != nil {
-			return err
-		}
-	}
-	if v, ok := query.Object.(VariableNode); ok {
-		if err := v.TestOrSet(triple.Object); err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 type VariableMap map[VariableNode]t.Node
