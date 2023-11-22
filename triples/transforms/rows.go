@@ -6,21 +6,33 @@ func RowQuery() *triples.Triples {
 	// TODO: should return outer most rows, not all nested, which needs more complex queries
 
 	rowQuery := triples.NewTriples()
-	x := triples.NewAnonymousNode()
-	rowQuery.AddTriple(x, triples.Subject, triples.NodeMatchAnyAnonymous)
-	rowQuery.AddTriple(x, triples.Predicate, triples.NodeMatchAnyIndex)
-	rowQuery.AddTriple(x, triples.Object, triples.NodeMatchAnyAnonymous)
+	rowQuery.AddTriple(triples.NodeMatchAnyAnonymous, triples.NodeMatchAnyIndex, triples.NodeMatchAnyAnonymous)
 	return rowQuery
 }
 
 func RowTriples(source *triples.Triples) (*triples.Triples, error) {
-	queryTripleMatch, err := NewTripleMatchFromTriples(RowQuery())
+	res, err := source.Map(NewQueryMapper(RowQuery()))
 	if err != nil {
 		return nil, err
 	}
-	rows, err := source.Map(Filter(queryTripleMatch))
-	if err != nil {
-		return nil, err
-	}
-	return rows, nil
+	return References(res), nil
 }
+
+func MatrixQuery() *triples.Triples {
+	query := triples.NewTriples()
+	x := NewVariableNode()
+	query.AddTriple(triples.NodeMatchAnyAnonymous, triples.NodeMatchAnyIndex, x)
+	query.AddTriple(x, triples.NodeMatchAnyIndex, triples.NodeMatchAny)
+	// query.AddTriple(x, "type", "anonymous")
+	return query
+}
+
+// func MatrixQuery2() *triples.Triples {
+// 	query := triples.NewTriples()
+// 	root := triples.NewAnonymousNode()
+// 	rows := triples.NewAnonymousNode()
+// 	cells := triples.NewAnonymousNode()
+// 	query.AddTriple(root, triples.NodeMatchAnyIndex, rows)
+// 	query.AddTriple(rows, triples.NodeMatchAnyIndex, cells)
+// 	return query
+// }

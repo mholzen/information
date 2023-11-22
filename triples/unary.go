@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"regexp"
 	"runtime"
+	"strings"
 )
 
 type UnaryFunctionNode UnaryOperator
@@ -19,7 +20,10 @@ type UnaryFunctionNode UnaryOperator
 type UnaryOperator func(Node) (Node, error)
 
 func (n UnaryFunctionNode) String() string {
-	return runtime.FuncForPC(reflect.ValueOf(n).Pointer()).Name()
+	res := runtime.FuncForPC(reflect.ValueOf(n).Pointer()).Name()
+	// trailing string after .
+	return res[strings.LastIndex(res, ".")+1:]
+
 }
 
 func (n UnaryFunctionNode) LessThan(other Node) bool {
@@ -40,9 +44,9 @@ func Square(node Node) (Node, error) {
 	return NewNumberNode(n.Value * n.Value), nil
 }
 
-var SquareNode UnaryFunctionNode = UnaryFunctionNode(Square)
+var SquareFunctionNode UnaryFunctionNode = UnaryFunctionNode(Square)
 
-var TypeNode UnaryFunctionNode = UnaryFunctionNode(func(node Node) (Node, error) {
+var TypeFunctionNode UnaryFunctionNode = UnaryFunctionNode(func(node Node) (Node, error) {
 	t := reflect.TypeOf(node).String()
 	return NewStringNode(t), nil
 })

@@ -92,33 +92,6 @@ func NewFilterMapper(filter TripleFMatch) t.Mapper {
 	}
 }
 
-func NewFilterMapperFromTriples(filter *t.Triples) t.Mapper {
-	return func(source *t.Triples) (*t.Triples, error) {
-		res := t.NewTriples()
-		for _, triple := range source.TripleSet {
-			for _, filterTriple := range filter.TripleSet {
-				f, ok := filterTriple.Object.(t.UnaryFunctionNode)
-				if !ok {
-					return nil, fmt.Errorf("object '%s' must be a UnaryFunctionNode", filterTriple.Object)
-				}
-
-				n, err := triple.GetNode(filterTriple.Predicate)
-				if err != nil {
-					return nil, err
-				}
-				match, err := f(n)
-				if err != nil {
-					return nil, err
-				}
-				if match.(t.NumberNode).Value == 1 {
-					res.Add(triple)
-				}
-			}
-		}
-		return res, nil
-	}
-}
-
 func Filter(filter TripleMatch) t.Mapper {
 	return func(source *t.Triples) (*t.Triples, error) {
 		res := t.NewTriples()
@@ -130,47 +103,6 @@ func Filter(filter TripleMatch) t.Mapper {
 		return res, nil
 	}
 }
-func NewNodeTester(node t.Node) t.NodeBoolFunction {
-	switch n := node.(type) {
-	case t.NodeBoolFunction:
-		return n
-	case VariableNode:
-		return t.NodeMatchAny
-	default:
-		return func(n t.Node) bool {
-			return node == n
-		}
-	}
-}
-func NewTripleMatch(query t.Triple) TripleMatch {
-	subjectTester := NewNodeTester(query.Subject)
-	predicateTester := NewNodeTester(query.Predicate)
-	objectTester := NewNodeTester(query.Object)
-	return func(triple t.Triple) bool {
-		return subjectTester(triple.Subject) &&
-			predicateTester(triple.Predicate) &&
-			objectTester(triple.Object)
-	}
-}
-
-// TODO: refactor with NewTripleMatch
-func NewTripleMatchReference(triple t.Triple) (TripleMatch, error) {
-	nodeGetter, err := t.GetNodeFunction(triple.Predicate)
-	if err != nil {
-		return nil, err
-	}
-
-	f, ok := triple.Object.(t.NodeBoolFunction)
-	if !ok {
-		f = func(n t.Node) bool {
-			return n == triple.Object
-		}
-	}
-
-	return func(triple t.Triple) bool {
-		return f(nodeGetter(triple))
-	}, nil
-}
 
 func NewTripleMatchFromTriples(filter *t.Triples) (TripleMatch, error) {
 	matches := make([]TripleMatch, 0)
@@ -179,7 +111,7 @@ func NewTripleMatchFromTriples(filter *t.Triples) (TripleMatch, error) {
 		filterTriple := filterTriple
 		nodeGetter, err := t.GetNodeFunction(filterTriple.Predicate)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error getting node function for triple '%s': %w", filterTriple, err)
 		}
 
 		f, ok := filterTriple.Object.(t.NodeBoolFunction)

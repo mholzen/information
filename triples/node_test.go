@@ -27,8 +27,8 @@ func Test_LessThan(t *testing.T) {
 
 func Test_unary_function_should_be_a_node(t *testing.T) {
 	s := NewNodeSet()
-	s.Add(SquareNode)
-	assert.True(t, s.Contains(SquareNode))
+	s.Add(SquareFunctionNode)
+	assert.True(t, s.Contains(SquareFunctionNode))
 }
 
 func Test_IndexNode_LessThan(t *testing.T) {

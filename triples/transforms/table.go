@@ -1,6 +1,8 @@
 package transforms
 
 import (
+	"log"
+
 	"github.com/mholzen/information/triples"
 )
 
@@ -17,11 +19,11 @@ func NewTable(headers *triples.Triples, rowQuery *triples.Triples) triples.Mappe
 			}
 		}
 
-		queryTripleMatch, err := NewTripleMatchFromTriples(rowQuery)
-		if err != nil {
-			return nil, err
-		}
-		rows, err := source.Map(Filter(queryTripleMatch))
+		// rowMapper, err := NewTripleMatchFromTriples(rowQuery)
+		rowMapper := NewQueryMapper(rowQuery)
+		rows, err := source.Map(rowMapper)
+		rows = References(rows)
+		log.Printf("rows: %s", rows)
 		if err != nil {
 			return nil, err
 		}

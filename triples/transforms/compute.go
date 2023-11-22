@@ -86,8 +86,8 @@ func ComputeTripleTransformer(subject t.Node, predicate t.UnaryFunctionNode, lab
 
 func GetDefinitions() *t.Triples {
 	var Definitions = t.NewTriples()
-	Definitions.AddTriple(t.TypeNode, ComputeNode, "type")
-	Definitions.AddTriple(t.SquareNode, ComputeNode, "square")
+	Definitions.AddTriple(t.TypeFunctionNode, ComputeNode, "type")
+	Definitions.AddTriple(t.SquareFunctionNode, ComputeNode, "square")
 	Definitions.AddTriple(t.LengthFunction, ComputeNode, "length")
 	return Definitions
 }

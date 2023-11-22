@@ -4,8 +4,8 @@ import (
 	t "github.com/mholzen/information/triples"
 )
 
-func Cartesian(sets TriplesList) TripleArray {
-	res := make(TripleArray, 0)
+func Cartesian(sets TriplesList) TripleMatrix {
+	res := make(TripleMatrix, 0)
 
 	if len(sets) == 0 {
 		return res

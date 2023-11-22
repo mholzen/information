@@ -23,19 +23,6 @@ const (
 	Object1
 )
 
-func (t Triple) GetNode(position Node) (Node, error) {
-	switch position {
-	case Subject:
-		return t.Subject, nil
-	case Predicate:
-		return t.Predicate, nil
-	case Object:
-		return t.Object, nil
-	default:
-		return nil, fmt.Errorf("invalid node position %s", position)
-	}
-}
-
 func GetNodeFunction(position Node) (func(Triple) Node, error) {
 	switch position {
 	case Subject:

@@ -3,6 +3,7 @@ package triples
 import (
 	"reflect"
 	"runtime"
+	"strings"
 )
 
 // things you can do with a function:
@@ -15,7 +16,9 @@ import (
 type NodeBoolFunction func(Node) bool
 
 func (n NodeBoolFunction) String() string {
-	return runtime.FuncForPC(reflect.ValueOf(n).Pointer()).Name()
+	res := runtime.FuncForPC(reflect.ValueOf(n).Pointer()).Name()
+	// trailing string after .
+	return res[strings.LastIndex(res, ".")+1:]
 }
 
 func (n NodeBoolFunction) LessThan(other Node) bool {

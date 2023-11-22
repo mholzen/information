@@ -2,6 +2,7 @@ package transforms
 
 import (
 	"fmt"
+	"log"
 
 	t "github.com/mholzen/information/triples"
 )
@@ -18,9 +19,9 @@ func (tl TriplesList) String() string {
 	return res
 }
 
-type TripleArray []t.TripleList
+type TripleMatrix []t.TripleList
 
-func (ta TripleArray) String() string {
+func (ta TripleMatrix) String() string {
 	res := "[\n"
 
 	for _, triples := range ta {
@@ -36,16 +37,21 @@ func NewQueryMapper(query *t.Triples) t.Mapper {
 	// then generate the cartesian product of those sets
 	// then filter solutions to those where variables match
 	queryTriples := query.GetTripleList()
+	log.Printf("queryTriples: %s", queryTriples)
 
 	return func(source *t.Triples) (*t.Triples, error) {
+		// TODO: refactor into a pipe (to help debug)
 		solutionsPerQueryTriple, err := SolutionsPerQueryTriple(queryTriples, source)
 		if err != nil {
 			return nil, err
 		}
+		log.Printf("solutionsPerQueryTriple: %s", solutionsPerQueryTriple)
 
 		products := Cartesian(solutionsPerQueryTriple)
+		log.Printf("products: %s", products)
 
 		solutions := FilterByVariables(queryTriples, products)
+		log.Printf("solutions: %s", solutions)
 
 		return solutions, nil
 	}
@@ -65,7 +71,7 @@ func SolutionsPerQueryTriple(queryTriples t.TripleList, source *t.Triples) (Trip
 	return solutionsPerQueryTriple, nil
 }
 
-func FilterByVariables(queryTriples t.TripleList, products TripleArray) *t.Triples {
+func FilterByVariables(queryTriples t.TripleList, products TripleMatrix) *t.Triples {
 	res := t.NewTriples()
 	root := t.NewAnonymousNode()
 
@@ -76,7 +82,8 @@ func FilterByVariables(queryTriples t.TripleList, products TripleArray) *t.Tripl
 		variables.Clear()
 		breakOuter := false
 		for j, triple := range solution {
-			if variables.TestOrSetTriple(queryTriples[j], triple) != nil {
+			if err := variables.TestOrSetTriple(queryTriples[j], triple); err != nil {
+				log.Printf("skipping solution %d: %s", i, err)
 				breakOuter = true
 				break
 			}
@@ -97,9 +104,33 @@ func NewTripleQueryMatchMapper(query t.Triple) t.Mapper {
 		res := t.NewTriples()
 		for _, triple := range source.TripleSet {
 			if matcher(triple) {
+				log.Printf("triple %s matches %s", triple, query)
 				res.Add(triple)
 			}
 		}
 		return res, nil
+	}
+}
+
+func NewNodeTester(node t.Node) t.NodeBoolFunction {
+	switch n := node.(type) {
+	case t.NodeBoolFunction:
+		return n
+	case VariableNode:
+		return t.NodeMatchAny
+	default:
+		return func(n t.Node) bool {
+			return node == n
+		}
+	}
+}
+func NewTripleMatch(query t.Triple) TripleMatch {
+	subjectTester := NewNodeTester(query.Subject)
+	predicateTester := NewNodeTester(query.Predicate)
+	objectTester := NewNodeTester(query.Object)
+	return func(triple t.Triple) bool {
+		return subjectTester(triple.Subject) &&
+			predicateTester(triple.Predicate) &&
+			objectTester(triple.Object)
 	}
 }

@@ -103,7 +103,7 @@ func (m VariableMap) TestOrSet(variable VariableNode, value t.Node) error {
 		if v.String() == value.String() {
 			return nil
 		}
-		return fmt.Errorf("variable already set to '%s'", v.String())
+		return fmt.Errorf("variable '%s' already set to '%s'", value.String(), v.String())
 	}
 	m[variable] = value
 	return nil

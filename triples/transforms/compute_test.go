@@ -10,13 +10,13 @@ import (
 
 func Test_NewCompute(t *testing.T) {
 	tpls := NewTriples()
-	tpls.AddTriple("a", TypeNode, "foo")
+	tpls.AddTriple("a", TypeFunctionNode, "foo")
 
 	err := NewCompute()(tpls)
 	require.Nil(t, err)
 
 	assert.Len(t, tpls.TripleSet, 2)
-	shouldContain, _ := NewTriple("a", NewStringNode(TypeNode.String()), "triples.StringNode")
+	shouldContain, _ := NewTriple("a", NewStringNode(TypeFunctionNode.String()), "triples.StringNode")
 	assert.Contains(t, tpls.GetTripleList(), shouldContain)
 	assert.True(t, tpls.Contains(shouldContain))
 }
@@ -59,7 +59,7 @@ func TestComputeWithDefinitions(t *testing.T) {
 	triples.NewTripleFromNodes(NewNumberNode(2), NewStringNode("square"), NewVariableNode())
 
 	definitions := NewTriples()
-	definitions.NewTripleFromNodes(SquareNode, ComputeNode, NewStringNode("square"))
+	definitions.NewTripleFromNodes(SquareFunctionNode, ComputeNode, NewStringNode("square"))
 
 	tr := NewComputeWithDefinitions(definitions)
 	err := tr(triples)

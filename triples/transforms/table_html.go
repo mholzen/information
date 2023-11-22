@@ -1,12 +1,15 @@
 package transforms
 
 import (
+	"log"
+
 	"github.com/mholzen/information/triples"
 )
 
 func HtmlTable(source *triples.Triples) (*triples.Triples, error) {
 
 	rows, err := RowTriples(source)
+	log.Printf("rows from htmltable: %s", rows)
 	if err != nil {
 		return nil, err
 	}

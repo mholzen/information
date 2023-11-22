@@ -286,11 +286,7 @@ func ToRowsPayload(input Payload) (Payload, error) {
 	if err != nil {
 		return input, err
 	}
-	tripleMatch, err := transforms.NewTripleMatchFromTriples(transforms.RowQuery())
-	if err != nil {
-		return input, err
-	}
-	res, err = res.Map(transforms.Filter(tripleMatch))
+	res, err = transforms.RowTriples(res)
 	if err != nil {
 		return input, err
 	}
