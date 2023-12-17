@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v4"
+	"github.com/mholzen/information/triples"
 )
 
 func StatWithRemainder(filePath string) (FileInfo, []string, error) {
@@ -84,7 +85,9 @@ func FilesPostfixHandler(c echo.Context) error {
 		}
 	}
 
-	if strings.HasPrefix(payload.Content, "text/html") {
+	if s, ok := payload.Data.(triples.Node); ok {
+		return c.String(200, s.String())
+	} else if strings.HasPrefix(payload.Content, "text/") {
 		return c.HTML(200, payload.Data.(string))
 	} else if strings.HasPrefix(payload.Content, "application/json") {
 		return c.JSON(200, payload.Data)
