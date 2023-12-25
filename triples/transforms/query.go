@@ -124,7 +124,7 @@ func NewNodeTester(node t.Node) t.NodeBoolFunction {
 		}
 	}
 }
-func NewTripleMatch(query t.Triple) TripleMatch {
+func NewTripleMatch(query t.Triple) t.TripleMatch {
 	subjectTester := NewNodeTester(query.Subject)
 	predicateTester := NewNodeTester(query.Predicate)
 	objectTester := NewNodeTester(query.Object)

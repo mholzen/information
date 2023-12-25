@@ -46,6 +46,16 @@ func (l TripleList) GetObjectStrings() []string {
 	return objects
 }
 
+func (l TripleList) Filter(match TripleMatch) TripleList {
+	res := make(TripleList, 0)
+	for _, triple := range l {
+		if match(triple) {
+			res = append(res, triple)
+		}
+	}
+	return res
+}
+
 func (l TripleList) Sort() TripleList {
 	sort.Sort(TripleSort{l, func(i, j int) bool {
 

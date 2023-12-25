@@ -4,7 +4,7 @@ import (
 	t "github.com/mholzen/information/triples"
 )
 
-func NewTraverse(start t.Node, filter TripleMatch, output *t.Triples) t.Transformer {
+func NewTraverse(start t.Node, filter t.TripleMatch, output *t.Triples) t.Transformer {
 	visitedNodes := make(t.NodeSet)
 	nodeQueue := make([]t.Node, 0)
 	nodeQueue = append(nodeQueue, start)
