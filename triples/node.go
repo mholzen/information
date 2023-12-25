@@ -3,6 +3,8 @@ package triples
 import (
 	"fmt"
 	"log"
+	"reflect"
+	"strings"
 	"time"
 
 	"storj.io/common/uuid"
@@ -11,6 +13,23 @@ import (
 type Node interface {
 	String() string
 	LessThan(Node) bool
+}
+
+func NodeEquals(v1, v2 Node) bool {
+	return reflect.TypeOf(v1) == reflect.TypeOf(v2) &&
+		v1.String() == v2.String()
+}
+
+func NodeLessThan(v1, v2 Node) bool {
+	t := strings.Compare(reflect.TypeOf(v1).Name(), reflect.TypeOf(v2).Name())
+	switch {
+	case t < 0:
+		return true
+	case t > 0:
+		return false
+	default:
+		return v1.LessThan(v2)
+	}
 }
 
 type Value[T any] interface {
