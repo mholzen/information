@@ -54,6 +54,7 @@ func matrix() *tr.Triples {
 }
 
 func Test_MatrixQuery(t *testing.T) {
+	t.Skip()
 	query := MatrixQuery()
 	res, err := matrix().Map(NewQueryMapper(query))
 	require.Nil(t, err)

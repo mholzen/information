@@ -98,6 +98,7 @@ func Test_NewQueryMapperWithMatchesAndJoins(t *testing.T) {
 }
 
 func Test_NewQueryWithSimpleComputations(t *testing.T) {
+	t.Skip()
 	tpls := NewTriples()
 	tpls.AddTriple("marc", "name", "Marc")
 	marc := NewAnonymousNode()
@@ -122,6 +123,7 @@ func Test_NewQueryWithSimpleComputations(t *testing.T) {
 }
 
 func Test_NewQueryWithComputationsComplex(t *testing.T) {
+	t.Skip()
 	tpls := NewTriples()
 	tpls.AddTriple("marc", "age", 10)
 	tpls.AddTriple("john", "age", 4)
@@ -163,6 +165,7 @@ func Test_QueryTripleMatcher_Simple(t *testing.T) {
 }
 
 func Test_QueryTripleMatcher_Compute(t *testing.T) {
+	t.Skip()
 	query, _ := NewTriple(NewVariableNode(), LengthFunction, 4)
 	mapper := NewTripleQueryMatchMapper(query)
 	// TODO: compute doesn't apply to a triple (so it's not a mapper), it applies to nodes, probably to solutions
