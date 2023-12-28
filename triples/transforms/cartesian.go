@@ -15,7 +15,9 @@ func Cartesian(sets TriplesList) TripleMatrix {
 	rest := sets[1:]
 
 	restProducts := Cartesian(rest)
-
+	if len(first.TripleSet) == 0 {
+		return restProducts
+	}
 	for _, triple := range first.GetTripleList().Sort() {
 		if len(restProducts) == 0 {
 			restTriples := make(t.TripleList, 0)

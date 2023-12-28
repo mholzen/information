@@ -24,3 +24,14 @@ func Test_Cartesian(t *testing.T) {
 	res := Cartesian(sets)
 	require.Len(t, res, 12)
 }
+
+func Test_Cartesian_empty_set(t *testing.T) {
+	a := tr.NewTriples()
+	b := tr.NewTriples()
+	b.AddTriple("a", "b", 1)
+
+	sets := []*tr.Triples{a, b}
+
+	res := Cartesian(sets)
+	require.Len(t, res, 1)
+}
