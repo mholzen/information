@@ -3,7 +3,6 @@ package html
 import (
 	"github.com/mholzen/information/triples"
 	"github.com/mholzen/information/triples/transforms"
-	"github.com/russross/blackfriday/v2"
 )
 
 type html string
@@ -55,11 +54,4 @@ func tablecell(node triples.Node, source *triples.Triples) string {
 	}
 	res += "</td>\n"
 	return res
-}
-
-type markdown string
-
-func (m markdown) Html() string {
-	htmlContent := blackfriday.Run([]byte(m))
-	return string(htmlContent)
 }
