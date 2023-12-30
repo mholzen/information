@@ -23,6 +23,24 @@ const (
 	Object1
 )
 
+func (position NodePosition) Getter() (func(Triple) Node, error) {
+	switch position {
+	case Subject1:
+		return func(t Triple) Node {
+			return t.Subject
+		}, nil
+	case Predicate1:
+		return func(t Triple) Node {
+			return t.Predicate
+		}, nil
+	case Object1:
+		return func(t Triple) Node {
+			return t.Object
+		}, nil
+	}
+	return nil, fmt.Errorf("invalid node position %d", position)
+}
+
 func GetNodeFunction(position Node) (func(Triple) Node, error) {
 	switch position {
 	case Subject:
@@ -97,6 +115,12 @@ func NewTriplesFromList(triples TripleList) *Triples {
 	return res
 }
 
+func NewTriplesFromNodes(node ...any) (*Triples, error) {
+	res := NewTriples()
+	err := res.AddTripleNodes(node...)
+	return res, err
+}
+
 func (source *Triples) Length() int {
 	return len(source.TripleSet)
 }
@@ -105,7 +129,7 @@ func (source *Triples) NewNode(value interface{}) (Node, error) {
 	return NewNode(value)
 }
 
-func (source *Triples) NewTripleFromNodes(subject Node, predicate Node, object Node) Triple {
+func (source *Triples) AddTripleFromNodes(subject Node, predicate Node, object Node) Triple {
 	triple := Triple{subject, predicate, object}
 	source.Add(triple)
 	return triple
@@ -128,9 +152,9 @@ func (source *Triples) AddTripleString(subject string, predicate string, object 
 
 func (source *Triples) AddTripleReference(triple Triple) Node {
 	container := NewAnonymousNode()
-	source.NewTripleFromNodes(container, Subject, triple.Subject)
-	source.NewTripleFromNodes(container, Predicate, triple.Predicate)
-	source.NewTripleFromNodes(container, Object, triple.Object)
+	source.AddTripleFromNodes(container, Subject, triple.Subject)
+	source.AddTripleFromNodes(container, Predicate, triple.Predicate)
+	source.AddTripleFromNodes(container, Object, triple.Object)
 	return container
 }
 
@@ -168,11 +192,26 @@ func (source *Triples) AddTriples(triples *Triples) {
 	}
 }
 
+func (source *Triples) AddTripleNodes(node ...any) error {
+	if len(node)%3 != 0 {
+		return fmt.Errorf("number of nodes (%d) not a multiple of 3", len(node))
+	}
+	for len(node) > 0 {
+		triple, err := NewTriple(node[0], node[1], node[2])
+		if err != nil {
+			return err
+		}
+		source.Add(triple)
+		node = node[3:]
+	}
+	return nil
+}
+
 func (source *Triples) AddTriplesAsContainer(triples *Triples) Node {
 	container := NewAnonymousNode()
 	for _, triple := range triples.TripleSet {
 		source.Add(triple)
-		source.NewTripleFromNodes(container, Contains, triple.Subject)
+		source.AddTripleFromNodes(container, Contains, triple.Subject)
 	}
 	return container
 }
@@ -203,7 +242,7 @@ func (source *Triples) NewTriplesFromMap(m map[string]interface{}) (TripleList, 
 				return res, err
 			}
 
-			source.NewTripleFromNodes(subject, predicate, object)
+			source.AddTripleFromNodes(subject, predicate, object)
 			is_spo_form = true
 		} else {
 			is_po_form = true
@@ -220,7 +259,7 @@ func (source *Triples) NewTriplesFromMap(m map[string]interface{}) (TripleList, 
 				return res, err
 			}
 
-			source.NewTripleFromNodes(container, predicate, object)
+			source.AddTripleFromNodes(container, predicate, object)
 		}
 	}
 	return res, nil
@@ -259,6 +298,14 @@ func (source *Triples) NewTriplesFromSlice(slice []interface{}) (TripleList, err
 	return triples, nil
 }
 
+func (source *Triples) Clone() *Triples {
+	res := NewTriples()
+	for _, triple := range source.TripleSet {
+		res.Add(triple)
+	}
+	return res
+}
+
 func (source *Triples) Contains(triple Triple) bool {
 	_, ok := source.TripleSet[triple.String()]
 	return ok
@@ -285,6 +332,16 @@ func (source *Triples) GetTriplesForSubject(subject Node) *Triples {
 	res := NewTriples()
 	for _, triple := range source.TripleSet {
 		if triple.Subject == subject {
+			res.Add(triple)
+		}
+	}
+	return res
+}
+
+func (source *Triples) GetTriplesForSubjectPredicate(subject, predicate Node) *Triples {
+	res := NewTriples()
+	for _, triple := range source.TripleSet {
+		if triple.Subject == subject && triple.Predicate == predicate {
 			res.Add(triple)
 		}
 	}
@@ -324,6 +381,26 @@ func (source *Triples) GetTriplesForObject(object Node) *Triples {
 	for _, triple := range source.TripleSet {
 		if triple.Object == object {
 			res.Add(triple)
+		}
+	}
+	return res
+}
+
+func (source *Triples) GetSubjectsByPredicateObject(predicate, object Node) NodeSet {
+	res := make(NodeSet)
+	for _, triple := range source.TripleSet {
+		if NodeEquals(triple.Predicate, predicate) && NodeEquals(triple.Object, object) {
+			res.Add(triple.Subject)
+		}
+	}
+	return res
+}
+
+func (source *Triples) GetObjectsBySubjectPredicate(subject, predicate Node) NodeSet {
+	res := make(NodeSet)
+	for _, triple := range source.TripleSet {
+		if NodeEquals(triple.Subject, subject) && NodeEquals(triple.Predicate, predicate) {
+			res.Add(triple.Object)
 		}
 	}
 	return res

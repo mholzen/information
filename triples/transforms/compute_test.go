@@ -23,7 +23,7 @@ func Test_NewCompute(t *testing.T) {
 
 func TestComputeSquare(t *testing.T) {
 	triples := NewTriples()
-	triples.NewTripleFromNodes(NewNumberNode(2), NewStringNode("square"), NewVariableNode())
+	triples.AddTripleFromNodes(NewNumberNode(2), NewStringNode("square"), NewVariableNode())
 
 	computer := NewComputeWithDefinitions(GetDefinitions())
 	err := computer(triples)
@@ -39,10 +39,10 @@ func TestComputeSquare(t *testing.T) {
 func TestComputeType(t *testing.T) {
 	triples := NewTriples()
 	x := NewAnonymousNode()
-	triples.NewTripleFromNodes(x, NewStringNode("type"), NewVariableNode())
-	triples.NewTripleFromNodes(NewStringNode("foo"), NewStringNode("type"), NewVariableNode())
-	triples.NewTripleFromNodes(NewIndexNode(1), NewStringNode("type"), NewVariableNode())
-	triples.NewTripleFromNodes(NewNumberNode(3.14), NewStringNode("type"), NewVariableNode())
+	triples.AddTripleFromNodes(x, NewStringNode("type"), NewVariableNode())
+	triples.AddTripleFromNodes(NewStringNode("foo"), NewStringNode("type"), NewVariableNode())
+	triples.AddTripleFromNodes(NewIndexNode(1), NewStringNode("type"), NewVariableNode())
+	triples.AddTripleFromNodes(NewNumberNode(3.14), NewStringNode("type"), NewVariableNode())
 
 	computer := NewComputeWithDefinitions(GetDefinitions())
 	err := computer(triples)
@@ -56,10 +56,10 @@ func TestComputeType(t *testing.T) {
 
 func TestComputeWithDefinitions(t *testing.T) {
 	triples := NewTriples()
-	triples.NewTripleFromNodes(NewNumberNode(2), NewStringNode("square"), NewVariableNode())
+	triples.AddTripleFromNodes(NewNumberNode(2), NewStringNode("square"), NewVariableNode())
 
 	definitions := NewTriples()
-	definitions.NewTripleFromNodes(SquareFunctionNode, ComputeNode, NewStringNode("square"))
+	definitions.AddTripleFromNodes(SquareFunctionNode, ComputeNode, NewStringNode("square"))
 
 	tr := NewComputeWithDefinitions(definitions)
 	err := tr(triples)

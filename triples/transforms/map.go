@@ -20,7 +20,7 @@ func NewMap(start t.Node, tripleTransform t.TripleTransform, output *t.Triples) 
 	}
 }
 
-func NewFlatMap(start t.Node, mapper t.TripleMapper, output *t.Triples) t.Transformer {
+func NewFlatMap(start t.Node, mapper t.TriplesGenerator, output *t.Triples) t.Transformer {
 
 	return func(source *t.Triples) error {
 

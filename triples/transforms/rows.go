@@ -21,9 +21,15 @@ func RowTriples(source *triples.Triples) (*triples.Triples, error) {
 func MatrixQuery() *triples.Triples {
 	query := triples.NewTriples()
 	x := NewVariableNode()
-	query.AddTriple(triples.NodeMatchAnyAnonymous, triples.NodeMatchAnyIndex, x)
+	t := query.AddTripleFromNodes(
+		triples.NodeBoolFunction(triples.NodeMatchAnyAnonymous),
+		triples.NodeBoolFunction(triples.NodeMatchAnyIndex),
+		x)
 	query.AddTriple(x, triples.NodeMatchAnyIndex, triples.NodeMatchAny)
-	// query.AddTriple(x, "type", "anonymous")
+	query.AddTripleFromNodes(x, triples.TypeFunctionNode, triples.NewStringNode("triples.AnonymousNode"))
+
+	a := query.AddTripleReference(t)
+	query.AddTriple(triples.NewAnonymousNode(), "select", a)
 	return query
 }
 
