@@ -56,4 +56,14 @@ func (set NodeSet) GetSortedNodeList() NodeList {
 	return nodes
 }
 
+func (set NodeSet) Intersect(with NodeSet) NodeSet {
+	res := NewNodeSet()
+	for _, node := range set {
+		if with.Contains(node) {
+			res.Add(node)
+		}
+	}
+	return res
+}
+
 type NodeList []Node
