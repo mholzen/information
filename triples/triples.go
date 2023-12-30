@@ -460,12 +460,20 @@ func (source *Triples) GetTripleList() TripleList {
 	return tripleList
 }
 
-func (source *Triples) Pop() (Triple, error) {
-	for _, triple := range source.TripleSet {
-		source.Delete(triple)
-		return triple, nil
+func (source *Triples) GetTripleReferences(triple Triple) NodeSet {
+	subjects := source.GetSubjectsByPredicateObject(Subject, triple.Subject)
+	if len(subjects) == 0 {
+		return nil
 	}
-	return Triple{}, fmt.Errorf("cannot pop from empty Triples")
+	predicates := source.GetSubjectsByPredicateObject(Predicate, triple.Predicate)
+	if len(predicates) == 0 {
+		return nil
+	}
+	objects := source.GetSubjectsByPredicateObject(Object, triple.Object)
+	if len(objects) == 0 {
+		return nil
+	}
+	return subjects.Intersect(predicates).Intersect(objects)
 }
 
 func (source Triples) String() string {

@@ -41,14 +41,31 @@ func Test_Contains(t *testing.T) {
 	require.Nil(t, err)
 	t1.Add(shouldContain)
 	assert.Contains(t, t1.TripleSet, shouldContain.String())
-
 }
 
-// func Test_Contains_unary(t *testing.T) {
-// 	tpls := NewTriples()
-// 	tpls.AddTriple("a", "b", 1)
-// 	tpls.AddTriple("d", "e", 2)
-// 	triple, _ := NewTriple("a", NewNodeMatchAny(), 1)
+func Test_GetReference(t *testing.T) {
+	tpls := NewTriples()
+	tr1, _ := tpls.AddTriple("a", "b", 1)
+	tr2, _ := tpls.AddTriple("c", "d", 2)
+	n := tpls.AddTripleReference(tr1)
 
-// 	assert.True(t, tpls.Contains(triple))
-// }
+	nodes := tpls.GetTripleReferences(tr1)
+	require.Len(t, nodes, 1)
+	assert.Contains(t, nodes, n.String())
+	require.True(t, nodes.Contains(n))
+
+	nodes = tpls.GetTripleReferences(tr2)
+	require.Len(t, nodes, 0)
+}
+
+func Test_AddTripleNodes(t *testing.T) {
+	tpls := NewTriples()
+	tpls.AddTripleNodes("a", "b", 1, "c", "d", 2)
+	assert.Len(t, tpls.TripleSet, 2)
+
+	err := tpls.AddTripleNodes("a", "b", 1, "c", "d")
+	require.NotNil(t, err)
+
+	err = tpls.AddTripleNodes("a", "b", tpls)
+	require.NotNil(t, err)
+}
