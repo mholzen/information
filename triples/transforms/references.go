@@ -4,6 +4,10 @@ import (
 	t "github.com/mholzen/information/triples"
 )
 
+func ReferenceTriples(source *t.Triples) *t.Triples {
+	return source.Filter(ReferenceTripleMatch)
+}
+
 func References(source *t.Triples) *t.Triples {
 	references := make(map[t.Node]t.Triple)
 
@@ -33,6 +37,26 @@ func References(source *t.Triples) *t.Triples {
 	}
 	return res
 }
+
 func ReferencesMapper(source *t.Triples) (*t.Triples, error) {
 	return References(source), nil
+}
+
+func RemoveReferencesMapper(source *t.Triples) (*t.Triples, error) {
+	return source.Map(NewIntersectMapper(ReferenceTriples(source)))
+}
+
+func ReferenceTriplesConnected(source *t.Triples) *t.Triples {
+	referenceTriples := ReferenceTriples(source)
+
+	// TODO: should use traverse
+	filter := NewSubjectsTripleMatch(referenceTriples.GetSubjects())
+	super := source.Filter(filter)
+	referenceTriples.AddTriples(super)
+
+	filter = NewObjectsTripleMatch(referenceTriples.GetSubjects())
+	super = source.Filter(filter)
+	referenceTriples.AddTriples(super)
+
+	return referenceTriples
 }

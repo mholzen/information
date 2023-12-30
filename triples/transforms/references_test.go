@@ -33,3 +33,54 @@ func Test_References(t *testing.T) {
 		Object:    NewIndexNode(2),
 	}))
 }
+
+func Test_ReferenceTriples(t *testing.T) {
+	tpls := NewTriples()
+	container := NewAnonymousNode()
+	tpl, _ := NewTriple(container, "b", 1)
+	tpls.AddTripleReference(tpl)
+	tpl, _ = NewTriple(container, "c", 2)
+	tpls.AddTripleReference(tpl)
+	tpl, _ = NewTriple("a", "b", 3)
+	tpls.Add(tpl)
+
+	res := ReferenceTriples(tpls)
+
+	assert.Len(t, res.TripleSet, 6)
+}
+
+func Test_RemoveReferences(t *testing.T) {
+	tpls := NewTriples()
+	container := NewAnonymousNode()
+	tpl, _ := NewTriple(container, "b", 1)
+	tpls.AddTripleReference(tpl)
+	tpl, _ = NewTriple(container, "c", 2)
+	tpls.AddTripleReference(tpl)
+	tpl, _ = NewTriple("a", "b", 3)
+	tpls.Add(tpl)
+
+	assert.Len(t, tpls.TripleSet, 7)
+
+	res, err := tpls.Map(RemoveReferencesMapper)
+	require.Nil(t, err)
+
+	assert.Len(t, res.TripleSet, 1)
+}
+
+func Test_ReferenceTriplesSuper(t *testing.T) {
+	tpls := NewTriples()
+	container := NewAnonymousNode()
+	tpl, _ := NewTriple(container, "b", 1)
+	ref1 := tpls.AddTripleReference(tpl)
+	tpl, _ = NewTriple(container, "c", 2)
+	tpls.AddTripleReference(tpl)
+	tpl, _ = NewTriple(ref1, "foo", "bar")
+	tpls.Add(tpl)
+	tpl, _ = NewTriple("a", "b", 3)
+	tpls.Add(tpl)
+	assert.Len(t, tpls.TripleSet, 8)
+
+	res := ReferenceTriplesConnected(tpls)
+
+	assert.Len(t, res.TripleSet, 7)
+}
