@@ -6,7 +6,7 @@ import (
 	"github.com/mholzen/information/triples"
 )
 
-func HtmlTable(source *triples.Triples) (*triples.Triples, error) {
+func HtmlTableMapper(source *triples.Triples) (*triples.Triples, error) {
 
 	rows, err := RowTriples(source)
 	log.Printf("rows from htmltable: %s", rows)
