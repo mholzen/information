@@ -31,8 +31,7 @@ func (n UnaryFunctionNode) LessThan(other Node) bool {
 	case UnaryFunctionNode:
 		return n.String() < other.String()
 	default:
-		// TODO: variable ordering
-		return false
+		return NodeLessThan(n, other)
 	}
 }
 
@@ -46,18 +45,30 @@ func Square(node Node) (Node, error) {
 
 var SquareFunctionNode UnaryFunctionNode = UnaryFunctionNode(Square)
 
-var TypeFunctionNode UnaryFunctionNode = UnaryFunctionNode(func(node Node) (Node, error) {
-	t := reflect.TypeOf(node).String()
-	return NewStringNode(t), nil
-})
+func TypeFunction(node Node) (Node, error) {
+	return NewStringNode(name(node)), nil
+}
 
-var LengthFunction UnaryFunctionNode = UnaryFunctionNode(func(node Node) (Node, error) {
+var TypeFunctionNode UnaryFunctionNode = TypeFunction
+
+func name(node Node) string {
+	switch node.(type) {
+	case IndexNode:
+		return "triples.IndexNode"
+	default:
+		return reflect.TypeOf(node).String()
+	}
+}
+
+func LengthFunction(node Node) (Node, error) {
 	if n, ok := node.(StringNode); ok {
 		return NewIndexNode(len(n.String())), nil
 	} else {
 		return nil, fmt.Errorf("expected StringNode, got %T", node)
 	}
-})
+}
+
+var LengthFunctionNode UnaryFunctionNode = LengthFunction
 
 func NewStringNodeMatch(re string) UnaryFunctionNode {
 	return func(node Node) (Node, error) {
@@ -129,4 +140,9 @@ func GetUnaryNodes(list NodeList) []UnaryFunctionNode {
 		}
 	}
 	return res
+}
+
+func IsPredicateUnary(triple Triple) bool {
+	_, ok := triple.Predicate.(UnaryFunctionNode)
+	return ok
 }

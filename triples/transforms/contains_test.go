@@ -9,19 +9,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// func Test_TripleMatch(t *testing.T) {
-// 	tpl, err := tr.NewTriple("a", tr.TypeNode, "StringNode")
-// 	require.Nil(t, err)
-// 	match := NewTripleFMatch(tpl)
-
-// 	toMatch, err := tr.NewTriple("a", "type.result", "StringNode")
-// 	require.Nil(t, err)
-// 	x, err := match(toMatch)
-// 	require.Nil(t, err)
-
-// 	assert.True(t, x)
-// }
-
 func Test_Contains(t *testing.T) {
 	tpls := tr.NewTriples()
 	tpls.AddTriple("a", "b", 1)
@@ -110,7 +97,7 @@ func Test_NewContainsOrComputeMapper(t *testing.T) {
 	query, _ := tr.NewTriple("Marc", "length", 4)
 
 	functions := tr.NewTriples()
-	functions.AddTriple(tr.LengthFunction, ComputeNode, "length")
+	functions.AddTriple(tr.LengthFunctionNode, ComputeNode, "length")
 
 	res, err := NewContainsOrComputeMapper(query, functions)(tpls)
 
