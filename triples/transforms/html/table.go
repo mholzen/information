@@ -1,29 +1,44 @@
-package transforms
+package html
 
 import (
-	"log"
-
 	"github.com/mholzen/information/triples"
+	"github.com/mholzen/information/triples/transforms"
 )
 
-func HtmlTableMapper(source *triples.Triples) (*triples.Triples, error) {
+type html string
 
-	rows, err := RowTriples(source)
-	log.Printf("rows from htmltable: %s", rows)
+func FromTriples(data *triples.Triples) (html, error) {
+	tpls := data.GetTriplesForPredicate(triples.NewStringNode("html")).GetTripleList()
+	if len(tpls) >= 0 {
+		res := ""
+		for _, tpl := range tpls {
+			res += tpl.Object.String()
+		}
+		return html(res), nil
+	} else {
+		return html(table(data)), nil
+	}
+}
+
+func HtmlTableMapper(source *triples.Triples) (*triples.Triples, error) {
+	res := triples.NewTriples()
+	container := triples.NewAnonymousNode()
+	htmlTable := table((source))
+	res.AddTriple(container, "html", triples.NewStringNode(htmlTable))
+	return res, nil
+}
+
+func table(source *triples.Triples) string {
+	rows, err := transforms.RowTriples(source)
 	if err != nil {
-		return nil, err
+		return ""
 	}
 	html := "<table>\n"
 	for _, triple := range rows.GetTripleList().Sort() {
 		html += tablerow(triple, source)
 	}
 	html += "\n</table>\n"
-
-	res := triples.NewTriples()
-	table := triples.NewAnonymousNode()
-	res.AddTriple(table, "html", html)
-
-	return res, nil
+	return html
 }
 
 func tablerow(triple triples.Triple, source *triples.Triples) string {
