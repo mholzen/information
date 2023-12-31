@@ -11,7 +11,7 @@ import (
 )
 
 func Test_html(t *testing.T) {
-	tm := transforms.NewFileJsonParser("../../data/examples.jsonc")
+	tm := transforms.NewFileJsonParser("../../../data/examples.jsonc")
 	// all, err := Parse("../data/examples.jsonc")
 	res := triples.NewTriples()
 	err := res.Transform(tm.Transformer)
