@@ -11,9 +11,9 @@ import (
 )
 
 func Test_remove_comment(t *testing.T) {
-	assert.Empty(t, RemoveComment("// comment"))
-	assert.Equal(t, "abc ", RemoveComment("abc // comment"))
-	assert.Equal(t, `"http://a.c" `, RemoveComment(`"http://a.c" // comment`))
+	assert.Empty(t, removeComment("// comment"))
+	assert.Equal(t, "abc ", removeComment("abc // comment"))
+	assert.Equal(t, `"http://a.c" `, removeComment(`"http://a.c" // comment`))
 }
 
 func Test_parse(t *testing.T) {
@@ -69,4 +69,14 @@ func Test_csv_parse(t *testing.T) {
 	require.Nil(t, err)
 
 	assert.Len(t, src.TripleSet, 9)
+}
+
+func Test_NewLinesParser(t *testing.T) {
+	tm := NewLinesParser(strings.NewReader("line 1\nline 2\nline 3\n"))
+
+	src := NewTriples()
+	err := src.Transform(tm.Transformer)
+	require.Nil(t, err)
+
+	assert.Len(t, src.TripleSet, 4)
 }

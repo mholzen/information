@@ -112,6 +112,9 @@ func NewParserFromContentType(mimeType string, data io.Reader) (*t.TransformerWi
 		}
 		return NewJsonParser(buffer.String()), nil
 
+	case strings.HasPrefix(mimeType, "text/x-log"):
+		return NewLinesParser(data), nil
+
 	case strings.HasPrefix(mimeType, "text/csv"):
 		return NewCsvParser(data), nil
 	default:
@@ -153,10 +156,43 @@ func NewCsvParser(data io.Reader) *t.TransformerWithResult {
 	return &transformer
 }
 
+func NewLinesParser(data io.Reader) *t.TransformerWithResult {
+	transformer := t.TransformerWithResult{}
+	transformer.Transformer = func(target *t.Triples) error {
+		array, err := readLines(data)
+		if err != nil {
+			return err
+		}
+		var container t.Node = t.NewAnonymousNode()
+		for i, line := range array {
+			target.AddTriple(container, i, line)
+		}
+		target.AddTriple(container, "source", "LinesParser")
+		transformer.Result = &container
+		return err
+	}
+	return &transformer
+}
+
+func readLines(reader io.Reader) ([]string, error) {
+	scanner := bufio.NewScanner(reader)
+	var lines []string
+
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	return lines, nil
+}
+
 func NewFileJsonParser(filename string) *t.TransformerWithResult {
 	transformer := t.TransformerWithResult{}
 	transformer.Transformer = func(target *t.Triples) error {
-		buffer, err := Read(filename)
+		buffer, err := read(filename)
 		if err != nil {
 			return err
 		}
@@ -177,31 +213,14 @@ func NewFileJsonParser(filename string) *t.TransformerWithResult {
 }
 
 func ReadAndStripComments(filename string) (io.Reader, error) {
-	var buffer bytes.Buffer
-
-	// read the file
-	file, err := os.Open(filename)
+	buffer, err := read(filename)
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
-
-	// remove comments
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-
-		// remove comments from line
-		line = RemoveComment(line)
-
-		buffer.WriteString(line + "\n")
-	}
-
 	return bytes.NewReader(buffer.Bytes()), nil
 }
 
-// TODO: refactor with above
-func Read(filename string) (bytes.Buffer, error) {
+func read(filename string) (bytes.Buffer, error) {
 	var buffer bytes.Buffer
 
 	// read the file
@@ -217,60 +236,18 @@ func Read(filename string) (bytes.Buffer, error) {
 		line := scanner.Text()
 
 		// remove comments from line
-		line = RemoveComment(line)
+		line = removeComment(line)
 
 		buffer.WriteString(line + "\n")
 	}
 	return buffer, nil
 }
 
-func RemoveComment(line string) string {
+func removeComment(line string) string {
 	re := regexp.MustCompile(`(//)(?:([^"]|"[^"]*")*)$`)
 	lines := re.Split(line, 2)
 	return lines[0]
 }
-
-// type lineCountingReader struct {
-// 	r      io.Reader
-// 	last   []byte
-// 	offset int64
-// 	lineno int
-// }
-
-// func (lcr *lineCountingReader) Read(p []byte) (n int, err error) {
-// 	lcr.lineno += bytes.Count(lcr.last, []byte{'\n'})
-// 	lcr.offset += int64(len(lcr.last))
-// 	n, err = lcr.r.Read(p)
-// 	lcr.last = make([]byte, n)
-// 	copy(lcr.last, p[:n])
-// 	return
-// }
-
-// func (lcr *lineCountingReader) Lineno(offset int64) int {
-// 	offset -= lcr.offset
-// 	return lcr.lineno + bytes.Count(lcr.last[:offset], []byte{'\n'})
-// }
-
-// func parseString(input bytes.Buffer) (*Triples, error) {
-// 	lcr := &lineCountingReader{r: bufio.NewReader(&input)}
-
-// 	decoder := json.NewDecoder(lcr)
-// 	var data interface{}
-// 	err := decoder.Decode(&data)
-// 	if err != nil {
-// 		if syntaxErr, ok := err.(*json.SyntaxError); ok {
-// 			// should use syntaxErr.Offset
-// 			return nil, fmt.Errorf("syntax error on line %d: %s", lcr.Lineno(syntaxErr.Offset), syntaxErr)
-// 		}
-// 		return nil, err
-// 	}
-
-// 	res := NewTriples()
-
-// 	transformer := NewParser(data)
-// 	err = res.Transform(transformer)
-// 	return res, err
-// }
 
 func NewJsonTriples(data string) (*t.Triples, error) {
 	res := t.NewTriples()
