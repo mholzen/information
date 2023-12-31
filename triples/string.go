@@ -18,6 +18,7 @@ func NewStringNode(value string) StringNode {
 		return stringNodes[value]
 	}
 }
+
 func (n StringNode) String() string {
 	return n.Value
 }
@@ -44,3 +45,21 @@ var Name = NewStringNode("name")
 type StringNodes map[string]StringNode
 
 var stringNodes StringNodes = make(StringNodes)
+
+func MakeStringNodes(from NodeSet) StringNodes {
+	res := make(StringNodes)
+	for _, node := range from.GetNodeList() {
+		if s, ok := node.(StringNode); ok {
+			res[node.String()] = s
+		}
+	}
+	return res
+}
+
+func (nodes StringNodes) GetStringList() []string {
+	res := make([]string, 0)
+	for _, node := range nodes {
+		res = append(res, node.String())
+	}
+	return res
+}

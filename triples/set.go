@@ -1,6 +1,8 @@
 package triples
 
-import "sort"
+import (
+	"sort"
+)
 
 type NodeSet map[string]Node
 
