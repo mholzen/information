@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 
 	t "github.com/mholzen/information/triples"
@@ -253,4 +254,62 @@ func NewJsonTriples(data string) (*t.Triples, error) {
 	res := t.NewTriples()
 	err := res.Transform(NewJsonParser(data).Transformer)
 	return res, err
+}
+
+func NewNodeFromString(str string) (t.Node, error) {
+	switch {
+	case len(str) == 0:
+		return t.NewStringNode(str), nil
+	case str[0] == '?':
+		return NewVariableNode(), nil
+	case str[0] == '_':
+		return t.NewAnonymousNode(), nil
+	default:
+		if num, err := strconv.Atoi(str); err == nil {
+			return t.NewIndexNode(num), nil
+		}
+		if num, err := strconv.ParseFloat(str, 64); err == nil {
+			return t.NewFloatNode(num), nil
+		}
+		return t.NewStringNode(str), nil
+	}
+}
+
+func NewTripleFromString(triple string) (t.Triple, error) {
+	// split triple by whitespace
+	atoms := strings.Split(triple, " ")
+	if len(atoms) != 3 {
+		return t.Triple{}, fmt.Errorf("invalid triple: %s", triple)
+	}
+	subject, err := NewNodeFromString(atoms[0])
+	if err != nil {
+		return t.Triple{}, err
+	}
+	predicate, err := NewNodeFromString(atoms[1])
+	if err != nil {
+		return t.Triple{}, err
+	}
+	object, err := NewNodeFromString(atoms[2])
+	if err != nil {
+		return t.Triple{}, err
+	}
+
+	return t.NewTripleFromNodes(subject, predicate, object), nil
+}
+
+func NewTriplesFromStrings(triples ...string) (*t.Triples, error) {
+	res := t.NewTriples()
+	for _, triple := range triples {
+		// split triple by whitespace
+		atoms := strings.Split(triple, " ")
+		if len(atoms) != 3 {
+			return res, fmt.Errorf("invalid triple: %s", triple)
+		}
+		triple, err := NewTripleFromString(triple)
+		if err != nil {
+			return res, err
+		}
+		res.Add(triple)
+	}
+	return res, nil
 }

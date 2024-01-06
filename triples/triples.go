@@ -167,9 +167,9 @@ func (source *Triples) AddTripleReferences(triples *Triples) Node {
 	return container
 }
 
-func (source *Triples) Add(triple Triple) {
+func (source *Triples) Add(triple Triple) *Triples {
 	if _, ok := source.TripleSet[triple.String()]; ok {
-		return
+		return source
 	}
 	source.TripleSet[triple.String()] = triple
 
@@ -178,6 +178,14 @@ func (source *Triples) Add(triple Triple) {
 	if triple.Object != nil {
 		source.Nodes.Add(triple.Object)
 	}
+	return source
+}
+
+func (source *Triples) AddTripleList(triple ...Triple) *Triples {
+	for _, triple := range triple {
+		source.Add(triple)
+	}
+	return source
 }
 
 func (source *Triples) Delete(triple Triple) {
@@ -374,6 +382,10 @@ func (source *Triples) GetTriplesForPredicate(predicate Node) *Triples {
 		}
 	}
 	return res
+}
+
+func (source *Triples) GetTriplesForPredicateString(predicate string) *Triples {
+	return source.GetTriplesForPredicate(NewStringNode(predicate))
 }
 
 func (source *Triples) GetTriplesForObject(object Node) *Triples {
