@@ -256,43 +256,33 @@ func NewJsonTriples(data string) (*t.Triples, error) {
 	return res, err
 }
 
-func NewNodeFromString(str string) (t.Node, error) {
+func NewNodeFromString(str string) t.Node {
 	switch {
 	case len(str) == 0:
-		return t.NewStringNode(str), nil
+		return t.NewStringNode(str)
 	case str[0] == '?':
-		return NewVariableNode(), nil
+		return NewVariableNode()
 	case str[0] == '_':
-		return t.NewAnonymousNode(), nil
+		return t.NewAnonymousNode()
 	default:
 		if num, err := strconv.Atoi(str); err == nil {
-			return t.NewIndexNode(num), nil
+			return t.NewIndexNode(num)
 		}
 		if num, err := strconv.ParseFloat(str, 64); err == nil {
-			return t.NewFloatNode(num), nil
+			return t.NewFloatNode(num)
 		}
-		return t.NewStringNode(str), nil
+		return t.NewStringNode(str)
 	}
 }
 
 func NewTripleFromString(triple string) (t.Triple, error) {
-	// split triple by whitespace
 	atoms := strings.Split(triple, " ")
 	if len(atoms) != 3 {
-		return t.Triple{}, fmt.Errorf("invalid triple: %s", triple)
+		return t.Triple{}, fmt.Errorf("invalid string '%s'", triple)
 	}
-	subject, err := NewNodeFromString(atoms[0])
-	if err != nil {
-		return t.Triple{}, err
-	}
-	predicate, err := NewNodeFromString(atoms[1])
-	if err != nil {
-		return t.Triple{}, err
-	}
-	object, err := NewNodeFromString(atoms[2])
-	if err != nil {
-		return t.Triple{}, err
-	}
+	subject := NewNodeFromString(atoms[0])
+	predicate := NewNodeFromString(atoms[1])
+	object := NewNodeFromString(atoms[2])
 
 	return t.NewTripleFromNodes(subject, predicate, object), nil
 }
@@ -300,11 +290,6 @@ func NewTripleFromString(triple string) (t.Triple, error) {
 func NewTriplesFromStrings(triples ...string) (*t.Triples, error) {
 	res := t.NewTriples()
 	for _, triple := range triples {
-		// split triple by whitespace
-		atoms := strings.Split(triple, " ")
-		if len(atoms) != 3 {
-			return res, fmt.Errorf("invalid triple: %s", triple)
-		}
 		triple, err := NewTripleFromString(triple)
 		if err != nil {
 			return res, err
@@ -312,4 +297,71 @@ func NewTriplesFromStrings(triples ...string) (*t.Triples, error) {
 		res.Add(triple)
 	}
 	return res, nil
+}
+
+func NewNamedTriples(triples ...string) (*t.Triples, error) {
+	return NewNamedNodeMap().NewTriples(triples...)
+}
+
+type NamedNodeMap NodeMap
+
+func NewNamedNodeMap() NamedNodeMap {
+	return make(NamedNodeMap)
+}
+
+func (m NamedNodeMap) NewTriples(triples ...string) (*t.Triples, error) {
+	res := t.NewTriples()
+	for _, triple := range triples {
+		triple, err := m.NewTriple(triple)
+		if err != nil {
+			return res, err
+		}
+		res.Add(triple)
+	}
+	return res, nil
+}
+
+func (m NamedNodeMap) NewTriple(triple string) (t.Triple, error) {
+	atoms := strings.Split(triple, " ")
+	if len(atoms) != 3 {
+		return t.Triple{}, fmt.Errorf("invalid string '%s'", triple)
+	}
+	subject := m.NewNode(atoms[0])
+	predicate := m.NewNode(atoms[1])
+	object := m.NewNode(atoms[2])
+
+	return t.NewTripleFromNodes(subject, predicate, object), nil
+}
+
+func (m NamedNodeMap) NewNode(str string) t.Node {
+	switch {
+	case len(str) == 0:
+		return t.NewStringNode(str)
+	case str[0] == '?':
+		return m.GetOrSet(NewVariableNode(), str)
+	case str[0] == '_':
+		return m.GetOrSet(t.NewAnonymousNode(), str)
+	default:
+		if num, err := strconv.Atoi(str); err == nil {
+			return t.NewIndexNode(num)
+		}
+		if num, err := strconv.ParseFloat(str, 64); err == nil {
+			return t.NewFloatNode(num)
+		}
+		return t.NewStringNode(str)
+	}
+}
+
+func (m NamedNodeMap) GetOrSet(node t.Node, str string) t.Node {
+	if len(str) > 0 {
+		n, ok := m[str]
+		if ok {
+			return n
+		} else {
+			m[str] = node
+			return node
+		}
+	} else {
+		return node
+	}
 }

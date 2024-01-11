@@ -10,7 +10,6 @@ import (
 
 type VariableNode struct {
 	t.CreatedNode[uuid.UUID]
-	Value *t.Node
 }
 
 func NewVariableNode() VariableNode { // CONSIDER: can named variables in a query be handled by a triple?
@@ -22,6 +21,8 @@ func NewVariableNode() VariableNode { // CONSIDER: can named variables in a quer
 		CreatedNode: t.NewCreatedNode(value),
 	}
 }
+
+var Var = NewVariableNode
 
 type VariableList []VariableNode
 
@@ -63,7 +64,7 @@ func (v VariableList) Traverse(nodes t.NodeList) []t.NodeList {
 	return res
 }
 
-func GetVariableList(nodes t.NodeList) VariableList {
+func NewVariableList(nodes t.NodeList) VariableList {
 	res := make(VariableList, 0)
 	for _, node := range nodes {
 		if variable, ok := node.(VariableNode); ok {
@@ -71,6 +72,10 @@ func GetVariableList(nodes t.NodeList) VariableList {
 		}
 	}
 	return res
+}
+
+func NewVariableListFromTriples(triples *t.Triples) VariableList {
+	return NewVariableList(triples.Nodes.GetNodeList())
 }
 
 func (v VariableList) GetNodeList() t.NodeList {
@@ -83,13 +88,26 @@ func (v VariableList) GetNodeList() t.NodeList {
 
 type VariableMap map[VariableNode]t.Node
 
-func NewVariableMap(queryTriples t.TripleList) VariableMap {
-	variables := GetVariableList(queryTriples.GetNodes().GetNodeList())
+func (v VariableMap) IsComplete() bool {
+	for _, value := range v {
+		if value == nil {
+			return false
+		}
+	}
+	return true
+}
+
+func NewVariableMap(variables VariableList) VariableMap {
 	res := make(VariableMap)
 	for _, variable := range variables {
 		res[variable] = nil
 	}
 	return res
+}
+
+func NewVariableMapFromTripleList(queryTriples t.TripleList) VariableMap {
+	variables := NewVariableList(queryTriples.GetNodes().GetNodeList())
+	return NewVariableMap(variables)
 }
 
 func (v VariableMap) Clear() {
@@ -109,22 +127,29 @@ func (m VariableMap) TestOrSet(variable VariableNode, value t.Node) error {
 	return nil
 }
 
+func wrapError(position t.NodePosition, err error) error {
+	return fmt.Errorf("error setting %s: %s", string(position), err)
+}
+
 func (m VariableMap) TestOrSetTriple(query t.Triple, value t.Triple) error {
 	if v, ok := query.Subject.(VariableNode); ok {
 		if err := m.TestOrSet(v, value.Subject); err != nil {
-			return err
+			return wrapError(t.Subject1, err)
 		}
 	}
 	if v, ok := query.Predicate.(VariableNode); ok {
 		if err := m.TestOrSet(v, value.Predicate); err != nil {
-			return err
+			return wrapError(t.Predicate1, err)
 		}
 	}
 	if v, ok := query.Object.(VariableNode); ok {
 		if err := m.TestOrSet(v, value.Object); err != nil {
-			return err
+			return wrapError(t.Object1, err)
 		}
 	}
 	return nil
+}
 
+func (v VariableMap) MeetsComputation(computations Computations) bool {
+	return computations.Test(v)
 }

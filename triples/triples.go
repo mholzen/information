@@ -125,6 +125,10 @@ func (source *Triples) Length() int {
 	return len(source.TripleSet)
 }
 
+func (source *Triples) IsEmpty() bool {
+	return source.Length() == 0
+}
+
 func (source *Triples) NewNode(value interface{}) (Node, error) {
 	return NewNode(value)
 }

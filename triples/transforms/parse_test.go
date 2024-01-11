@@ -83,24 +83,19 @@ func Test_NewLinesParser(t *testing.T) {
 }
 
 func Test_NewNodeFromString(t *testing.T) {
-	node, err := NewNodeFromString("marc")
-	require.Nil(t, err)
+	node := NewNodeFromString("marc")
 	require.Equal(t, node, NewStringNode("marc"))
 
-	node, err = NewNodeFromString("?")
-	require.Nil(t, err)
+	node = NewNodeFromString("?")
 	require.IsType(t, NewVariableNode(), node)
 
-	node, err = NewNodeFromString("_")
-	require.Nil(t, err)
+	node = NewNodeFromString("_")
 	require.IsType(t, NewAnonymousNode(), node)
 
-	node, err = NewNodeFromString("42")
-	require.Nil(t, err)
+	node = NewNodeFromString("42")
 	require.Equal(t, node, NewIndexNode(42))
 
-	node, err = NewNodeFromString("42.0")
-	require.Nil(t, err)
+	node = NewNodeFromString("42.0")
 	require.Equal(t, node, NewFloatNode(42.0))
 }
 

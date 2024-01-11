@@ -1,66 +1,57 @@
 package transforms
 
 import (
-	"fmt"
+	"io"
 	"log"
+	"os"
 
+	"github.com/davecgh/go-spew/spew"
 	t "github.com/mholzen/information/triples"
 )
 
-type TriplesList []*t.Triples
+type Query struct {
+	QueryTriples t.TripleList // triples that need to match
+	Computations Computations // computations that need to match
 
-func (tl TriplesList) String() string {
-	res := "[\n"
+	SelectTriples t.TripleList // triples that are part of the response
 
-	for i, triples := range tl {
-		res += fmt.Sprintf("%d: %s\n", i, triples.StringLine())
-	}
-	res += "]\n"
-	return res
+	Query *t.Triples // source query
 }
 
-type TripleMatrix []t.TripleList
-
-func (ta TripleMatrix) String() string {
-	res := "[\n"
-
-	for _, triples := range ta {
-		res += fmt.Sprintf("[%s]\n", triples.StringLine())
+func NewQueryMapper(triples *t.Triples) (t.Mapper, error) {
+	query, err := NewQueryFromTriples(triples)
+	if err != nil {
+		return nil, err
 	}
-	res += "]\n"
-	return res
-}
-
-func NewQueryMapper(query *t.Triples) t.Mapper {
-	// for each triple in the query
-	// find the set of triples that match it
-	// then generate the cartesian product of those sets
-	// then filter solutions to those where variables match
-	queryTriples := query.GetTripleList()
-	log.Printf("queryTriples: %s", queryTriples)
 
 	return func(source *t.Triples) (*t.Triples, error) {
-		// TODO: refactor into a pipe (to help debug)
-		solutionsPerQueryTriple, err := SolutionsPerQueryTriple(queryTriples, source)
+		solutions, err := query.Apply(source)
 		if err != nil {
 			return nil, err
 		}
-		log.Printf("solutionsPerQueryTriple: %s", solutionsPerQueryTriple)
-
-		products := Cartesian(solutionsPerQueryTriple)
-		log.Printf("products: %s", products)
-
-		solutions := FilterByVariables(queryTriples, products)
-		log.Printf("solutions: %s", solutions)
-
-		return solutions, nil
-	}
+		return solutions.Triples(), nil
+	}, nil
 }
 
-func SolutionsPerQueryTriple(queryTriples t.TripleList, source *t.Triples) (TriplesList, error) {
+func (q Query) IsSelect(triple t.Triple) bool {
+	// TODO: should probably cache
+	nodes := q.Query.GetTripleReferences(triple)
+	if len(nodes) == 0 {
+		return false
+	}
+	for _, n := range nodes {
+		match := t.NewTripleFromNodes(t.NodeBoolFunction(t.NodeMatchAnyAnonymous), t.NewStringNode("select"), n)
+		if len(q.QueryTriples.Filter(NewTripleMatch(match))) > 0 {
+			return true
+		}
+	}
+	return false
+}
+
+func (q Query) Solutions(source *t.Triples) (TriplesList, error) {
 	solutionsPerQueryTriple := make(TriplesList, 0)
 
-	for _, triple := range queryTriples {
+	for _, triple := range q.QueryTriples {
 		tripleFilter := NewTripleQueryMatchMapper(triple)
 		matches, err := source.Map(tripleFilter)
 		if err != nil {
@@ -71,18 +62,17 @@ func SolutionsPerQueryTriple(queryTriples t.TripleList, source *t.Triples) (Trip
 	return solutionsPerQueryTriple, nil
 }
 
-func FilterByVariables(queryTriples t.TripleList, products TripleMatrix) *t.Triples {
-	res := t.NewTriples()
-	root := t.NewAnonymousNode()
-
-	variables := NewVariableMap(queryTriples)
+func (query Query) FilterByVariables(products TripleMatrix) (TripleMatrix, error) {
+	res := make(TripleMatrix, 0)
+	variables := NewVariableMapFromTripleList(query.QueryTriples)
 
 	for i, solution := range products {
 
 		variables.Clear()
 		breakOuter := false
+
 		for j, triple := range solution {
-			if err := variables.TestOrSetTriple(queryTriples[j], triple); err != nil {
+			if err := variables.TestOrSetTriple(query.QueryTriples[j], triple); err != nil {
 				log.Printf("skipping solution %d: %s", i, err)
 				breakOuter = true
 				break
@@ -91,10 +81,81 @@ func FilterByVariables(queryTriples t.TripleList, products TripleMatrix) *t.Trip
 		if breakOuter {
 			continue
 		}
-		node := res.AddTripleReferences(t.NewTriplesFromList(solution))
-		res.AddTriple(root, t.NewIndexNode(i), node)
+		// Passes variables -- now test computations
+		log.Printf("variables:\n\t%s", variables)
+
+		// ok, err := query.Computations.Test(variables, solution)
+		// if err != nil {
+		// 	return nil, err
+		// }
+		// if !ok {
+		// 	continue
+		// }
+
+		res = append(res, solution)
 	}
-	return res
+	return res, nil
+}
+
+func InitLog() {
+	logFile, err := os.OpenFile("test.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// defer logFile.Close()
+	multiWriter := io.MultiWriter(os.Stdout, logFile)
+	log.SetOutput(multiWriter)
+
+	spew.Config.Indent = "\t" // Set the indentation to a tab, for example
+}
+
+func (query Query) Apply(source *t.Triples) (TripleMatrix, error) {
+	// for each triple in the query
+	// find the set of triples that match it
+	// then generate the cartesian product of those sets
+	// then filter solutions to those where variables match
+
+	log.Printf("query: %s", spew.Sdump(query))
+
+	log.Printf("query\n%+v", query)
+	log.Printf("source\n%+v", source)
+
+	// TODO: refactor into a pipe (to help debug)
+	solutionsPerQueryTriple, err := query.Solutions(source)
+	if err != nil {
+		return nil, err
+	}
+	log.Printf("solutionsPerQueryTriple: %s", solutionsPerQueryTriple)
+
+	products := Cartesian(solutionsPerQueryTriple)
+	log.Printf("products: %s", products)
+
+	solutions, err := query.FilterByVariables(products)
+	if err != nil {
+		return nil, err
+	}
+	log.Printf("solutions: %s", solutions)
+
+	return solutions, nil
+}
+
+func NewQueryFromTriples(query *t.Triples) (Query, error) {
+	res := Query{}
+	res.Query = query
+
+	referenceConnected := ReferenceTriplesConnected(query)
+	queryTriples, err := query.Map(NewIntersectMapper(referenceConnected))
+	if err != nil {
+		return res, err
+	}
+	res.QueryTriples = queryTriples.GetTripleList()
+
+	computations, err := NewComputationsFromTriples(queryTriples)
+	if err != nil {
+		return res, err
+	}
+	res.Computations = computations
+	return res, nil
 }
 
 func NewTripleQueryMatchMapper(query t.Triple) t.Mapper {

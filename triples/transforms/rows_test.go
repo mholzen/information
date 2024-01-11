@@ -2,6 +2,7 @@ package transforms
 
 import (
 	"log"
+	"os"
 	"testing"
 
 	tr "github.com/mholzen/information/triples"
@@ -9,31 +10,21 @@ import (
 )
 
 func Test_RowQuery(t *testing.T) {
-	rowQuery := RowQuery()
-	source := array()
-
-	res, err := source.Map(NewQueryMapper(rowQuery))
+	query := RowQuery2()
+	source, err := NewTriplesFromStrings(
+		"_ 1 _",
+		"_ 2 _",
+		"_ 3 _",
+		"_ 4 1",
+		"a 5 _",
+	)
 	require.Nil(t, err)
 
-	res = References(res)
-	require.Len(t, res.TripleSet, 2)
-}
-
-func Test_RowTriples(t *testing.T) {
-	source := array()
-
-	res, err := RowTriples(source)
+	solutions, err := query.Apply(source)
 	require.Nil(t, err)
 
-	require.Len(t, res.TripleSet, 2)
-}
-
-func array() *tr.Triples {
-	source := tr.NewTriples()
-	source.AddTriple(tr.NewAnonymousNode(), 1, tr.NewAnonymousNode())
-	source.AddTriple(tr.NewAnonymousNode(), 2, tr.NewAnonymousNode())
-	source.AddTriple(tr.NewAnonymousNode(), "c", tr.NewAnonymousNode())
-	return source
+	log.Printf("%s", solutions.GetAllTriples())
+	require.Len(t, solutions, 3)
 }
 
 func matrix() *tr.Triples {
@@ -48,17 +39,48 @@ func matrix() *tr.Triples {
 	res.AddTriple(r1, 2, "12")
 	res.AddTriple(r2, 1, "21")
 	res.AddTriple(r2, 2, "22")
-
-	log.Printf("matrix: %s", res)
 	return res
+}
+
+func TestMain(m *testing.M) {
+	// Initialize logging for all tests
+	// (Set up log file, log format, etc.)
+	InitLog()
+	// Run the tests
+	os.Exit(m.Run())
 }
 
 func Test_MatrixQuery(t *testing.T) {
 	t.Skip()
-	query := MatrixQuery()
-	res, err := matrix().Map(NewQueryMapper(query))
+	query, err := NewQueryMapper(MatrixQuery())
+	require.Nil(t, err)
+	res, err := matrix().Map(query)
 	require.Nil(t, err)
 
 	res = References(res)
 	require.Len(t, res.TripleSet, 2)
+}
+
+func Test_MatrixQuery2(t *testing.T) {
+	t.Skip()
+	// query, err := NewQueryFromTriples(MatrixQuery())
+	// require.Nil(t, err)
+
+	// require.Len(t, query.QueryTriples, 2)
+
+	// MatrixQuery triples don't have an order, so I can't tell which triple gives me the rows
+	// must separate graph selection from graph condition
+	// could that be two queries?
+
+	// sol, err := query.GetSolutions(matrix())
+	// require.Nil(t, err)
+
+	// require.Len(t, sol.SelectTriples().TripleSet, 2)
+}
+
+func Test_MatrixQuery3(t *testing.T) {
+	query := MatrixQuery()
+	selects := ReferenceTriplesConnected(query)
+	log.Printf("query:\n%s", query)
+	require.Len(t, selects.TripleSet, 4)
 }
