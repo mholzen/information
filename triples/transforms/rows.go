@@ -13,7 +13,14 @@ func RowQuery() *triples.Triples {
 }
 
 func RowMapper() (triples.Mapper, error) {
-	return NewQueryMapper(RowQuery())
+	query := RowQuery2()
+	return func(source *triples.Triples) (*triples.Triples, error) {
+		res, err := query.Apply(source)
+		if err != nil {
+			return nil, err
+		}
+		return res.GetAllTriples(), nil
+	}, nil
 }
 
 func RowQuery2() Query2 {

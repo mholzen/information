@@ -6,40 +6,6 @@ import (
 	t "github.com/mholzen/information/triples"
 )
 
-type Solutions struct {
-	Query *Query
-	// Rows         TripleMatrix
-	SolutionList SolutionList
-}
-
-// func (s Solutions) Triples() *t.Triples {
-// 	return s.Rows.Triples()
-// }
-
-// func (s Solutions) SelectTriples() *t.Triples {
-// 	res := t.NewTriples()
-// 	for i, triple := range s.Query.QueryTriples {
-// 		if s.Query.IsSelect(triple) {
-// 			for _, row := range s.Rows {
-// 				res.Add(row[i])
-// 			}
-// 		}
-// 	}
-// 	return res
-// }
-
-// func (q Query) GetSolutions(source *t.Triples) (Solutions, error) {
-// 	res := Solutions{}
-// 	res.Query = &q
-// 	solutions, err := q.Apply(source)
-// 	if err != nil {
-// 		return res, err
-// 	}
-// 	res.Rows = solutions
-// 	return res, nil
-
-// }
-
 type TriplesList []*t.Triples
 
 func (tl TriplesList) String() string {

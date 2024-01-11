@@ -1,5 +1,7 @@
 # TODO
 
+- computations that returns an arbitrary value
+
 - edit files to express relationships
     - in CSV
         - [x] parse a CSV file NewCSVParser

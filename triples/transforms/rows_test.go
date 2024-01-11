@@ -50,17 +50,6 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-func Test_MatrixQuery(t *testing.T) {
-	t.Skip()
-	query, err := NewQueryMapper(MatrixQuery())
-	require.Nil(t, err)
-	res, err := matrix().Map(query)
-	require.Nil(t, err)
-
-	res = References(res)
-	require.Len(t, res.TripleSet, 2)
-}
-
 func Test_MatrixQuery2(t *testing.T) {
 	t.Skip()
 	// query, err := NewQueryFromTriples(MatrixQuery())
