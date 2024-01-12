@@ -109,7 +109,7 @@ func Test_NewTripleFromString(t *testing.T) {
 	require.Equal(t, triple.Object, NewStringNode("Marc"))
 }
 
-func Test_New(t *testing.T) {
+func Test_NewTriplesFromtStrings(t *testing.T) {
 	tpls, err := NewTriplesFromStrings(
 		"marc first Marc",
 		"? first ?",
@@ -119,4 +119,36 @@ func Test_New(t *testing.T) {
 
 	log.Printf("%+v", tpls)
 	assert.Len(t, tpls.TripleSet, 3)
+}
+
+func Test_NewNamedTriples(t *testing.T) {
+	query, err := NewNamedTriples(
+		"_n foo ?x",
+		"?x bar _n",
+	)
+	require.Nil(t, err)
+	require.Len(t, query.TripleSet, 2)
+	triples := query.GetTripleList()
+	require.Equal(t, triples[0].Subject, triples[1].Object)
+	require.Equal(t, triples[1].Subject, triples[0].Object)
+}
+
+func Test_NewNamedTriples_Function(t *testing.T) {
+	t1 := NewTripleFromNodes(TypeFunctionNode, Str("name"), Str("type"))
+	names := NewNamedNodeMapFromTriples(
+		NewTriples().Add(t1),
+	)
+	query, err := names.NewTriples(
+		"?x type() string",
+	)
+	require.Nil(t, err)
+	require.Len(t, query.TripleSet, 1)
+
+	triples := query.GetTripleList()
+	f, ok := triples[0].Predicate.(UnaryFunctionNode)
+	require.True(t, ok)
+	val, err := f(Str("foo"))
+	require.Nil(t, err)
+
+	require.Equal(t, "triples.StringNode", val.String())
 }

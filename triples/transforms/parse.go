@@ -309,6 +309,16 @@ func NewNamedNodeMap() NamedNodeMap {
 	return make(NamedNodeMap)
 }
 
+func NewNamedNodeMapFromTriples(names *t.Triples) NamedNodeMap {
+	res := make(NamedNodeMap)
+	for _, triple := range names.TripleSet {
+		if triple.Predicate.String() == "name" {
+			res[triple.Object.String()] = triple.Subject
+		}
+	}
+	return res
+}
+
 func (m NamedNodeMap) NewTriples(triples ...string) (*t.Triples, error) {
 	res := t.NewTriples()
 	for _, triple := range triples {
@@ -326,29 +336,44 @@ func (m NamedNodeMap) NewTriple(triple string) (t.Triple, error) {
 	if len(atoms) != 3 {
 		return t.Triple{}, fmt.Errorf("invalid string '%s'", triple)
 	}
-	subject := m.NewNode(atoms[0])
-	predicate := m.NewNode(atoms[1])
-	object := m.NewNode(atoms[2])
+	subject, err := m.NewNode(atoms[0])
+	if err != nil {
+		return t.Triple{}, wrapError(t.Subject1, err)
+	}
+	predicate, err := m.NewNode(atoms[1])
+	if err != nil {
+		return t.Triple{}, wrapError(t.Predicate1, err)
+	}
+	object, err := m.NewNode(atoms[2])
+	if err != nil {
+		return t.Triple{}, wrapError(t.Object1, err)
+	}
 
 	return t.NewTripleFromNodes(subject, predicate, object), nil
 }
 
-func (m NamedNodeMap) NewNode(str string) t.Node {
+func (m NamedNodeMap) NewNode(str string) (t.Node, error) {
 	switch {
 	case len(str) == 0:
-		return t.NewStringNode(str)
+		return t.NewStringNode(str), nil
 	case str[0] == '?':
-		return m.GetOrSet(NewVariableNode(), str)
+		return m.GetOrSet(NewVariableNode(), str), nil
 	case str[0] == '_':
-		return m.GetOrSet(t.NewAnonymousNode(), str)
+		return m.GetOrSet(t.NewAnonymousNode(), str), nil
+	case strings.HasSuffix(str, "()"):
+		val, ok := m.Get(str[:len(str)-2])
+		if !ok {
+			return nil, fmt.Errorf("unknown function '%s' (dict contains %v)", str, m)
+		}
+		return val, nil
 	default:
 		if num, err := strconv.Atoi(str); err == nil {
-			return t.NewIndexNode(num)
+			return t.NewIndexNode(num), nil
 		}
 		if num, err := strconv.ParseFloat(str, 64); err == nil {
-			return t.NewFloatNode(num)
+			return t.NewFloatNode(num), nil
 		}
-		return t.NewStringNode(str)
+		return t.NewStringNode(str), nil
 	}
 }
 
@@ -363,5 +388,14 @@ func (m NamedNodeMap) GetOrSet(node t.Node, str string) t.Node {
 		}
 	} else {
 		return node
+	}
+}
+
+func (m NamedNodeMap) Get(str string) (t.Node, bool) {
+	if len(str) > 0 {
+		val, ok := m[str]
+		return val, ok
+	} else {
+		return nil, false
 	}
 }

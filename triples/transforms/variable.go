@@ -128,7 +128,7 @@ func (m VariableMap) TestOrSet(variable VariableNode, value t.Node) error {
 }
 
 func wrapError(position t.NodePosition, err error) error {
-	return fmt.Errorf("error setting %s: %s", string(position), err)
+	return fmt.Errorf("error setting %s: %s", position.String(), err)
 }
 
 func (m VariableMap) TestOrSetTriple(query t.Triple, value t.Triple) error {

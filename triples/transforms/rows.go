@@ -4,16 +4,8 @@ import (
 	"github.com/mholzen/information/triples"
 )
 
-func RowQuery() *triples.Triples {
-	// TODO: should return outer most rows, not all nested, which needs more complex queries
-
-	rowQuery := triples.NewTriples()
-	rowQuery.AddTriple(triples.NodeMatchAnyAnonymous, triples.NodeMatchAnyIndex, triples.NodeMatchAnyAnonymous)
-	return rowQuery
-}
-
 func RowMapper() (triples.Mapper, error) {
-	query := RowQuery2()
+	query := RowQuery()
 	return func(source *triples.Triples) (*triples.Triples, error) {
 		res, err := query.Apply(source)
 		if err != nil {
@@ -23,7 +15,7 @@ func RowMapper() (triples.Mapper, error) {
 	}, nil
 }
 
-func RowQuery2() Query2 {
+func RowQuery() Query {
 	root := Var()
 	cRoot := NewComputation(root, triples.TypeFunctionNode, triples.Str("triples.AnonymousNode"))
 
@@ -39,11 +31,11 @@ func RowQuery2() Query2 {
 	rowQuery := triples.NewTriples()
 	rowQuery.AddTriple(root, indices, rows)
 
-	return NewQuery2(rowQuery, NewComputations(cRoot, cIndices, cRows))
+	return NewQuery(rowQuery, NewComputations(cRoot, cIndices, cRows))
 }
 
 func RowTriples(source *triples.Triples) (*triples.Triples, error) {
-	query := RowQuery2()
+	query := RowQuery()
 	res, err := query.Apply(source)
 	if err != nil {
 		return nil, err

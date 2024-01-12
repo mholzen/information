@@ -5,12 +5,14 @@ import (
 	"os"
 	"testing"
 
+	"github.com/mholzen/information/ilog"
+
 	tr "github.com/mholzen/information/triples"
 	"github.com/stretchr/testify/require"
 )
 
 func Test_RowQuery(t *testing.T) {
-	query := RowQuery2()
+	query := RowQuery()
 	source, err := NewTriplesFromStrings(
 		"_ 1 _",
 		"_ 2 _",
@@ -45,12 +47,12 @@ func matrix() *tr.Triples {
 func TestMain(m *testing.M) {
 	// Initialize logging for all tests
 	// (Set up log file, log format, etc.)
-	InitLog()
+	ilog.Init()
 	// Run the tests
 	os.Exit(m.Run())
 }
 
-func Test_MatrixQuery2(t *testing.T) {
+func Test_MatrixQuery(t *testing.T) {
 	t.Skip()
 	// query, err := NewQueryFromTriples(MatrixQuery())
 	// require.Nil(t, err)

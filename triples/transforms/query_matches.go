@@ -15,13 +15,13 @@ import (
 // }
 
 type Matches struct {
-	Query      *Query2
+	Query      *Query
 	MatchesMap MatchesMap
 }
 
-func NewMatches(query *Query2) Matches {
+func NewMatches(query Query) Matches {
 	return Matches{
-		Query:      query,
+		Query:      &query,
 		MatchesMap: make(MatchesMap),
 	}
 }

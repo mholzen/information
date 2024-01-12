@@ -41,6 +41,10 @@ func (position NodePosition) Getter() (func(Triple) Node, error) {
 	return nil, fmt.Errorf("invalid node position %d", position)
 }
 
+func (p NodePosition) String() string {
+	return [...]string{"subject", "predicate", "object"}[p]
+}
+
 func GetNodeFunction(position Node) (func(Triple) Node, error) {
 	switch position {
 	case Subject:
@@ -89,6 +93,7 @@ func NewTriple(subject, predicate, object any) (Triple, error) {
 	return triple, nil
 }
 
+// TODO: flip with NewTriple
 func NewTripleFromNodes(subject, predicate, object Node) Triple {
 	return Triple{subject, predicate, object}
 }

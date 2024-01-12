@@ -17,7 +17,13 @@ func (c Computation) Test(node t.Node) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	// TODO: useful to log to another set of triples
+	// log.Printf("res: %s, expected: %s", res, c.Expected)
 	return res == c.Expected, nil
+}
+
+func (c Computation) GetTriple() t.Triple {
+	return t.NewTripleFromNodes(c.Variable, c.Function, c.Expected)
 }
 
 func NewComputation(variable VariableNode, function t.UnaryFunctionNode, expected t.Node) Computation {
@@ -70,4 +76,12 @@ func (c Computations) Test(vars VariableMap) bool {
 		}
 	}
 	return true
+}
+
+func (c Computations) GetTriples() *t.Triples {
+	res := t.NewTriples()
+	for _, computation := range c {
+		res.Add(computation.GetTriple())
+	}
+	return res
 }
