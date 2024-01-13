@@ -60,6 +60,7 @@ func GetNodeFunction(position Node) (func(Triple) Node, error) {
 }
 
 func shortString(n Node) string {
+	// TODO: handle VariableNode
 	if a, ok := n.(AnonymousNode); ok {
 		return a.String()[0:8]
 	} else if n == nil {
@@ -89,6 +90,7 @@ func NewTriple(subject, predicate, object any) (Triple, error) {
 	return triple, nil
 }
 
+// TODO: flip with NewTriple
 func NewTripleFromNodes(subject, predicate, object Node) Triple {
 	return Triple{subject, predicate, object}
 }
@@ -123,6 +125,10 @@ func NewTriplesFromNodes(node ...any) (*Triples, error) {
 
 func (source *Triples) Length() int {
 	return len(source.TripleSet)
+}
+
+func (source *Triples) IsEmpty() bool {
+	return source.Length() == 0
 }
 
 func (source *Triples) NewNode(value interface{}) (Node, error) {
