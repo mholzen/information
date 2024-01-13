@@ -8,9 +8,9 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v4"
+	"github.com/mholzen/information/transforms"
+	"github.com/mholzen/information/transforms/html"
 	"github.com/mholzen/information/triples"
-	"github.com/mholzen/information/triples/transforms"
-	"github.com/mholzen/information/triples/transforms/html"
 )
 
 func StatWithRemainder(filePath string) (FileInfo, []string, error) {

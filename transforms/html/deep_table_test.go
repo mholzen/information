@@ -3,8 +3,8 @@ package html
 import (
 	"testing"
 
+	"github.com/mholzen/information/transforms"
 	"github.com/mholzen/information/triples"
-	"github.com/mholzen/information/triples/transforms"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
