@@ -23,8 +23,8 @@ const (
 	Object1
 )
 
-func (position NodePosition) Getter() (func(Triple) Node, error) {
-	switch position {
+func (p NodePosition) Getter() (func(Triple) Node, error) {
+	switch p {
 	case Subject1:
 		return func(t Triple) Node {
 			return t.Subject
@@ -38,7 +38,15 @@ func (position NodePosition) Getter() (func(Triple) Node, error) {
 			return t.Object
 		}, nil
 	}
-	return nil, fmt.Errorf("invalid node position %d", position)
+	return nil, fmt.Errorf("invalid node position %d", p)
+}
+
+func (p NodePosition) String() string {
+	return [...]string{"subject", "predicate", "object"}[p]
+}
+
+func (p NodePosition) WrapError(err error) error {
+	return fmt.Errorf("error setting %s: %s", p.String(), err)
 }
 
 func GetNodeFunction(position Node) (func(Triple) Node, error) {

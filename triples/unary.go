@@ -146,3 +146,9 @@ func IsPredicateUnary(triple Triple) bool {
 	_, ok := triple.Predicate.(UnaryFunctionNode)
 	return ok
 }
+
+var FunctionNames = map[string]Node{
+	"square": SquareFunctionNode,
+	"type":   TypeFunctionNode,
+	"length": LengthFunctionNode,
+}

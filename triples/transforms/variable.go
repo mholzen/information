@@ -112,17 +112,17 @@ func (m VariableMap) TestOrSet(variable VariableNode, value t.Node) error {
 func (m VariableMap) TestOrSetTriple(query t.Triple, value t.Triple) error {
 	if v, ok := query.Subject.(VariableNode); ok {
 		if err := m.TestOrSet(v, value.Subject); err != nil {
-			return err
+			return t.Subject1.WrapError(err)
 		}
 	}
 	if v, ok := query.Predicate.(VariableNode); ok {
 		if err := m.TestOrSet(v, value.Predicate); err != nil {
-			return err
+			return t.Predicate1.WrapError(err)
 		}
 	}
 	if v, ok := query.Object.(VariableNode); ok {
 		if err := m.TestOrSet(v, value.Object); err != nil {
-			return err
+			return t.Object1.WrapError(err)
 		}
 	}
 	return nil
