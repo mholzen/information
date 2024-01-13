@@ -53,7 +53,7 @@ func Test_slice_as_object(t *testing.T) {
 }
 
 func Test_NewFileJsonParser(t *testing.T) {
-	tm := NewFileJsonParser("../../data/object.jsonc")
+	tm := NewFileJsonParser("../data/object.jsonc")
 
 	dest := NewTriples()
 	err := dest.Transform(tm.Transformer)
