@@ -19,11 +19,6 @@ func NewStringNode(value string) StringNode {
 	}
 }
 
-var Str = NewStringNode
-var Anon = NewAnonymousNode
-
-// var Index = NewIndexNode
-
 func (n StringNode) String() string {
 	return n.Value
 }
