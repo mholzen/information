@@ -14,15 +14,6 @@ func NewTable(headers *triples.Triples) triples.Mapper {
 			}
 		}
 
-		// rowMapper, err := NewTripleMatchFromTriples(rowQuery)
-		// rowMapper, err := NewQueryMapper(rowQuery)
-		// if err != nil {
-		// 	return nil, err
-		// }
-
-		// rows, err := source.Map(rowMapper)
-		// rows = References(rows)
-		// log.Printf("rows: %s", rows)
 		rows, err := RowTriples(source)
 		if err != nil {
 			return nil, err

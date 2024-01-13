@@ -1,6 +1,6 @@
 # TODO
 
-- computations that returns an arbitrary value
+- computations that returns an arbitrary value: perhaps the expected value is a boolean function that evaluates the response
 
 - edit files to express relationships
     - in CSV
