@@ -9,6 +9,8 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/mholzen/information/triples"
+	"github.com/mholzen/information/triples/transforms"
+	"github.com/mholzen/information/triples/transforms/html"
 )
 
 func StatWithRemainder(filePath string) (FileInfo, []string, error) {
@@ -39,21 +41,32 @@ func StatWithRemainder(filePath string) (FileInfo, []string, error) {
 	return res, nil, nil
 }
 
-var HandlerMap = map[string]Transform{
-	"content":         ToContent,
-	"graph":           ToGraphPayload,
-	"html":            ToHtml,
-	"list":            ToListPayload,
-	"mime":            ToMimeType,
-	"nodelink":        ToNodeLinkPayload,
-	"tableDefinition": ToTableDefinitionPayload,
-	"predicates":      ToTableDefinitionPayload,
-	"text":            ToTextPayload,
-	"triples":         ToTriplesPayload,
-	"transform,rows":  ToRowsPayload,
-	"transform,table": ToTableTransformPayload,
-	"transform,html":  ToHtmlTransformPayload,
-	"data":            ToDataPayload,
+func GetHandlerMap() (map[string]Transform, error) {
+	// load mappers
+	rowMapper, err := transforms.RowMapper()
+	if err != nil {
+		return nil, err
+	}
+
+	res := map[string]Transform{
+		"content":             ToContent,
+		"graph":               ToGraphPayload,
+		"html":                ToHtml,
+		"list":                ToListPayload,
+		"style":               ToStylePayload,
+		"mime":                ToMimeType,
+		"nodelink":            ToNodeLinkPayload,
+		"tableDefinition":     ToTableDefinitionPayload,
+		"predicates":          ToTableDefinitionPayload,
+		"text":                ToTextPayload,
+		"triples":             ToTriplesPayload,
+		"transform,rows":      NewMapperPayload(rowMapper),
+		"transform,table":     NewMapperPayload(transforms.TableMapper),
+		"transform,htmlTable": NewMapperPayload(html.HtmlTableMapper),
+		"transform,id,lines":  NewMapperPayload(transforms.IdLinesMapper),
+		"data":                ToDataPayload,
+	}
+	return res, nil
 }
 
 func FilesPostfixHandler(c echo.Context) error {
@@ -70,12 +83,17 @@ func FilesPostfixHandler(c echo.Context) error {
 		return err
 	}
 
+	handlerMap, err := GetHandlerMap()
+	if err != nil {
+		return err
+	}
+
 	payload := Payload{
 		Content: "application/json+fileinfo",
 		Data:    fileInfo,
 	}
 	for _, name := range remainder {
-		if handler, ok := HandlerMap[name]; !ok {
+		if handler, ok := handlerMap[name]; !ok {
 			return echo.NewHTTPError(404, fmt.Sprintf("'%s' handler not Found", name))
 		} else {
 			payload, err = handler(payload)
@@ -87,8 +105,10 @@ func FilesPostfixHandler(c echo.Context) error {
 
 	if s, ok := payload.Data.(triples.Node); ok {
 		return c.String(200, s.String())
-	} else if strings.HasPrefix(payload.Content, "text/") {
+	} else if strings.HasPrefix(payload.Content, "text/html") {
 		return c.HTML(200, payload.Data.(string))
+	} else if strings.HasPrefix(payload.Content, "text/") {
+		return c.String(200, payload.Data.(string))
 	} else if strings.HasPrefix(payload.Content, "application/json") {
 		return c.JSON(200, payload.Data)
 	} else if s, ok := payload.Data.(string); ok {

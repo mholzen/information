@@ -24,24 +24,24 @@ func Extension(path string) string {
 }
 
 func Triples(url string) (*triples.Triples, error) {
-	data, err := transforms.ReadAndStripComments(url)
+	reader, err := transforms.ReadAndStripComments(url)
 	if err != nil {
 		return nil, err
 	}
 	mimeType := mime.TypeByExtension(Extension(url))
 	if mimeType == "" {
-		reader := bufio.NewReader(data)
-		peeked, err := reader.Peek(512)
+		newReader := bufio.NewReader(reader)
+		peeked, err := newReader.Peek(512)
 		if err != io.EOF && err != nil {
 			return nil, err
 		}
 		mimeType = http.DetectContentType(peeked)
 
 		// reading on the bufio.Reader will advance the reader nevertheless, so re-assign data to the new reader
-		data = reader
+		reader = newReader
 	}
 
-	tm, err := transforms.NewParserFromContentType(mimeType, data)
+	tm, err := transforms.NewParserFromContentType(mimeType, reader)
 	if err != nil {
 		return nil, err
 	}

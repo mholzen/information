@@ -24,6 +24,25 @@ type Payload struct {
 type Transform (func(Payload) (Payload, error))
 
 func ToHtml(input Payload) (Payload, error) {
+	if p, ok := (input.Data).(*triples.Triples); ok {
+		h, err := html.FromTriples(p)
+		if err != nil {
+			return input, err
+		}
+		return Payload{
+			Content: "text/html",
+			Data:    string(h),
+		}, nil
+	}
+
+	mime, err := NewMimeType(input)
+	if err != nil {
+		return input, err
+	}
+	if strings.HasPrefix(mime.String(), "text/x-log") {
+		return ToTextPayload(input)
+	}
+
 	text, ok := input.Data.(string)
 	if !ok {
 		return input, fmt.Errorf("cannot convert '%T' to string", input.Data)
@@ -251,56 +270,18 @@ func ToListPayload(input Payload) (Payload, error) {
 	}, nil
 }
 
-func ToRowsPayload(input Payload) (Payload, error) {
-	res, err := ToTriples(input)
+func ToStylePayload(input Payload) (Payload, error) {
+	s, err := ToText(input)
 	if err != nil {
 		return input, err
 	}
-	res, err = transforms.RowTriples(res)
-	if err != nil {
-		return input, err
-	}
-	return Payload{
-		Content: "application/json+triples",
-		Data:    res,
-	}, nil
-}
-
-func ToTableTransformPayload(input Payload) (Payload, error) {
-	res, err := ToTriples(input)
-	if err != nil {
-		return input, err
-	}
-
-	res, err = res.Map(transforms.TableMapper)
-	if err != nil {
-		return input, err
-	}
-	return Payload{
-		Content: "application/json+triples",
-		Data:    res,
-	}, nil
-}
-
-func ToHtmlTransformPayload(input Payload) (Payload, error) {
-	res, err := ToTriples(input)
-	if err != nil {
-		return input, err
-	}
-
-	res, err = res.Map(html.HtmlTableMapper)
-	if err != nil {
-		return input, err
-	}
-
-	h, err := html.FromTriples(res)
-	if err != nil {
-		return input, err
-	}
-
+	style := `<head>
+	<link rel="stylesheet" type="text/css" href="/files/data/style.css/text">
+	</head>`
+	s = style + s
 	return Payload{
 		Content: "text/html",
-		Data:    string(h),
+		Data:    s,
 	}, nil
 }
 
@@ -309,4 +290,22 @@ func ToDataPayload(input Payload) (Payload, error) {
 		Content: "application/json+triples",
 		Data:    data.Data,
 	}, nil
+}
+
+func NewMapperPayload(mapper triples.Mapper) Transform {
+	return func(input Payload) (Payload, error) {
+		res, err := ToTriples(input)
+		if err != nil {
+			return input, err
+		}
+
+		res, err = res.Map(mapper)
+		if err != nil {
+			return input, err
+		}
+		return Payload{
+			Content: "application/json+triples",
+			Data:    res,
+		}, nil
+	}
 }
