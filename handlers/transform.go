@@ -9,8 +9,8 @@ import (
 
 	"github.com/mholzen/information/triples"
 	"github.com/mholzen/information/triples/data"
-	"github.com/mholzen/information/triples/html"
 	"github.com/mholzen/information/triples/transforms"
+	"github.com/mholzen/information/triples/transforms/html"
 	"github.com/mholzen/information/triples/transforms/node_link"
 	"github.com/russross/blackfriday/v2"
 )
@@ -240,7 +240,7 @@ func ToListPayload(input Payload) (Payload, error) {
 	if err != nil {
 		return input, err
 	}
-	tr := transforms.NewListGenerator()
+	tr := html.NewHtmlListGenerator()
 	err = src.Transform(tr.Transformer)
 	if err != nil {
 		return input, err
@@ -288,7 +288,7 @@ func ToHtmlTransformPayload(input Payload) (Payload, error) {
 		return input, err
 	}
 
-	res, err = res.Map(transforms.HtmlTable)
+	res, err = res.Map(html.HtmlTableMapper)
 	if err != nil {
 		return input, err
 	}
