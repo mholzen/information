@@ -16,7 +16,8 @@ func Test_NewCompute(t *testing.T) {
 	require.Nil(t, err)
 
 	assert.Len(t, tpls.TripleSet, 2)
-	shouldContain, _ := NewTriple("a", NewStringNode(TypeFunctionNode.String()), "triples.StringNode")
+	var f UnaryFunctionNode = TypeFunctionNode
+	shouldContain, _ := NewTriple("a", NewStringNode(f.String()), "triples.StringNode")
 	assert.Contains(t, tpls.GetTripleList(), shouldContain)
 	assert.True(t, tpls.Contains(shouldContain))
 }
@@ -81,6 +82,38 @@ func Test_compute_wanted_triples(t *testing.T) {
 
 }
 
-func TestComputeTripleTransformer(t *testing.T) {
+func Test_TripleMapper(t *testing.T) {
+	SubjectTypeMapper, err := NewPositionFunctionMapper(Subject1, TypeFunctionNode, NewStringNode("type"))
+	require.Nil(t, err)
 
+	triples := NewTriples()
+	a := NewAnonymousNode()
+	triples.AddTriple(a, "v", 1)
+	triples.AddTriple("b", "v", 2)
+	triples.AddTriple(2, "v", 3)
+
+	res, err := triples.MapTriples(SubjectTypeMapper)
+	require.Nil(t, err)
+
+	assert.Len(t, res.TripleSet, 3)
+	assert.Contains(t, res.String(), "type, triples.AnonymousNode)")
+	assert.Contains(t, res.String(), "(b, type, triples.StringNode)")
+	assert.Contains(t, res.String(), "(2, type, triples.IndexNode)")
+}
+
+func Test_SubjectFunctionMapperFromTriples(t *testing.T) {
+
+	query, _ := NewTriple(NewVariableNode(), UnaryFunctionNode(TypeFunctionNode), "triples.AnonymousNode")
+	generator, err := NewSubjectFunctionGeneratorFromTriples(query)
+	require.Nil(t, err)
+
+	tpls := NewTriples()
+	tpls.AddTriple(NewAnonymousNode(), "is", "anonymous")
+	tpls.AddTriple("text", "is", "string")
+
+	res, err := tpls.FlatMap(generator)
+	require.Nil(t, err)
+
+	require.Len(t, res.TripleSet, 1)
+	assert.Contains(t, res.String(), "is, anonymous)")
 }

@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-type UnaryFunctionNode UnaryOperator
+type UnaryFunctionNode func(Node) (Node, error)
 
 // things you can do with a function:
 // - evaluate its output
@@ -16,8 +16,6 @@ type UnaryFunctionNode UnaryOperator
 // - time it took to run
 // - memory it used
 // - number of instructions
-
-type UnaryOperator func(Node) (Node, error)
 
 func (n UnaryFunctionNode) String() string {
 	res := runtime.FuncForPC(reflect.ValueOf(n).Pointer()).Name()

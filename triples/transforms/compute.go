@@ -1,6 +1,8 @@
 package transforms
 
 import (
+	"fmt"
+
 	t "github.com/mholzen/information/triples"
 )
 
@@ -88,6 +90,75 @@ func GetDefinitions() *t.Triples {
 	var Definitions = t.NewTriples()
 	Definitions.AddTriple(t.TypeFunctionNode, ComputeNode, "type")
 	Definitions.AddTriple(t.SquareFunctionNode, ComputeNode, "square")
-	Definitions.AddTriple(t.LengthFunction, ComputeNode, "length")
+	Definitions.AddTriple(t.LengthFunctionNode, ComputeNode, "length")
 	return Definitions
+}
+
+// triple mapper that applies a 'function' to a node of a triple given a node 'position' and places the result in a 'predicate'
+func NewPositionFunctionMapper(position t.NodePosition, function t.UnaryFunctionNode, predicate t.Node) (t.TripleMapper, error) {
+	getter, err := t.NodePosition.Getter(position)
+	if err != nil {
+		return nil, err
+	}
+	return func(triple t.Triple) (t.Triple, error) {
+		arg := getter(triple)
+		value, err := function(arg)
+		if err != nil {
+			return triple, err
+		}
+		return t.NewTriple(triple.Subject, predicate, value)
+	}, nil
+}
+
+func NewSubjectFunctionFilterFromTriples(query t.Triple) (t.TripleMatchError, error) {
+	f, ok := query.Predicate.(t.UnaryFunctionNode)
+	if !ok {
+		return nil, fmt.Errorf("predicate %s is not a function", query.Predicate)
+	}
+	mapper, err := NewPositionFunctionMapper(t.Subject1, f, t.NewStringNode(query.Predicate.String()))
+	if err != nil {
+		return nil, err
+	}
+	return func(triple t.Triple) (bool, error) {
+		newTriple, err := mapper(triple)
+		if err != nil {
+			return false, err
+		}
+		ok := newTriple.Object == query.Object
+		return ok, nil
+	}, nil
+}
+
+func NewFunctionFilter(function t.UnaryFunctionNode, expected t.Node) t.TripleMatchError {
+	return func(triple t.Triple) (bool, error) {
+		actual, err := function(triple.Subject)
+		if err != nil {
+			return false, err
+		}
+		return (actual == expected), nil
+	}
+}
+
+func NewSubjectFunctionGeneratorFromTriples(query t.Triple) (t.TriplesGenerator, error) {
+	f, ok := query.Predicate.(t.UnaryFunctionNode)
+	if !ok {
+		return nil, fmt.Errorf("predicate %s is not a function", query.Predicate)
+	}
+	mapper, err := NewPositionFunctionMapper(t.Subject1, f, t.NewStringNode(query.Predicate.String()))
+	if err != nil {
+		return nil, err
+	}
+
+	return func(triple t.Triple) (*t.Triples, error) {
+		newTriple, err := mapper(triple)
+		if err != nil {
+			return nil, err
+		}
+		if newTriple.Object == query.Object {
+			res := t.NewTriples()
+			res.Add(triple)
+			return res, nil
+		}
+		return nil, nil
+	}, nil
 }
