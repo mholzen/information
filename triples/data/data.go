@@ -1,8 +1,8 @@
 package data
 
 import (
+	"github.com/mholzen/information/transforms"
 	"github.com/mholzen/information/triples"
-	"github.com/mholzen/information/triples/transforms"
 )
 
 var Data *triples.Triples = nil

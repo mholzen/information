@@ -7,11 +7,11 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/mholzen/information/transforms"
+	"github.com/mholzen/information/transforms/html"
+	"github.com/mholzen/information/transforms/node_link"
 	"github.com/mholzen/information/triples"
 	"github.com/mholzen/information/triples/data"
-	"github.com/mholzen/information/triples/transforms"
-	"github.com/mholzen/information/triples/transforms/html"
-	"github.com/mholzen/information/triples/transforms/node_link"
 	"github.com/russross/blackfriday/v2"
 )
 

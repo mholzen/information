@@ -60,7 +60,7 @@ func Test_traverse(t *testing.T) {
 }
 
 func Test_traverse_file(t *testing.T) {
-	tm := NewFileJsonParser("../../data/verbs.jsonc")
+	tm := NewFileJsonParser("../data/verbs.jsonc")
 
 	src := NewTriples()
 	err := src.Transform(tm.Transformer)

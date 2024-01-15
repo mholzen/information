@@ -9,10 +9,10 @@ import (
 	"path/filepath"
 
 	"github.com/labstack/echo/v4"
+	"github.com/mholzen/information/transforms"
+	"github.com/mholzen/information/transforms/html"
+	"github.com/mholzen/information/transforms/node_link"
 	"github.com/mholzen/information/triples"
-	"github.com/mholzen/information/triples/transforms"
-	"github.com/mholzen/information/triples/transforms/html"
-	"github.com/mholzen/information/triples/transforms/node_link"
 )
 
 func Filepath(url string) string {
