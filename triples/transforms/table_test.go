@@ -15,7 +15,7 @@ func Test_NewTableDefinitionSmall(t *testing.T) {
 	require.Nil(t, err)
 	log.Printf("src: %s", src)
 
-	res, err := src.Map(Table)
+	res, err := src.Map(TableMapper)
 	require.Nil(t, err)
 	log.Printf("res: %s", res)
 	assert.Equal(t, 4, len(res.TripleSet))

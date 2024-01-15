@@ -9,7 +9,7 @@ var Data *triples.Triples = nil
 
 func InitData() error {
 	Data = triples.NewTriples()
-	rowQuery := Data.AddTriplesAsContainer(transforms.RowQuery())
+	rowQuery := Data.AddTriplesAsContainer(transforms.RowQuery().GetTriples())
 	Data.AddTripleFromNodes(rowQuery, triples.Name, triples.NewStringNode("rowQuery"))
 	return nil
 }

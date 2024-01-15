@@ -272,7 +272,7 @@ func ToTableTransformPayload(input Payload) (Payload, error) {
 		return input, err
 	}
 
-	res, err = res.Map(transforms.Table)
+	res, err = res.Map(transforms.TableMapper)
 	if err != nil {
 		return input, err
 	}

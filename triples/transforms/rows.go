@@ -1,44 +1,70 @@
 package transforms
 
-import "github.com/mholzen/information/triples"
+import (
+	"github.com/mholzen/information/triples"
+)
 
-func RowQuery() *triples.Triples {
-	// TODO: should return outer most rows, not all nested, which needs more complex queries
+func RowMapper() (triples.Mapper, error) {
+	query := RowQuery()
+	return func(source *triples.Triples) (*triples.Triples, error) {
+		res, err := query.Apply(source)
+		if err != nil {
+			return nil, err
+		}
+		return res.GetAllTriples(), nil
+	}, nil
+}
 
-	rowQuery := triples.NewTriples()
-	rowQuery.AddTriple(triples.NodeMatchAnyAnonymous, triples.NodeMatchAnyIndex, triples.NodeMatchAnyAnonymous)
-	return rowQuery
+func RowQuery() Query {
+	root := Var()
+	rootIsAnon := NewComputation(root, triples.TypeFunctionNode, triples.Str("triples.AnonymousNode"))
+
+	// Consider
+	// NewComputation(root, triples.ObjectCountNode, triples.NewIndexNode(0))
+
+	predicates := Var()
+	predicatesAreIndices := NewComputation(predicates, triples.TypeFunctionNode, triples.Str("triples.IndexNode"))
+
+	rows := Var()
+	rowsAreAnon := NewComputation(rows, triples.TypeFunctionNode, triples.Str("triples.AnonymousNode"))
+
+	selectTriples := triples.NewTriples()
+	selectTriples.AddTriple(root, predicates, rows)
+
+	return NewQuery(selectTriples, NewComputations(rootIsAnon, predicatesAreIndices, rowsAreAnon))
 }
 
 func RowTriples(source *triples.Triples) (*triples.Triples, error) {
-	res, err := source.Map(NewQueryMapper(RowQuery()))
+	query := RowQuery()
+	res, err := query.Apply(source)
 	if err != nil {
 		return nil, err
 	}
-	return References(res), nil
+	return res.GetAllTriples(), nil
 }
 
-func MatrixQuery() *triples.Triples {
-	query := triples.NewTriples()
-	x := NewVariableNode()
-	t := query.AddTripleFromNodes(
-		triples.NodeBoolFunction(triples.NodeMatchAnyAnonymous),
-		triples.NodeBoolFunction(triples.NodeMatchAnyIndex),
-		x)
-	query.AddTriple(x, triples.NodeMatchAnyIndex, triples.NodeMatchAny)
-	query.AddTripleFromNodes(x, triples.TypeFunctionNode, triples.NewStringNode("triples.AnonymousNode"))
+func MatrixQuery() Query {
+	// Computations
+	root := Var()
+	rootIsAnon := NewComputation(root, triples.TypeFunctionNode, triples.Str("triples.AnonymousNode"))
 
-	a := query.AddTripleReference(t)
-	query.AddTriple(triples.NewAnonymousNode(), "select", a)
-	return query
+	rowPredicates := Var()
+	rowPredicatesAreIndices := NewComputation(rowPredicates, triples.TypeFunctionNode, triples.Str("triples.IndexNode"))
+
+	rows := Var()
+	rowsAreAnon := NewComputation(rows, triples.TypeFunctionNode, triples.Str("triples.AnonymousNode"))
+
+	cellPredicates := Var()
+	cellPredicatesAreIndices := NewComputation(cellPredicates, triples.TypeFunctionNode, triples.Str("triples.IndexNode"))
+
+	// Selected Triples
+	selectTriples := triples.NewTriples()
+	selectTriples.AddTriple(root, rowPredicates, rows)
+	selectTriples.AddTriple(rows, cellPredicates, Var())
+
+	return NewQuery(selectTriples, NewComputations(
+		rootIsAnon,
+		rowPredicatesAreIndices,
+		rowsAreAnon,
+		cellPredicatesAreIndices))
 }
-
-// func MatrixQuery2() *triples.Triples {
-// 	query := triples.NewTriples()
-// 	root := triples.NewAnonymousNode()
-// 	rows := triples.NewAnonymousNode()
-// 	cells := triples.NewAnonymousNode()
-// 	query.AddTriple(root, triples.NodeMatchAnyIndex, rows)
-// 	query.AddTriple(rows, triples.NodeMatchAnyIndex, cells)
-// 	return query
-// }

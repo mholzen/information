@@ -1,8 +1,6 @@
 package transforms
 
 import (
-	"log"
-
 	t "github.com/mholzen/information/triples"
 )
 
@@ -20,7 +18,6 @@ func NewSolution(query *t.Triples) Solution {
 
 func (s *Solution) Add(query t.Triple, triple t.Triple) error {
 	if err := s.VariableMap.TestOrSetTriple(query, triple); err != nil {
-		log.Printf("Error adding triple %s to solution: %s", triple, err)
 		return err
 	}
 	s.SolutionMap[query] = triple

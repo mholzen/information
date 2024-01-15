@@ -4,61 +4,56 @@ import (
 	"log"
 	"testing"
 
-	tr "github.com/mholzen/information/triples"
 	"github.com/stretchr/testify/require"
 )
 
 func Test_RowQuery(t *testing.T) {
-	rowQuery := RowQuery()
-	source := array()
-
-	res, err := source.Map(NewQueryMapper(rowQuery))
+	query := RowQuery()
+	source, err := NewTriplesFromStrings(
+		"_ 1 _",
+		"_ 2 _",
+		"_ 3 _",
+		"_ 4 1",
+		"a 5 _",
+	)
 	require.Nil(t, err)
 
-	res = References(res)
-	require.Len(t, res.TripleSet, 2)
-}
-
-func Test_RowTriples(t *testing.T) {
-	source := array()
-
-	res, err := RowTriples(source)
+	solutions, err := query.Apply(source)
 	require.Nil(t, err)
 
-	require.Len(t, res.TripleSet, 2)
-}
-
-func array() *tr.Triples {
-	source := tr.NewTriples()
-	source.AddTriple(tr.NewAnonymousNode(), 1, tr.NewAnonymousNode())
-	source.AddTriple(tr.NewAnonymousNode(), 2, tr.NewAnonymousNode())
-	source.AddTriple(tr.NewAnonymousNode(), "c", tr.NewAnonymousNode())
-	return source
-}
-
-func matrix() *tr.Triples {
-	res := tr.NewTriples()
-	root := tr.NewAnonymousNode()
-	r1 := tr.NewAnonymousNode()
-	r2 := tr.NewAnonymousNode()
-
-	res.AddTriple(root, 1, r1)
-	res.AddTriple(root, 2, r2)
-	res.AddTriple(r1, 1, "11")
-	res.AddTriple(r1, 2, "12")
-	res.AddTriple(r2, 1, "21")
-	res.AddTriple(r2, 2, "22")
-
-	log.Printf("matrix: %s", res)
-	return res
+	require.Len(t, solutions, 3)
 }
 
 func Test_MatrixQuery(t *testing.T) {
-	t.Skip()
-	query := MatrixQuery()
-	res, err := matrix().Map(NewQueryMapper(query))
+	// TODO: fail if NewTriplesFromStrings
+	source, err := NewNamedTriples(
+		"_root 1 _row1",
+		"_root 2 _row2",
+		"_row1 1 _cell11",
+		"_row1 2 _cell12",
+		"_row2 1 _cell21",
+		"_row2 2 _cell22",
+		"_cell11 a 11",
+		"_cell11 b 11",
+		"_cell12 a 12",
+		"_cell12 b 12",
+		"_cell21 a 21",
+		"_cell21 b 21",
+		"_cell22 a 22",
+		"_cell22 b 22",
+	)
 	require.Nil(t, err)
 
-	res = References(res)
-	require.Len(t, res.TripleSet, 2)
+	query := MatrixQuery()
+	matchesMap, err := query.GetMatchesMap(source)
+	require.Nil(t, err)
+	require.Len(t, matchesMap, 2)
+
+	require.Len(t, matchesMap[query.Query.GetTripleList()[0]].TripleSet, source.Length())
+
+	solutions, err := MatrixQuery().Apply(source)
+	require.Nil(t, err)
+
+	log.Printf("%s", solutions.GetAllTriples())
+	require.Len(t, solutions, 4)
 }

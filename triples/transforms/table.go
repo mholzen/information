@@ -1,15 +1,10 @@
 package transforms
 
 import (
-	"log"
-
 	"github.com/mholzen/information/triples"
 )
 
-func NewTable(headers *triples.Triples, rowQuery *triples.Triples) triples.Mapper {
-	if rowQuery == nil {
-		rowQuery = RowQuery()
-	}
+func NewTable(headers *triples.Triples) triples.Mapper {
 	return func(source *triples.Triples) (*triples.Triples, error) {
 		if headers == nil {
 			var err error
@@ -19,11 +14,7 @@ func NewTable(headers *triples.Triples, rowQuery *triples.Triples) triples.Mappe
 			}
 		}
 
-		// rowMapper, err := NewTripleMatchFromTriples(rowQuery)
-		rowMapper := NewQueryMapper(rowQuery)
-		rows, err := source.Map(rowMapper)
-		rows = References(rows)
-		log.Printf("rows: %s", rows)
+		rows, err := RowTriples(source)
 		if err != nil {
 			return nil, err
 		}
@@ -58,7 +49,7 @@ func NewTable(headers *triples.Triples, rowQuery *triples.Triples) triples.Mappe
 
 }
 
-var Table = NewTable(nil, nil)
+var TableMapper = NewTable(nil)
 
 func Table2(source *triples.Triples) (*triples.Triples, error) {
 	headers, err := PredicatesSortedByString(source)

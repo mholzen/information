@@ -3,180 +3,172 @@ package transforms
 import (
 	"testing"
 
-	"github.com/labstack/gommon/log"
-	. "github.com/mholzen/information/triples"
+	tr "github.com/mholzen/information/triples"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func Test_VariableNode(t *testing.T) {
-	x := NewVariableNode()
-	var y Node = x
-	_, ok := y.(VariableNode)
-	assert.True(t, ok)
-}
-
-func Test_VariableList_Traverse(t *testing.T) {
-	nodes := NodeList{NewStringNode("a"), NewStringNode("b"), NewStringNode("c")}
-	vars := VariableList{NewVariableNode(), NewVariableNode()}
-	r := vars.Traverse(nodes)
-	assert.Len(t, r, 9)
-}
-
-func Test_NewQueryMapper(t *testing.T) {
-	tpls := NewTriples()
-	tpls.AddTriple("a", "b", 1)
-	tpls.AddTriple("a", "b", 2)
-	tpls.AddTriple("c", "d", 1)
-	tpls.AddTriple("c", "d", 2)
-
-	query := NewTriples()
-	query.AddTriple("a", "b", 1)
-	query.AddTriple("c", "d", 1)
-
-	res, err := tpls.Map(NewQueryMapper(query))
+func Test_NewQuery(t *testing.T) {
+	data, err := NewTriplesFromStrings(
+		"a b 1",
+		"a b 2",
+		"c d 1",
+		"c d 2",
+	)
 	require.Nil(t, err)
 
-	refs := References(res)
-	require.Len(t, refs.TripleSet, 2)
-	assert.True(t, refs.ContainsTriple("a", "b", 1))
-	assert.True(t, refs.ContainsTriple("c", "d", 1))
-}
+	queryTriples, err := NewTriplesFromStrings(
+		"a b 2",
+		"c d 2",
+	)
+	require.Nil(t, err)
+	query := NewQuery(queryTriples, Computations{})
 
-func Test_NewQueryMapperWithMatches(t *testing.T) {
-	tpls := NewTriples()
-	tpls.AddTriple("a", "b", 1)
-	tpls.AddTriple("a", "b", 2)
-	tpls.AddTriple("c", "d", 1)
-	tpls.AddTriple("c", "d", 2)
-	tpls.AddTriple("c", "d", "c")
-
-	query := NewTriples()
-	query.AddTriple(NodeMatchAny, "d", NodeMatchAnyIndex)
-	// is equivalent to
-	// query.AddTriple(NewNodeAnonymous, Subject, NodeMatchAny)
-	// query.AddTriple(NewNodeAnonymous, Predicate, "d")
-	// query.AddTriple(NewNodeAnonymous, Object, NodeMatchAnyIndex)
-
-	// In this form, we can express more complex queries, such as:
-	// query.AddTriple(NewNodeAnonymous, Subject, NewNodeVariable())
-	// query.AddTriple(NewNodeAnonymous, Predicate, "type") // this being a computation
-	// query.AddTriple(NewNodeAnonymous, Object, "anonymous")
-
-	res, err := tpls.Map(NewQueryMapper(query))
+	solutions, err := query.Apply(data)
 	require.Nil(t, err)
 
-	refs := References(res)
-	require.Len(t, refs.TripleSet, 2)
-	assert.True(t, refs.ContainsTriple("c", "d", 1))
-	assert.True(t, refs.ContainsTriple("c", "d", 2))
-	assert.False(t, refs.ContainsTriple("c", "d", "c"))
+	assert.Len(t, solutions, 1)
+	solution := solutions[0]
+	assert.Len(t, solution.SolutionMap, 2)
+
+	assert.True(t, solutions.GetAllTriples().ContainsTriple("a", "b", 2))
+	assert.True(t, solutions.GetAllTriples().ContainsTriple("c", "d", 2))
+	assert.False(t, solutions.GetAllTriples().ContainsTriple("a", "b", 1))
 }
 
-func Test_NewQueryMapperWithMatchesAndJoins(t *testing.T) {
-	tpls := NewTriples()
-	marc1 := NewAnonymousNode()
-	tpls.AddTriple(marc1, "first", "john")
-	tpls.AddTriple(marc1, "age", 52)
-
-	marc2 := NewAnonymousNode()
-	tpls.AddTriple(marc2, "first", "marc")
-	tpls.AddTriple(marc2, "age", 16)
-
-	query := NewTriples()
-	x := NewVariableNode()
-	query.AddTriple(x, "first", NodeMatchAnyString) // VariableNode matches anything but are used to join
-	query.AddTriple(x, "age", 52)
-
-	res, err := tpls.Map(NewQueryMapper(query))
-	require.Nil(t, err)
-	log.Debug(res)
-
-	refs := References(res)
-	require.Len(t, refs.TripleSet, 2) // TODO: should join on both query triples -- iterate over anonymous nodes in the query
-	assert.True(t, refs.ContainsTriple(marc1, "age", "52"))
-}
-
-func Test_NewQueryWithSimpleComputations(t *testing.T) {
-	t.Skip()
-	tpls := NewTriples()
-	tpls.AddTriple("marc", "name", "Marc")
-	marc := NewAnonymousNode()
-	tpls.AddTriple(marc, "name", "Marc")
-	tpls.AddTriple(NewAnonymousNode(), "name", "John")
-
-	query := NewTriples()
-	x := NewVariableNode()
-	query.AddTriple(x, "name", "Marc")
-	// query.AddTriple(x, "type", "anonymous")
-	// query.AddTriple("type", "computed-by", TypeFunctionNode)
-	query.AddTriple(x, TypeFunctionNode, "anonymous")
-
-	res, err := tpls.Map(NewQueryMapper(query))
+func Test_NewQuery_Variables(t *testing.T) {
+	data, err := NewTriplesFromStrings(
+		"a b 1",
+		"a b 2",
+		"c d 1",
+		"c d 2",
+	)
 	require.Nil(t, err)
 
-	refs := References(res)
-	require.Len(t, refs.TripleSet, 2)
-	assert.True(t, refs.ContainsTriple(marc, "name", "Marc"))
-	assert.False(t, refs.ContainsTriple("marc", "name", "Marc"))
-	assert.True(t, refs.ContainsTriple(marc, "type", "anonymous"))
-}
+	queryTriples, err := NewTriplesFromStrings(
+		"? b 2",
+		"c ? 2",
+	)
+	require.Nil(t, err)
+	query := NewQuery(queryTriples, Computations{})
 
-func Test_NewQueryWithComputationsComplex(t *testing.T) {
-	t.Skip()
-	tpls := NewTriples()
-	tpls.AddTriple("marc", "age", 10)
-	tpls.AddTriple("john", "age", 4)
-
-	query := NewTriples()
-	squaredAge := NewAnonymousNode()
-	query.AddTriple(squaredAge, Name, "square of age")
-	query.AddTriple(squaredAge, "function", SquareFunctionNode)
-	query.AddTriple(squaredAge, 1, "age")
-
-	query.AddTriple(NewVariableNode(), squaredAge, 16)
-
-	res, err := tpls.Map(NewQueryMapper(query))
+	solutions, err := query.Apply(data)
 	require.Nil(t, err)
 
-	refs := References(res)
-	require.Len(t, refs.TripleSet, 2)
-	assert.True(t, refs.ContainsTriple("a", "b", 1))
-	assert.True(t, refs.ContainsTriple("c", "d", 1))
+	require.Len(t, solutions, 1)
+	solution := solutions[0]
+	assert.Len(t, solution.SolutionMap, 2)
 }
 
-func people() *Triples {
-	tpls := NewTriples()
-	marc, _ := tpls.AddTriple(NewAnonymousNode(), "name", "Marc")
-	tpls.AddTriple(marc.Subject, "age", 50)
-	john, _ := tpls.AddTriple(NewAnonymousNode(), "name", "John")
-	tpls.AddTriple(john.Subject, "age", 24)
-	marry, _ := tpls.AddTriple(NewAnonymousNode(), "name", "Marry")
-	tpls.AddTriple(marry.Subject, "age", 32)
+func Test_NewQuery_Variables_Joins(t *testing.T) {
+	data, err := NewTriplesFromStrings(
+		"a b 1",
+		"a b 2",
+		"c b 1",
+		"c b 3",
+	)
+	require.Nil(t, err)
 
-	return tpls
+	queryTriples, err := NewNamedTriples(
+		"?x b 1",
+		"?x b 2",
+	)
+	require.Nil(t, err)
+
+	query := NewQuery(queryTriples, Computations{})
+
+	solutions, err := query.Apply(data)
+	require.Nil(t, err)
+
+	require.Len(t, solutions, 1)
+	solution := solutions[0]
+	assert.Len(t, solution.SolutionMap, 2)
 }
+
+func Test_NewQuery_Compute(t *testing.T) {
+	data, err := NewTriplesFromStrings(
+		"a b 1",
+		"a b 2",
+		"aa b 2",
+		"c d 1",
+		"c d 2",
+	)
+	require.Nil(t, err)
+
+	a := Var()
+	d := Var()
+	queryTriples, err := tr.NewTriplesFromNodes(
+		a, "b", 2,
+		"c", d, 2,
+	)
+	require.Nil(t, err)
+	computations := NewComputation(a, tr.LengthFunctionNode, tr.NewIndexNode(1))
+	query := NewQuery(queryTriples, NewComputations(computations))
+
+	solutions, err := query.Apply(data)
+	require.Nil(t, err)
+
+	require.Len(t, solutions, 1)
+	solution := solutions[0]
+	assert.Len(t, solution.SolutionMap, 2)
+}
+
+func Test_QueryMatches(t *testing.T) {
+	queryFirst, err := NewTripleFromString("? first Marc")
+	require.Nil(t, err)
+
+	queryAge, err := NewTripleFromString("? age ?")
+	require.Nil(t, err)
+
+	queryTriples := tr.NewTriples().AddTripleList(queryFirst, queryAge)
+
+	data, err := NewTriplesFromStrings(
+		"_ first Marc",
+		"_ age 42",
+		"_ first John",
+		"_ age 18",
+	)
+	require.Nil(t, err)
+
+	query := NewQuery(queryTriples, Computations{})
+	matchesMap, err := query.GetMatchesMap(data)
+	require.Nil(t, err)
+
+	require.Len(t, matchesMap, 2)
+	assert.Len(t, matchesMap[queryFirst].TripleSet, 1)
+	assert.Len(t, matchesMap[queryAge].TripleSet, 2)
+
+	solutions := query.GetSolutions(matchesMap)
+	assert.Len(t, solutions, 2)
+
+	objects := solutions.GetTriples(queryFirst).GetObjects()
+	assert.Len(t, objects, 1)
+	assert.Contains(t, objects, "Marc")
+
+	objects = solutions.GetTriples(queryAge).GetObjects()
+	assert.Len(t, objects, 2)
+	assert.Contains(t, objects, "18")
+	assert.Contains(t, objects, "42")
+}
+
 func Test_QueryTripleMatcher_Simple(t *testing.T) {
-	query, _ := NewTriple(NewVariableNode(), "name", NodeMatchAnyString)
-
-	res, err := people().Map(NewTripleQueryMatchMapper(query))
-	require.Nil(t, err)
-	require.Len(t, res.TripleSet, 3)
-}
-
-func Test_QueryTripleMatcher_Compute(t *testing.T) {
-	t.Skip()
-	query, _ := NewTriple(NewVariableNode(), LengthFunction, 4)
-	mapper := NewTripleQueryMatchMapper(query)
-	// TODO: compute doesn't apply to a triple (so it's not a mapper), it applies to nodes, probably to solutions
-
-	tpls := NewTriples()
-	tpls.AddTriple(NewAnonymousNode(), "name", "Marc")
-
-	res, err := mapper(tpls)
+	names := NamedNodeMap(tr.FunctionNames)
+	tpls, _ := names.NewTriples(
+		"? name ?x",
+		"?x type() triples.StringNode",
+	)
+	query, err := NewQueryFromTriples(tpls)
 	require.Nil(t, err)
 
-	refs := References(res)
-	require.Len(t, refs.TripleSet, 1)
-	assert.True(t, refs.ContainsTriple("a", "b", 1))
+	data, err := NewTriplesFromStrings(
+		"x name Marc",
+		"x name 2",
+		"x name _",
+		"x name ?",
+	)
+	require.Nil(t, err)
+	sol, err := query.Apply(data)
+	require.Nil(t, err)
+	require.Len(t, sol, 1)
+
 }
