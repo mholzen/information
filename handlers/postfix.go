@@ -43,10 +43,8 @@ func StatWithRemainder(filePath string) (FileInfo, []string, error) {
 
 func GetHandlerMap() (map[string]Transform, error) {
 	// load mappers
-	rowMapper, err := transforms.RowMapper()
-	if err != nil {
-		return nil, err
-	}
+	rowMapper := transforms.RowQuery().GetMapper()
+	matrixMapper := transforms.MatrixQuery().GetMapper()
 
 	res := map[string]Transform{
 		"content":             ToContent,
@@ -61,6 +59,7 @@ func GetHandlerMap() (map[string]Transform, error) {
 		"text":                ToTextPayload,
 		"triples":             ToTriplesPayload,
 		"transform,rows":      NewMapperPayload(rowMapper),
+		"transform,matrix":    NewMapperPayload(matrixMapper),
 		"transform,table":     NewMapperPayload(transforms.TableMapper),
 		"transform,htmlTable": NewMapperPayload(html.HtmlTableMapper),
 		"transform,id,lines":  NewMapperPayload(transforms.IdLinesMapper),

@@ -3,6 +3,7 @@ package transforms
 import (
 	"log"
 
+	"github.com/mholzen/information/triples"
 	t "github.com/mholzen/information/triples"
 )
 
@@ -95,6 +96,16 @@ func (q Query) GetTriples() *t.Triples {
 	res.AddTriples(q.Query)
 	res.AddTriples(q.Computations.GetTriples())
 	return res
+}
+
+func (q Query) GetMapper() t.Mapper {
+	return func(source *triples.Triples) (*triples.Triples, error) {
+		res, err := q.Apply(source)
+		if err != nil {
+			return nil, err
+		}
+		return res.GetAllTriples(), nil
+	}
 }
 
 func NewQueryMapper(triples *t.Triples) (t.Mapper, error) {

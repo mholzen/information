@@ -4,17 +4,6 @@ import (
 	"github.com/mholzen/information/triples"
 )
 
-func RowMapper() (triples.Mapper, error) {
-	query := RowQuery()
-	return func(source *triples.Triples) (*triples.Triples, error) {
-		res, err := query.Apply(source)
-		if err != nil {
-			return nil, err
-		}
-		return res.GetAllTriples(), nil
-	}, nil
-}
-
 func RowQuery() Query {
 	root := Var()
 	rootIsAnon := NewComputation(root, triples.TypeFunctionNode, triples.Str("triples.AnonymousNode"))
