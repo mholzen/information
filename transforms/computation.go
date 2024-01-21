@@ -89,3 +89,12 @@ func (c Computations) GetTriples() *t.Triples {
 	}
 	return res
 }
+
+func (c Computations) AugmentWithGenerators(generators ComputationGenerators, source *t.Triples) Computations {
+	res := make(Computations, len(c))
+	copy(res, c)
+	for _, generator := range generators {
+		res = append(res, generator.GetComputation(source))
+	}
+	return res
+}
