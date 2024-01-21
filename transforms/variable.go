@@ -138,17 +138,17 @@ func (m VariableMap) Get(variable VariableNode) (t.Node, error) {
 func (m VariableMap) TestOrSetTriple(query t.Triple, value t.Triple) error {
 	if v, ok := query.Subject.(VariableNode); ok {
 		if err := m.TestOrSet(v, value.Subject); err != nil {
-			return t.Subject1.WrapError(err)
+			return t.SubjectPosition.WrapError(err)
 		}
 	}
 	if v, ok := query.Predicate.(VariableNode); ok {
 		if err := m.TestOrSet(v, value.Predicate); err != nil {
-			return t.Predicate1.WrapError(err)
+			return t.PredicatePosition.WrapError(err)
 		}
 	}
 	if v, ok := query.Object.(VariableNode); ok {
 		if err := m.TestOrSet(v, value.Object); err != nil {
-			return t.Object1.WrapError(err)
+			return t.ObjectPosition.WrapError(err)
 		}
 	}
 	return nil
@@ -168,15 +168,15 @@ func (m VariableMap) GetVariableOrNode(node t.Node) (t.Node, error) {
 func (m VariableMap) GetTriple(triple t.Triple) (t.Triple, error) {
 	subject, err := m.GetVariableOrNode(triple.Subject)
 	if err != nil {
-		return triple, t.Subject1.WrapError(err)
+		return triple, t.SubjectPosition.WrapError(err)
 	}
 	predicate, err := m.GetVariableOrNode(triple.Predicate)
 	if err != nil {
-		return triple, t.Predicate1.WrapError(err)
+		return triple, t.PredicatePosition.WrapError(err)
 	}
 	object, err := m.GetVariableOrNode(triple.Object)
 	if err != nil {
-		return triple, t.Object1.WrapError(err)
+		return triple, t.ObjectPosition.WrapError(err)
 	}
 
 	return t.NewTripleFromNodes(

@@ -18,22 +18,22 @@ func (t Triple) String() string {
 type NodePosition byte
 
 const (
-	Subject1 NodePosition = iota
-	Predicate1
-	Object1
+	SubjectPosition NodePosition = iota
+	PredicatePosition
+	ObjectPosition
 )
 
 func (p NodePosition) Getter() (func(Triple) Node, error) {
 	switch p {
-	case Subject1:
+	case SubjectPosition:
 		return func(t Triple) Node {
 			return t.Subject
 		}, nil
-	case Predicate1:
+	case PredicatePosition:
 		return func(t Triple) Node {
 			return t.Predicate
 		}, nil
-	case Object1:
+	case ObjectPosition:
 		return func(t Triple) Node {
 			return t.Object
 		}, nil

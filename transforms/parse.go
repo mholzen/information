@@ -338,15 +338,15 @@ func (m NamedNodeMap) NewTriple(triple string) (t.Triple, error) {
 	}
 	subject, err := m.NewNode(atoms[0])
 	if err != nil {
-		return t.Triple{}, t.Subject1.WrapError(err)
+		return t.Triple{}, t.SubjectPosition.WrapError(err)
 	}
 	predicate, err := m.NewNode(atoms[1])
 	if err != nil {
-		return t.Triple{}, t.Predicate1.WrapError(err)
+		return t.Triple{}, t.PredicatePosition.WrapError(err)
 	}
 	object, err := m.NewNode(atoms[2])
 	if err != nil {
-		return t.Triple{}, t.Object1.WrapError(err)
+		return t.Triple{}, t.ObjectPosition.WrapError(err)
 	}
 
 	return t.NewTripleFromNodes(subject, predicate, object), nil

@@ -83,7 +83,7 @@ func Test_compute_wanted_triples(t *testing.T) {
 }
 
 func Test_TripleMapper(t *testing.T) {
-	SubjectTypeMapper, err := NewPositionFunctionMapper(Subject1, TypeFunctionNode, NewStringNode("type"))
+	SubjectTypeMapper, err := NewPositionFunctionMapper(SubjectPosition, TypeFunctionNode, NewStringNode("type"))
 	require.Nil(t, err)
 
 	triples := NewTriples()

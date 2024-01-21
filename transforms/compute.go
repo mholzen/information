@@ -115,7 +115,7 @@ func NewSubjectFunctionFilterFromTriples(query t.Triple) (t.TripleMatchError, er
 	if !ok {
 		return nil, fmt.Errorf("predicate %s is not a function", query.Predicate)
 	}
-	mapper, err := NewPositionFunctionMapper(t.Subject1, f, t.NewStringNode(query.Predicate.String()))
+	mapper, err := NewPositionFunctionMapper(t.SubjectPosition, f, t.NewStringNode(query.Predicate.String()))
 	if err != nil {
 		return nil, err
 	}
@@ -144,7 +144,7 @@ func NewSubjectFunctionGeneratorFromTriples(query t.Triple) (t.TriplesGenerator,
 	if !ok {
 		return nil, fmt.Errorf("predicate %s is not a function", query.Predicate)
 	}
-	mapper, err := NewPositionFunctionMapper(t.Subject1, f, t.NewStringNode(query.Predicate.String()))
+	mapper, err := NewPositionFunctionMapper(t.SubjectPosition, f, t.NewStringNode(query.Predicate.String()))
 	if err != nil {
 		return nil, err
 	}
