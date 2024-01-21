@@ -43,3 +43,47 @@ func Test_VariableMap_Set(t *testing.T) {
 	err = variables.TestOrSet(v1, tr.NewStringNode("a"))
 	require.NotNil(t, err)
 }
+
+func Test_VariableMap_Get(t *testing.T) {
+	v1 := NewVariableNode()
+	v2 := NewVariableNode()
+	variables := NewVariableMap(VariableList{v1, v2})
+
+	err := variables.TestOrSet(v1, tr.Str("a"))
+	require.Nil(t, err)
+	err = variables.TestOrSet(v2, tr.Str("b"))
+	require.Nil(t, err)
+
+	v, err := variables.Get(v1)
+	require.Nil(t, err)
+	assert.Equal(t, tr.NewStringNode("a"), v)
+
+	v, err = variables.Get(v2)
+	require.Nil(t, err)
+	assert.Equal(t, tr.NewStringNode("b"), v)
+
+	_, err = variables.Get(Var())
+	require.NotNil(t, err)
+}
+
+func Test_VariableMap_GetTriple(t *testing.T) {
+	v1 := NewVariableNode()
+	v2 := NewVariableNode()
+	variables := NewVariableMap(VariableList{v1, v2})
+
+	err := variables.TestOrSet(v1, tr.Str("a"))
+	require.Nil(t, err)
+	err = variables.TestOrSet(v2, tr.Str("b"))
+	require.Nil(t, err)
+
+	triple := tr.NewTripleFromNodes(v1, v2, tr.Str("c"))
+	v, err := variables.GetTriple(triple)
+	require.Nil(t, err)
+	assert.Equal(t, tr.NewStringNode("a"), v.Subject)
+	assert.Equal(t, tr.NewStringNode("b"), v.Predicate)
+	assert.Equal(t, tr.NewStringNode("c"), v.Object)
+
+	triple.Subject = Var()
+	v, err = variables.GetTriple(triple)
+	require.NotNil(t, err)
+}
