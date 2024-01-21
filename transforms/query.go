@@ -1,46 +1,49 @@
 package transforms
 
 import (
-	"log"
-
-	"github.com/mholzen/information/triples"
 	t "github.com/mholzen/information/triples"
 )
 
 type Query struct {
-	Query        *t.Triples
-	Computations Computations // computations that need to match
+	Matching              *t.Triples
+	Selected              *t.Triples
+	Computations          Computations
+	ComputationGenerators ComputationGenerators
 }
 
-func NewQuery(query *t.Triples, computations Computations) Query {
+func NewQuery(matching *t.Triples) Query {
 	return Query{
-		Query:        query,
-		Computations: computations,
+		Matching:              matching,
+		Selected:              t.NewTriples(),
+		Computations:          Computations{},
+		ComputationGenerators: ComputationGenerators{},
 	}
 }
 
 func NewQueryFromTriples(source *t.Triples) (Query, error) {
+	query := Query{}
 	computations := Computations{}
-	query := t.NewTriples()
-	res := Query{}
+	matching := t.NewTriples()
 	for _, triple := range source.TripleSet {
 		if _, ok := triple.Predicate.(t.UnaryFunctionNode); ok {
 			c, err := NewComputationFromTriple(triple)
 			if err != nil {
-				return res, err
+				return query, err
 			}
 			computations = append(computations, c)
 		} else {
-			query.Add(triple)
+			matching.Add(triple)
 		}
 	}
-	return NewQuery(query, computations), nil
+	query.Computations = computations
+	query.Matching = matching
+	return query, nil
 }
 
-func (q Query) GetMatchesMap(source *t.Triples) (MatchesMap, error) {
+func (q Query) SearchForMatches(source *t.Triples) (MatchesMap, error) {
 	res := NewMatchesMap()
 
-	for _, query := range q.Query.TripleSet {
+	for _, query := range q.Matching.TripleSet {
 		tripleFilter := NewTripleQueryMatchMapper(query)
 		matches, err := source.Map(tripleFilter)
 		if err != nil {
@@ -51,11 +54,11 @@ func (q Query) GetMatchesMap(source *t.Triples) (MatchesMap, error) {
 	return res, nil
 }
 
-func (q Query) GetSolutions(matches MatchesMap) SolutionList {
-	selectTriples := q.Query.GetTripleList()
+func (q Query) ComputeSolutions(matches MatchesMap) SolutionList {
+	matching := q.Matching.GetTripleList()
 
 	res := make(t.TriplesList, 0)
-	for _, query := range selectTriples {
+	for _, query := range matching {
 		res = append(res, matches[query])
 	}
 	products := res.Cartesian()
@@ -63,15 +66,15 @@ func (q Query) GetSolutions(matches MatchesMap) SolutionList {
 	solutions := make(SolutionList, 0)
 	for _, product := range products {
 		// log.Printf("\n> evaluating solution:\n%s\n", product)
-		solution := NewSolution(q.Query)
-		for i, query := range selectTriples {
-			err := solution.Add(query, product[i])
+		solution := NewSolution(q.Matching)
+		for i, match := range matching {
+			err := solution.Add(match, product[i])
 			if err != nil {
 				// log.Printf("%s", err)
 				continue
 			}
 		}
-		if solution.IsComplete() && len(solution.SolutionMap) == len(q.Query.TripleSet) {
+		if solution.IsComplete() && len(solution.SolutionMap) == len(q.Matching.TripleSet) {
 			// log.Printf("solution passes matches")
 			solutions = append(solutions, solution)
 		}
@@ -79,28 +82,38 @@ func (q Query) GetSolutions(matches MatchesMap) SolutionList {
 	return solutions
 }
 
-func (q Query) Apply(source *t.Triples) (SolutionList, error) {
-	matches, err := q.GetMatchesMap(source)
+func (q Query) SearchForSolutions(source *t.Triples) (SolutionList, error) {
+	matches, err := q.SearchForMatches(source)
 	if err != nil {
 		return SolutionList{}, err
 	}
+	solutions := q.ComputeSolutions(matches)
 
-	solutions := q.GetSolutions(matches)
-	solutions = solutions.FilterByComputations(q.Computations)
+	computations := q.Computations.AugmentWithGenerators(q.ComputationGenerators, source)
+
+	solutions = solutions.FilterByComputations(computations)
 
 	return solutions, nil
 }
 
+func (q Query) SearchForSelected(source *t.Triples) (*t.Triples, error) {
+	solutions, err := q.SearchForSolutions(source)
+	if err != nil {
+		return nil, err
+	}
+	return solutions.GetSelectTriples(q.Selected)
+}
+
 func (q Query) GetTriples() *t.Triples {
 	res := t.NewTriples()
-	res.AddTriples(q.Query)
+	res.AddTriples(q.Matching)
 	res.AddTriples(q.Computations.GetTriples())
 	return res
 }
 
 func (q Query) GetMapper() t.Mapper {
-	return func(source *triples.Triples) (*triples.Triples, error) {
-		res, err := q.Apply(source)
+	return func(source *t.Triples) (*t.Triples, error) {
+		res, err := q.SearchForSolutions(source)
 		if err != nil {
 			return nil, err
 		}
@@ -109,9 +122,9 @@ func (q Query) GetMapper() t.Mapper {
 }
 
 func NewQueryMapper(triples *t.Triples) (t.Mapper, error) {
-	query := NewQuery(triples, Computations{})
+	query := NewQuery(triples)
 	return func(source *t.Triples) (*t.Triples, error) {
-		solutions, err := query.Apply(source)
+		solutions, err := query.SearchForSolutions(source)
 		if err != nil {
 			return nil, err
 		}
@@ -126,7 +139,6 @@ func NewTripleQueryMatchMapper(query t.Triple) t.Mapper {
 		res := t.NewTriples()
 		for _, triple := range source.TripleSet {
 			if matcher(triple) {
-				log.Printf("triple %s matches %s", triple, query)
 				res.Add(triple)
 			}
 		}
@@ -146,6 +158,7 @@ func NewNodeTester(node t.Node) t.NodeBoolFunction {
 		}
 	}
 }
+
 func NewTripleMatch(query t.Triple) t.TripleMatch {
 	subjectTester := NewNodeTester(query.Subject)
 	predicateTester := NewNodeTester(query.Predicate)

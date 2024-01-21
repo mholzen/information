@@ -22,9 +22,9 @@ func Test_NewQuery(t *testing.T) {
 		"c d 2",
 	)
 	require.Nil(t, err)
-	query := NewQuery(queryTriples, Computations{})
+	query := NewQuery(queryTriples)
 
-	solutions, err := query.Apply(data)
+	solutions, err := query.SearchForSolutions(data)
 	require.Nil(t, err)
 
 	assert.Len(t, solutions, 1)
@@ -50,9 +50,9 @@ func Test_NewQuery_Variables(t *testing.T) {
 		"c ? 2",
 	)
 	require.Nil(t, err)
-	query := NewQuery(queryTriples, Computations{})
+	query := NewQuery(queryTriples)
 
-	solutions, err := query.Apply(data)
+	solutions, err := query.SearchForSolutions(data)
 	require.Nil(t, err)
 
 	require.Len(t, solutions, 1)
@@ -75,9 +75,9 @@ func Test_NewQuery_Variables_Joins(t *testing.T) {
 	)
 	require.Nil(t, err)
 
-	query := NewQuery(queryTriples, Computations{})
+	query := NewQuery(queryTriples)
 
-	solutions, err := query.Apply(data)
+	solutions, err := query.SearchForSolutions(data)
 	require.Nil(t, err)
 
 	require.Len(t, solutions, 1)
@@ -103,9 +103,10 @@ func Test_NewQuery_Compute(t *testing.T) {
 	)
 	require.Nil(t, err)
 	computations := NewComputation(a, tr.LengthFunctionNode, tr.NewIndexNode(1))
-	query := NewQuery(queryTriples, NewComputations(computations))
+	query := NewQuery(queryTriples)
+	query.Computations = NewComputations(computations)
 
-	solutions, err := query.Apply(data)
+	solutions, err := query.SearchForSolutions(data)
 	require.Nil(t, err)
 
 	require.Len(t, solutions, 1)
@@ -130,15 +131,15 @@ func Test_QueryMatches(t *testing.T) {
 	)
 	require.Nil(t, err)
 
-	query := NewQuery(queryTriples, Computations{})
-	matchesMap, err := query.GetMatchesMap(data)
+	query := NewQuery(queryTriples)
+	matchesMap, err := query.SearchForMatches(data)
 	require.Nil(t, err)
 
 	require.Len(t, matchesMap, 2)
 	assert.Len(t, matchesMap[queryFirst].TripleSet, 1)
 	assert.Len(t, matchesMap[queryAge].TripleSet, 2)
 
-	solutions := query.GetSolutions(matchesMap)
+	solutions := query.ComputeSolutions(matchesMap)
 	assert.Len(t, solutions, 2)
 
 	objects := solutions.GetTriples(queryFirst).GetObjects()
@@ -149,6 +150,30 @@ func Test_QueryMatches(t *testing.T) {
 	assert.Len(t, objects, 2)
 	assert.Contains(t, objects, "18")
 	assert.Contains(t, objects, "42")
+}
+
+func Test_QuerySelected(t *testing.T) {
+	person := Var()
+	queryFirst := tr.NewTripleFromNodes(person, tr.Str("first"), tr.Str("Marc"))
+	queryAge := tr.NewTripleFromNodes(person, tr.Str("age"), Var())
+
+	matching := tr.NewTriples().AddTripleList(queryFirst, queryAge)
+	query := NewQuery(matching)
+	query.Selected = tr.NewTriples().AddTripleList(queryAge)
+
+	data, err := NewNamedTriples(
+		"_x first Marc",
+		"_x age 42",
+		"_y first John",
+		"_y age 18",
+	)
+	require.Nil(t, err)
+
+	answers, err := query.SearchForSelected(data)
+	require.Nil(t, err)
+
+	assert.Len(t, answers.TripleSet, 1)
+	assert.Contains(t, answers.GetObjects(), "42")
 }
 
 func Test_QueryTripleMatcher_Simple(t *testing.T) {
@@ -167,8 +192,7 @@ func Test_QueryTripleMatcher_Simple(t *testing.T) {
 		"x name ?",
 	)
 	require.Nil(t, err)
-	sol, err := query.Apply(data)
+	sol, err := query.SearchForSolutions(data)
 	require.Nil(t, err)
 	require.Len(t, sol, 1)
-
 }

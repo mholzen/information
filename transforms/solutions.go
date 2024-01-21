@@ -1,13 +1,15 @@
 package transforms
 
-import t "github.com/mholzen/information/triples"
+import (
+	t "github.com/mholzen/information/triples"
+)
 
 type SolutionList []Solution
 
 func (sl SolutionList) GetTriples(query t.Triple) *t.Triples {
 	res := t.NewTriples()
 	for _, solution := range sl {
-		res.Add(solution.GetTriple(query))
+		res.Add(solution.GetMatching(query))
 	}
 	return res
 }
@@ -15,9 +17,21 @@ func (sl SolutionList) GetTriples(query t.Triple) *t.Triples {
 func (sl SolutionList) GetAllTriples() *t.Triples {
 	res := t.NewTriples()
 	for _, solution := range sl {
-		res.AddTriples(solution.GetAllTriples())
+		res.AddTriples(solution.GetAllMatching())
 	}
 	return res
+}
+
+func (sl SolutionList) GetSelectTriples(selected *t.Triples) (*t.Triples, error) {
+	res := t.NewTriples()
+	for _, solution := range sl {
+		triples, err := solution.GetSelectTriples(selected)
+		if err != nil {
+			return nil, err
+		}
+		res.AddTriples(triples)
+	}
+	return res, nil
 }
 
 func (sl SolutionList) FilterByComputations(computations Computations) SolutionList {
