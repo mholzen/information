@@ -1,3 +1,4 @@
 main
 .pid
 *.log
+data/private
