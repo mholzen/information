@@ -41,7 +41,7 @@ func Square(node Node) (Node, error) {
 	return NewNumberNode(n.Value * n.Value), nil
 }
 
-var SquareFunctionNode UnaryFunctionNode = UnaryFunctionNode(Square)
+var SquareFunctionNode UnaryFunctionNode = Square
 
 func TypeFunction(node Node) (Node, error) {
 	return NewStringNode(name(node)), nil
