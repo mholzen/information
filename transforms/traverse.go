@@ -21,7 +21,7 @@ func NewTraverse(start t.Node, filter t.TripleMatch, output *t.Triples) t.Transf
 					continue
 				}
 				tripleReference := output.AddTripleReference(triple)
-				output.AddTripleFromNodes(dest, t.NewIndexNode(resultIndex), tripleReference)
+				output.AddTriple(dest, t.NewIndexNode(resultIndex), tripleReference)
 				resultIndex++
 
 				if !visitedNodes.Contains(triple.Object) {
@@ -50,7 +50,7 @@ func NewNodeTraverse(start t.Node, next NodeToNodeList) t.Mapper {
 			nodeQueue = nodeQueue[1:]
 
 			// Output node
-			res.AddTripleFromNodes(root, t.NewIndexNode(resultIndex), node) // TOTRY: consider using an array
+			res.AddTriple(root, t.NewIndexNode(resultIndex), node) // TOTRY: consider using an array
 			visitedNodes.Add(node)
 			resultIndex++
 

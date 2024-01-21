@@ -9,7 +9,7 @@ import (
 
 func Test_TripleMatch(t *testing.T) {
 	src := triples.NewTriples()
-	triple, _ := src.AddTriple("a", "b", 1)
+	triple, _ := src.AddTripleFromAny("a", "b", 1)
 	require.True(t, NewSubjectTripleMatch(triples.NewStringNode("a"))(triple))
 	require.True(t, NewPredicateTripleMatch(triples.NewStringNode("b"))(triple))
 	require.True(t, NewObjectTripleMatch(triples.NewIndexNode(1))(triple))
@@ -17,14 +17,14 @@ func Test_TripleMatch(t *testing.T) {
 
 func Test_FilterForIndexNodes(t *testing.T) {
 	src := triples.NewTriples()
-	src.AddTriple("a", "b", 1)
-	src.AddTriple("a", "b", 2)
-	src.AddTriple("b", 2, "c")
+	src.AddTripleFromAny("a", "b", 1)
+	src.AddTripleFromAny("a", "b", 2)
+	src.AddTripleFromAny("b", 2, "c")
 
 	filter := triples.NewTriples()
 	container := triples.NewAnonymousNode()
 	// filter.AddTriple(container, triples.Subject, triples.NewNodeMatchAny())
-	_, err := filter.AddTriple(container, triples.Predicate, triples.NodeMatchAnyIndex)
+	_, err := filter.AddTripleFromAny(container, triples.Predicate, triples.NodeMatchAnyIndex)
 	require.Nil(t, err)
 	// filter.AddTriple(container, triples.Subject, triples.NewNodeMatchAny())
 
@@ -40,11 +40,11 @@ func Test_FilterForIndexNodes(t *testing.T) {
 func Test_FilterForSubjectPredicate(t *testing.T) {
 	src := triples.NewTriples()
 	subject := triples.NewAnonymousNode()
-	src.AddTriple(subject, "first", "marc")
+	src.AddTripleFromAny(subject, "first", "marc")
 
 	filter := triples.NewTriples()
-	filter.AddTriple(triples.NewAnonymousNode(), triples.Subject, subject)
-	filter.AddTriple(triples.NewAnonymousNode(), triples.Predicate, "first")
+	filter.AddTripleFromAny(triples.NewAnonymousNode(), triples.Subject, subject)
+	filter.AddTripleFromAny(triples.NewAnonymousNode(), triples.Predicate, "first")
 
 	m, err := NewTripleMatchFromTriples(filter)
 	require.Nil(t, err)

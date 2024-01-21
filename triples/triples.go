@@ -78,7 +78,11 @@ func shortString(n Node) string {
 	}
 }
 
-func NewTriple(subject, predicate, object any) (Triple, error) {
+func NewTriple(subject, predicate, object Node) Triple {
+	return Triple{subject, predicate, object}
+}
+
+func NewTripleFromAny(subject, predicate, object any) (Triple, error) {
 	var err error
 	var s, p, o Node
 	s, err = NewNode(subject)
@@ -96,11 +100,6 @@ func NewTriple(subject, predicate, object any) (Triple, error) {
 
 	triple := Triple{s, p, o}
 	return triple, nil
-}
-
-// TODO: flip with NewTriple
-func NewTripleFromNodes(subject, predicate, object Node) Triple {
-	return Triple{subject, predicate, object}
 }
 
 type TripleSet map[string]Triple
@@ -125,7 +124,7 @@ func NewTriplesFromList(triples TripleList) *Triples {
 	return res
 }
 
-func NewTriplesFromNodes(node ...any) (*Triples, error) {
+func NewTriplesFromAny(node ...any) (*Triples, error) {
 	res := NewTriples()
 	err := res.AddTripleNodes(node...)
 	return res, err
@@ -143,14 +142,28 @@ func (source *Triples) NewNode(value interface{}) (Node, error) {
 	return NewNode(value)
 }
 
-func (source *Triples) AddTripleFromNodes(subject Node, predicate Node, object Node) Triple {
+func (source *Triples) Add(triple Triple) *Triples {
+	if _, ok := source.TripleSet[triple.String()]; ok {
+		return source
+	}
+	source.TripleSet[triple.String()] = triple
+
+	source.Nodes.Add(triple.Subject)
+	source.Nodes.Add(triple.Predicate)
+	if triple.Object != nil {
+		source.Nodes.Add(triple.Object)
+	}
+	return source
+}
+
+func (source *Triples) AddTriple(subject Node, predicate Node, object Node) Triple {
 	triple := Triple{subject, predicate, object}
 	source.Add(triple)
 	return triple
 }
 
-func (source *Triples) AddTriple(subject, predicate, object any) (Triple, error) {
-	triple, err := NewTriple(subject, predicate, object)
+func (source *Triples) AddTripleFromAny(subject, predicate, object any) (Triple, error) {
+	triple, err := NewTripleFromAny(subject, predicate, object)
 	if err != nil {
 		return Triple{}, err
 	}
@@ -166,9 +179,9 @@ func (source *Triples) AddTripleString(subject string, predicate string, object 
 
 func (source *Triples) AddTripleReference(triple Triple) Node {
 	container := NewAnonymousNode()
-	source.AddTripleFromNodes(container, Subject, triple.Subject)
-	source.AddTripleFromNodes(container, Predicate, triple.Predicate)
-	source.AddTripleFromNodes(container, Object, triple.Object)
+	source.AddTriple(container, Subject, triple.Subject)
+	source.AddTriple(container, Predicate, triple.Predicate)
+	source.AddTriple(container, Object, triple.Object)
 	return container
 }
 
@@ -176,23 +189,9 @@ func (source *Triples) AddTripleReferences(triples *Triples) Node {
 	container := NewAnonymousNode()
 	for _, triple := range triples.TripleSet {
 		node := source.AddTripleReference(triple)
-		source.Add(NewTripleFromNodes(container, Contains, node))
+		source.Add(NewTriple(container, Contains, node))
 	}
 	return container
-}
-
-func (source *Triples) Add(triple Triple) *Triples {
-	if _, ok := source.TripleSet[triple.String()]; ok {
-		return source
-	}
-	source.TripleSet[triple.String()] = triple
-
-	source.Nodes.Add(triple.Subject)
-	source.Nodes.Add(triple.Predicate)
-	if triple.Object != nil {
-		source.Nodes.Add(triple.Object)
-	}
-	return source
 }
 
 func (source *Triples) AddTripleList(triple ...Triple) *Triples {
@@ -214,17 +213,17 @@ func (source *Triples) AddTriples(triples *Triples) {
 	}
 }
 
-func (source *Triples) AddTripleNodes(node ...any) error {
-	if len(node)%3 != 0 {
-		return fmt.Errorf("number of nodes (%d) not a multiple of 3", len(node))
+func (source *Triples) AddTripleNodes(nodes ...any) error {
+	if len(nodes)%3 != 0 {
+		return fmt.Errorf("number of nodes (%d) not a multiple of 3", len(nodes))
 	}
-	for len(node) > 0 {
-		triple, err := NewTriple(node[0], node[1], node[2])
+	for len(nodes) > 0 {
+		triple, err := NewTripleFromAny(nodes[0], nodes[1], nodes[2])
 		if err != nil {
 			return err
 		}
 		source.Add(triple)
-		node = node[3:]
+		nodes = nodes[3:]
 	}
 	return nil
 }
@@ -233,7 +232,7 @@ func (source *Triples) AddTriplesAsContainer(triples *Triples) Node {
 	container := NewAnonymousNode()
 	for _, triple := range triples.TripleSet {
 		source.Add(triple)
-		source.AddTripleFromNodes(container, Contains, triple.Subject)
+		source.AddTriple(container, Contains, triple.Subject)
 	}
 	return container
 }
@@ -264,7 +263,7 @@ func (source *Triples) NewTriplesFromMap(m map[string]interface{}) (TripleList, 
 				return res, err
 			}
 
-			source.AddTripleFromNodes(subject, predicate, object)
+			source.AddTriple(subject, predicate, object)
 			is_spo_form = true
 		} else {
 			is_po_form = true
@@ -281,7 +280,7 @@ func (source *Triples) NewTriplesFromMap(m map[string]interface{}) (TripleList, 
 				return res, err
 			}
 
-			source.AddTripleFromNodes(container, predicate, object)
+			source.AddTriple(container, predicate, object)
 		}
 	}
 	return res, nil
@@ -334,7 +333,7 @@ func (source *Triples) Contains(triple Triple) bool {
 }
 
 func (source *Triples) ContainsTriple(subject, predicate, object any) bool {
-	triple, err := NewTriple(subject, predicate, object)
+	triple, err := NewTripleFromAny(subject, predicate, object)
 	if err != nil {
 		return false
 	}

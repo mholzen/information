@@ -9,7 +9,7 @@ func Predicates(source *t.Triples) (*t.Triples, error) {
 	container := t.NewAnonymousNode()
 
 	for _, row := range source.GetTripleList() {
-		res.AddTriple(container, t.Predicate, row.Predicate)
+		res.AddTripleFromAny(container, t.Predicate, row.Predicate)
 	}
 	return res, nil
 }
@@ -27,7 +27,7 @@ func PredicatesSortedByString(source *t.Triples) (*t.Triples, error) {
 	res := t.NewTriples()
 	container := t.NewAnonymousNode()
 	for i, triple := range predicateList {
-		res.AddTriple(container, t.NewIndexNode(i), triple.Object)
+		res.AddTripleFromAny(container, t.NewIndexNode(i), triple.Object)
 	}
 	return res, nil
 }

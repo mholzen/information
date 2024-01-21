@@ -27,7 +27,7 @@ func Test_VariableMap_Set(t *testing.T) {
 	v1 := NewVariableNode()
 	v2 := NewVariableNode()
 	v3 := NewVariableNode()
-	triples.AddTriple(v1, v2, v3)
+	triples.AddTripleFromAny(v1, v2, v3)
 	variables := NewVariableMapFromTripleList(triples.GetTripleList())
 
 	err := variables.TestOrSet(v1, tr.NewStringNode("a"))
@@ -76,7 +76,7 @@ func Test_VariableMap_GetTriple(t *testing.T) {
 	err = variables.TestOrSet(v2, tr.Str("b"))
 	require.Nil(t, err)
 
-	triple := tr.NewTripleFromNodes(v1, v2, tr.Str("c"))
+	triple := tr.NewTriple(v1, v2, tr.Str("c"))
 	v, err := variables.GetTriple(triple)
 	require.Nil(t, err)
 	assert.Equal(t, tr.NewStringNode("a"), v.Subject)

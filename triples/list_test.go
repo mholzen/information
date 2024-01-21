@@ -8,9 +8,9 @@ import (
 
 func Test_Sort(t *testing.T) {
 	triples := TripleList{
-		NewTripleFromNodes(NewStringNode("a"), NewIndexNode(2), NewStringNode("c")),
-		NewTripleFromNodes(NewStringNode("a"), NewIndexNode(1), NewStringNode("b")),
-		NewTripleFromNodes(NewStringNode("a"), NewIndexNode(1), NewStringNode("a")),
+		NewTriple(NewStringNode("a"), NewIndexNode(2), NewStringNode("c")),
+		NewTriple(NewStringNode("a"), NewIndexNode(1), NewStringNode("b")),
+		NewTriple(NewStringNode("a"), NewIndexNode(1), NewStringNode("a")),
 	}
 
 	sorted := triples.Sort()
@@ -19,10 +19,10 @@ func Test_Sort(t *testing.T) {
 
 func Test_SortObjects(t *testing.T) {
 	triples := TripleList{
-		NewTripleFromNodes(NewStringNode("a"), NewStringNode("a"), NewIndexNode(4)),
-		NewTripleFromNodes(NewStringNode("a"), NewStringNode("a"), NewIndexNode(1)),
-		NewTripleFromNodes(NewStringNode("a"), NewStringNode("a"), NewIndexNode(2)),
-		NewTripleFromNodes(NewStringNode("a"), NewStringNode("a"), NewIndexNode(3)),
+		NewTriple(NewStringNode("a"), NewStringNode("a"), NewIndexNode(4)),
+		NewTriple(NewStringNode("a"), NewStringNode("a"), NewIndexNode(1)),
+		NewTriple(NewStringNode("a"), NewStringNode("a"), NewIndexNode(2)),
+		NewTriple(NewStringNode("a"), NewStringNode("a"), NewIndexNode(3)),
 	}
 
 	sorted := triples.Sort()

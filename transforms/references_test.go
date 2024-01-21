@@ -11,9 +11,9 @@ import (
 func Test_References(t *testing.T) {
 	tpls := NewTriples()
 	container := NewAnonymousNode()
-	tpl, _ := NewTriple(container, "b", 1)
+	tpl, _ := NewTripleFromAny(container, "b", 1)
 	tpls.AddTripleReference(tpl)
-	tpl, _ = NewTriple(container, "c", 2)
+	tpl, _ = NewTripleFromAny(container, "c", 2)
 	tpls.AddTripleReference(tpl)
 
 	res, err := tpls.Map(ReferencesMapper)
@@ -37,11 +37,11 @@ func Test_References(t *testing.T) {
 func Test_ReferenceTriples(t *testing.T) {
 	tpls := NewTriples()
 	container := NewAnonymousNode()
-	tpl, _ := NewTriple(container, "b", 1)
+	tpl, _ := NewTripleFromAny(container, "b", 1)
 	tpls.AddTripleReference(tpl)
-	tpl, _ = NewTriple(container, "c", 2)
+	tpl, _ = NewTripleFromAny(container, "c", 2)
 	tpls.AddTripleReference(tpl)
-	tpl, _ = NewTriple("a", "b", 3)
+	tpl, _ = NewTripleFromAny("a", "b", 3)
 	tpls.Add(tpl)
 
 	res := ReferenceTriples(tpls)
@@ -52,11 +52,11 @@ func Test_ReferenceTriples(t *testing.T) {
 func Test_RemoveReferences(t *testing.T) {
 	tpls := NewTriples()
 	container := NewAnonymousNode()
-	tpl, _ := NewTriple(container, "b", 1)
+	tpl, _ := NewTripleFromAny(container, "b", 1)
 	tpls.AddTripleReference(tpl)
-	tpl, _ = NewTriple(container, "c", 2)
+	tpl, _ = NewTripleFromAny(container, "c", 2)
 	tpls.AddTripleReference(tpl)
-	tpl, _ = NewTriple("a", "b", 3)
+	tpl, _ = NewTripleFromAny("a", "b", 3)
 	tpls.Add(tpl)
 
 	assert.Len(t, tpls.TripleSet, 7)
@@ -70,13 +70,13 @@ func Test_RemoveReferences(t *testing.T) {
 func Test_ReferenceTriplesSuper(t *testing.T) {
 	tpls := NewTriples()
 	container := NewAnonymousNode()
-	tpl, _ := NewTriple(container, "b", 1)
+	tpl, _ := NewTripleFromAny(container, "b", 1)
 	ref1 := tpls.AddTripleReference(tpl)
-	tpl, _ = NewTriple(container, "c", 2)
+	tpl, _ = NewTripleFromAny(container, "c", 2)
 	tpls.AddTripleReference(tpl)
-	tpl, _ = NewTriple(ref1, "foo", "bar")
+	tpl, _ = NewTripleFromAny(ref1, "foo", "bar")
 	tpls.Add(tpl)
-	tpl, _ = NewTriple("a", "b", 3)
+	tpl, _ = NewTripleFromAny("a", "b", 3)
 	tpls.Add(tpl)
 	assert.Len(t, tpls.TripleSet, 8)
 

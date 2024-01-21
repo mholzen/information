@@ -8,7 +8,7 @@ func RowQuery() Query {
 	root, predicates, rows := Var(), Var(), Var()
 
 	matching := triples.NewTriples()
-	matching.AddTriple(root, predicates, rows)
+	matching.AddTripleFromAny(root, predicates, rows)
 
 	query := NewQuery(matching)
 	query.Selected = query.Matching
@@ -42,14 +42,14 @@ func MatrixQuery() Query {
 
 	// Match Triples
 	matching := triples.NewTriples()
-	matching.AddTriple(root, rowPredicates, rows)
-	matching.AddTriple(rows, cellPredicates, Var())
+	matching.AddTripleFromAny(root, rowPredicates, rows)
+	matching.AddTripleFromAny(rows, cellPredicates, Var())
 
 	query := NewQuery(matching)
 
 	// Select Triples
 	query.Selected = triples.NewTriples()
-	query.Selected.AddTripleFromNodes(root, rowPredicates, rows)
+	query.Selected.AddTriple(root, rowPredicates, rows)
 
 	// Computations
 	rootIsAnon := NewComputation(root, triples.TypeFunctionNode, triples.Str("triples.AnonymousNode"))

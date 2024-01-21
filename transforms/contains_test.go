@@ -11,11 +11,11 @@ import (
 
 func Test_Contains(t *testing.T) {
 	tpls := tr.NewTriples()
-	tpls.AddTriple("a", "b", 1)
-	tpls.AddTriple("b", "c", 2)
-	tpls.AddTriple("e", "f", 3)
+	tpls.AddTripleFromAny("a", "b", 1)
+	tpls.AddTripleFromAny("b", "c", 2)
+	tpls.AddTripleFromAny("e", "f", 3)
 
-	toFind, err := tr.NewTriple("a", tr.NewNodeMatchAny(), 1)
+	toFind, err := tr.NewTripleFromAny("a", tr.NewNodeMatchAny(), 1)
 	require.Nil(t, err)
 	err = NewContains(toFind, tpls)(tpls)
 	require.Nil(t, err)
@@ -34,13 +34,13 @@ func Test_Contains(t *testing.T) {
 
 func Test_Contains_triples(t *testing.T) {
 	tpls := tr.NewTriples()
-	tpls.AddTriple("a", "b", 1)
-	tpls.AddTriple("b", "c", 2)
-	tpls.AddTriple("e", "f", 3)
+	tpls.AddTripleFromAny("a", "b", 1)
+	tpls.AddTripleFromAny("b", "c", 2)
+	tpls.AddTripleFromAny("e", "f", 3)
 
 	toFind := tr.NewTriples()
-	toFind.AddTriple("a", tr.NewNodeMatchAny(), 1)
-	toFind.AddTriple("b", tr.NewNodeMatchAny(), 2)
+	toFind.AddTripleFromAny("a", tr.NewNodeMatchAny(), 1)
+	toFind.AddTripleFromAny("b", tr.NewNodeMatchAny(), 2)
 
 	res, err := NewContainsTriples(toFind)(tpls)
 	require.Nil(t, err)
@@ -63,13 +63,13 @@ func Test_Contains_triples(t *testing.T) {
 
 func Test_Contains_triples_utility(t *testing.T) {
 	tpls := tr.NewTriples()
-	tpls.AddTriple("a", "b", 1)
-	tpls.AddTriple("b", "c", 2)
-	tpls.AddTriple("e", "f", 3)
+	tpls.AddTripleFromAny("a", "b", 1)
+	tpls.AddTripleFromAny("b", "c", 2)
+	tpls.AddTripleFromAny("e", "f", 3)
 
 	toFind := tr.NewTriples()
-	toFind.AddTriple("a", tr.NewNodeMatchAny(), 1)
-	toFind.AddTriple("b", tr.NewNodeMatchAny(), 2)
+	toFind.AddTripleFromAny("a", tr.NewNodeMatchAny(), 1)
+	toFind.AddTripleFromAny("b", tr.NewNodeMatchAny(), 2)
 
 	res, err := NewContainsTriples(toFind)(tpls)
 	require.Nil(t, err)
@@ -91,13 +91,13 @@ func Test_Contains_triples_utility(t *testing.T) {
 
 func Test_NewContainsOrComputeMapper(t *testing.T) {
 	tpls := tr.NewTriples()
-	tpls.AddTriple(tr.NewAnonymousNode(), "name", "Marc")
-	tpls.AddTriple(tr.NewAnonymousNode(), "length", NewVariableNode())
+	tpls.AddTripleFromAny(tr.NewAnonymousNode(), "name", "Marc")
+	tpls.AddTripleFromAny(tr.NewAnonymousNode(), "length", NewVariableNode())
 
-	query, _ := tr.NewTriple("Marc", "length", 4)
+	query, _ := tr.NewTripleFromAny("Marc", "length", 4)
 
 	functions := tr.NewTriples()
-	functions.AddTriple(tr.LengthFunctionNode, ComputeNode, "length")
+	functions.AddTripleFromAny(tr.LengthFunctionNode, ComputeNode, "length")
 
 	res, err := NewContainsOrComputeMapper(query, functions)(tpls)
 

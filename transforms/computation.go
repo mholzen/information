@@ -27,7 +27,7 @@ func (c Computation) Test(node t.Node) (bool, error) {
 }
 
 func (c Computation) GetTriple() t.Triple {
-	return t.NewTripleFromNodes(c.Variable, c.Function, c.Expected)
+	return t.NewTriple(c.Variable, c.Function, c.Expected)
 }
 
 func NewComputation(variable VariableNode, function t.UnaryFunctionNode, expected t.Node) Computation {

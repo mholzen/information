@@ -179,7 +179,7 @@ func (m VariableMap) GetTriple(triple t.Triple) (t.Triple, error) {
 		return triple, t.ObjectPosition.WrapError(err)
 	}
 
-	return t.NewTripleFromNodes(
+	return t.NewTriple(
 		subject,
 		predicate,
 		object), nil

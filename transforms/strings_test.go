@@ -10,7 +10,7 @@ import (
 
 func Test_ObjectsToStrings(t *testing.T) {
 	res := triples.NewTriples()
-	_, err := res.AddTriple(triples.NewStringNode("a"), triples.NewIndexNode(1), triples.NewIndexNode(2))
+	_, err := res.AddTripleFromAny(triples.NewStringNode("a"), triples.NewIndexNode(1), triples.NewIndexNode(2))
 	require.NoError(t, err)
 	res2, _ := ObjectsToStrings(res)
 

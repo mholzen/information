@@ -8,15 +8,15 @@ import (
 
 func Test_Cartesian(t *testing.T) {
 	a := NewTriples()
-	a.AddTriple("a", "x", 1)
-	a.AddTriple("a", "x", 2)
+	a.AddTripleFromAny("a", "x", 1)
+	a.AddTripleFromAny("a", "x", 2)
 	b := NewTriples()
-	b.AddTriple("b", "x", 3)
-	b.AddTriple("b", "x", 4)
-	b.AddTriple("b", "x", 5)
+	b.AddTripleFromAny("b", "x", 3)
+	b.AddTripleFromAny("b", "x", 4)
+	b.AddTripleFromAny("b", "x", 5)
 	c := NewTriples()
-	c.AddTriple("c", "x", 6)
-	c.AddTriple("c", "x", 7)
+	c.AddTripleFromAny("c", "x", 6)
+	c.AddTripleFromAny("c", "x", 7)
 
 	sets := TriplesList{a, b, c}
 
@@ -27,7 +27,7 @@ func Test_Cartesian(t *testing.T) {
 func Test_Cartesian_empty_set(t *testing.T) {
 	a := NewTriples()
 	b := NewTriples()
-	b.AddTriple("a", "b", 1)
+	b.AddTripleFromAny("a", "b", 1)
 
 	sets := TriplesList{a, b}
 

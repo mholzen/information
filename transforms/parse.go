@@ -47,7 +47,7 @@ func (source *Parser) ParseAdd(subject t.Node, predicate, object any) error {
 	if err != nil {
 		return err
 	}
-	_, err = source.AddTriple(subject, predicate, object)
+	_, err = source.AddTripleFromAny(subject, predicate, object)
 	if err != nil {
 		return err
 	}
@@ -67,12 +67,12 @@ func (source *Parser) Parse(data any) (t.Node, error) {
 		for i, stringArray := range data {
 			row := t.NewAnonymousNode()
 			for j, val := range stringArray {
-				_, err := source.AddTriple(row, j, val)
+				_, err := source.AddTripleFromAny(row, j, val)
 				if err != nil {
 					return array, err
 				}
 			}
-			_, err := source.AddTriple(array, i, row)
+			_, err := source.AddTripleFromAny(array, i, row)
 			if err != nil {
 				return array, err
 			}
@@ -150,7 +150,7 @@ func NewCsvParser(data io.Reader) *t.TransformerWithResult {
 		parser := Parser{}
 		parser.Triples = target
 		res, err := parser.Parse(array)
-		target.AddTriple(res, "source", "CsvParser")
+		target.AddTripleFromAny(res, "source", "CsvParser")
 		transformer.Result = &res
 		return err
 	}
@@ -166,9 +166,9 @@ func NewLinesParser(data io.Reader) *t.TransformerWithResult {
 		}
 		var container t.Node = t.NewAnonymousNode()
 		for i, line := range array {
-			target.AddTriple(container, i, line)
+			target.AddTripleFromAny(container, i, line)
 		}
-		target.AddTriple(container, "source", "LinesParser")
+		target.AddTripleFromAny(container, "source", "LinesParser")
 		transformer.Result = &container
 		return err
 	}
@@ -205,7 +205,7 @@ func NewFileJsonParser(filename string) *t.TransformerWithResult {
 		parser := Parser{}
 		parser.Triples = target
 		res, err := parser.Parse(data)
-		target.AddTriple(res, "filename", filename)
+		target.AddTripleFromAny(res, "filename", filename)
 		transformer.Result = &res
 
 		return err
@@ -284,7 +284,7 @@ func NewTripleFromString(triple string) (t.Triple, error) {
 	predicate := NewNodeFromString(atoms[1])
 	object := NewNodeFromString(atoms[2])
 
-	return t.NewTripleFromNodes(subject, predicate, object), nil
+	return t.NewTriple(subject, predicate, object), nil
 }
 
 func NewTriplesFromStrings(triples ...string) (*t.Triples, error) {
@@ -349,7 +349,7 @@ func (m NamedNodeMap) NewTriple(triple string) (t.Triple, error) {
 		return t.Triple{}, t.ObjectPosition.WrapError(err)
 	}
 
-	return t.NewTripleFromNodes(subject, predicate, object), nil
+	return t.NewTriple(subject, predicate, object), nil
 }
 
 func (m NamedNodeMap) NewNode(str string) (t.Node, error) {

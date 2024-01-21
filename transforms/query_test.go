@@ -97,7 +97,7 @@ func Test_NewQuery_Compute(t *testing.T) {
 
 	a := Var()
 	d := Var()
-	queryTriples, err := tr.NewTriplesFromNodes(
+	queryTriples, err := tr.NewTriplesFromAny(
 		a, "b", 2,
 		"c", d, 2,
 	)
@@ -154,8 +154,8 @@ func Test_QueryMatches(t *testing.T) {
 
 func Test_QuerySelected(t *testing.T) {
 	person := Var()
-	queryFirst := tr.NewTripleFromNodes(person, tr.Str("first"), tr.Str("Marc"))
-	queryAge := tr.NewTripleFromNodes(person, tr.Str("age"), Var())
+	queryFirst := tr.NewTriple(person, tr.Str("first"), tr.Str("Marc"))
+	queryAge := tr.NewTriple(person, tr.Str("age"), Var())
 
 	matching := tr.NewTriples().AddTripleList(queryFirst, queryAge)
 	query := NewQuery(matching)

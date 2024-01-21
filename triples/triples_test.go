@@ -8,9 +8,9 @@ import (
 )
 
 func Test_CompareTriple(t *testing.T) {
-	t1, _ := NewTriple("a", "b", 1)
-	t2, _ := NewTriple("a", "b", 1)
-	t3, _ := NewTriple("a", "c", 1)
+	t1, _ := NewTripleFromAny("a", "b", 1)
+	t2, _ := NewTripleFromAny("a", "b", 1)
+	t3, _ := NewTripleFromAny("a", "c", 1)
 
 	assert.Equal(t, t1, t2)
 	assert.NotEqual(t, t1, t3)
@@ -29,15 +29,15 @@ func Test_NewTriplesFromMap(t *testing.T) {
 
 func Test_Contains(t *testing.T) {
 	tpls := NewTriples()
-	tpls.AddTriple("a", "b", 1)
-	tpls.AddTriple("d", "e", 2)
-	triple, _ := NewTriple("a", "b", 1)
+	tpls.AddTripleFromAny("a", "b", 1)
+	tpls.AddTripleFromAny("d", "e", 2)
+	triple, _ := NewTripleFromAny("a", "b", 1)
 
 	assert.True(t, tpls.Contains(triple))
 	assert.Contains(t, tpls.TripleSet, triple.String())
 
 	t1 := NewTriples()
-	shouldContain, err := NewTriple(NewNumberNode(2), "square", NewNumberNode(4))
+	shouldContain, err := NewTripleFromAny(NewNumberNode(2), "square", NewNumberNode(4))
 	require.Nil(t, err)
 	t1.Add(shouldContain)
 	assert.Contains(t, t1.TripleSet, shouldContain.String())
@@ -45,8 +45,8 @@ func Test_Contains(t *testing.T) {
 
 func Test_GetReference(t *testing.T) {
 	tpls := NewTriples()
-	tr1, _ := tpls.AddTriple("a", "b", 1)
-	tr2, _ := tpls.AddTriple("c", "d", 2)
+	tr1, _ := tpls.AddTripleFromAny("a", "b", 1)
+	tr2, _ := tpls.AddTripleFromAny("c", "d", 2)
 	n := tpls.AddTripleReference(tr1)
 
 	nodes := tpls.GetTripleReferences(tr1)

@@ -14,8 +14,8 @@ func Test_Root(t *testing.T) {
 	a := triples.NewAnonymousNode()
 	b := triples.NewAnonymousNode()
 
-	src.AddTriple(b, "c", "c")
-	src.AddTriple(a, "b", b)
+	src.AddTripleFromAny(b, "c", "c")
+	src.AddTripleFromAny(a, "b", b)
 
 	res, err := Root(src)
 	require.Nil(t, err)

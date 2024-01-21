@@ -8,14 +8,14 @@ import (
 )
 
 func Test_Intersect(t *testing.T) {
-	tpls, err := triples.NewTriplesFromNodes(
+	tpls, err := triples.NewTriplesFromAny(
 		"a", "b", 1,
 		"a", "b", 2,
 		"a", "b", 3,
 	)
 	require.Nil(t, err)
 
-	toRemove, err := triples.NewTriplesFromNodes(
+	toRemove, err := triples.NewTriplesFromAny(
 		"a", "b", 2,
 	)
 	require.Nil(t, err)

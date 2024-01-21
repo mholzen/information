@@ -63,7 +63,7 @@ func (matrix TripleMatrix) Triples() *Triples {
 
 	for i, row := range matrix {
 		node := res.AddTripleReferences(NewTriplesFromList(row))
-		res.AddTriple(root, NewIndexNode(i), node)
+		res.AddTripleFromAny(root, NewIndexNode(i), node)
 	}
 	return res
 }

@@ -37,7 +37,7 @@ func NewCompute() t.Transformer {
 					return err
 				}
 				name := t.NewStringNode(f.String())
-				source.AddTriple(triple.Subject, name, value)
+				source.AddTripleFromAny(triple.Subject, name, value)
 			}
 		}
 		return nil
@@ -62,7 +62,7 @@ func NewComputeWithDefinitions(definitions *t.Triples) t.Transformer {
 					if err != nil {
 						return err
 					}
-					source.AddTriple(triple.Subject, label, value)
+					source.AddTripleFromAny(triple.Subject, label, value)
 				}
 			}
 		}
@@ -78,7 +78,7 @@ func ComputeTripleTransformer(subject t.Node, predicate t.UnaryFunctionNode, lab
 		if err != nil {
 			return err
 		}
-		_, err = source.AddTriple(subject, label, object)
+		_, err = source.AddTripleFromAny(subject, label, object)
 		if err != nil {
 			return err
 		}
@@ -88,9 +88,9 @@ func ComputeTripleTransformer(subject t.Node, predicate t.UnaryFunctionNode, lab
 
 func GetDefinitions() *t.Triples {
 	var Definitions = t.NewTriples()
-	Definitions.AddTriple(t.TypeFunctionNode, ComputeNode, "type")
-	Definitions.AddTriple(t.SquareFunctionNode, ComputeNode, "square")
-	Definitions.AddTriple(t.LengthFunctionNode, ComputeNode, "length")
+	Definitions.AddTripleFromAny(t.TypeFunctionNode, ComputeNode, "type")
+	Definitions.AddTripleFromAny(t.SquareFunctionNode, ComputeNode, "square")
+	Definitions.AddTripleFromAny(t.LengthFunctionNode, ComputeNode, "length")
 	return Definitions
 }
 
@@ -106,7 +106,7 @@ func NewPositionFunctionMapper(position t.NodePosition, function t.UnaryFunction
 		if err != nil {
 			return triple, err
 		}
-		return t.NewTriple(triple.Subject, predicate, value)
+		return t.NewTriple(triple.Subject, predicate, value), nil
 	}, nil
 }
 

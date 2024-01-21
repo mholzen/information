@@ -13,7 +13,7 @@ func Test_replace(t *testing.T) {
 	data.AddTripleString("a", "b", "c")
 	data.AddTripleString("d", "e", "f")
 	x := NewVariableNode()
-	data.AddTriple(x, "h", "i")
+	data.AddTripleFromAny(x, "h", "i")
 	replace := NewReplaceMapper(NewStringNode("a"), NewStringNode("A"))
 	res, err := data.Map(replace)
 	require.Nil(t, err)

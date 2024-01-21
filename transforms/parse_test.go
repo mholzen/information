@@ -134,7 +134,7 @@ func Test_NewNamedTriples(t *testing.T) {
 }
 
 func Test_NewNamedTriples_Function(t *testing.T) {
-	t1 := NewTripleFromNodes(TypeFunctionNode, Str("name"), Str("type"))
+	t1 := NewTriple(TypeFunctionNode, Str("name"), Str("type"))
 	names := NewNamedNodeMapFromTriples(
 		NewTriples().Add(t1),
 	)

@@ -13,8 +13,8 @@ func Test_Traverse(t *testing.T) {
 	x := triples.NewAnonymousNode()
 	y := triples.NewAnonymousNode()
 	z := triples.NewAnonymousNode()
-	graph.AddTriple(x, "next", y)
-	graph.AddTriple(y, "next", z)
+	graph.AddTripleFromAny(x, "next", y)
+	graph.AddTripleFromAny(y, "next", z)
 
 	res := triples.NewTriples()
 	tr := NewTraverse(x, NewPredicateTripleMatch(triples.NewStringNode("next")), res)
@@ -30,8 +30,8 @@ func Test_NodeTraverse(t *testing.T) {
 	x := triples.NewAnonymousNode()
 	y := triples.NewAnonymousNode()
 	z := triples.NewAnonymousNode()
-	graph.AddTriple(x, "next", y)
-	graph.AddTriple(y, "next", z)
+	graph.AddTripleFromAny(x, "next", y)
+	graph.AddTripleFromAny(y, "next", z)
 
 	next := func(node triples.Node) triples.NodeList {
 		return graph.GetTripleListForSubject(node).GetObjects()
