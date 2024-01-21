@@ -5,55 +5,72 @@ import (
 )
 
 func RowQuery() Query {
-	root := Var()
+	root, predicates, rows := Var(), Var(), Var()
+
+	matching := triples.NewTriples()
+	matching.AddTriple(root, predicates, rows)
+
+	query := NewQuery(matching)
+	query.Selected = query.Matching
+
 	rootIsAnon := NewComputation(root, triples.TypeFunctionNode, triples.Str("triples.AnonymousNode"))
-
-	// Consider
-	// NewComputation(root, triples.ObjectCountNode, triples.NewIndexNode(0))
-
-	predicates := Var()
 	predicatesAreIndices := NewComputation(predicates, triples.TypeFunctionNode, triples.Str("triples.IndexNode"))
-
-	rows := Var()
 	rowsAreAnon := NewComputation(rows, triples.TypeFunctionNode, triples.Str("triples.AnonymousNode"))
 
-	selectTriples := triples.NewTriples()
-	selectTriples.AddTriple(root, predicates, rows)
+	query.Computations = NewComputations(
+		rootIsAnon,
+		predicatesAreIndices,
+		rowsAreAnon,
+	)
 
-	return NewQuery(selectTriples, NewComputations(rootIsAnon, predicatesAreIndices, rowsAreAnon))
+	rootIsRoot := ComputationGenerator{
+		Variable:          root,
+		FunctionGenerator: NewObjectCountFunction,
+		Expected:          triples.NewIndexNode(0),
+	}
+
+	query.ComputationGenerators = ComputationGenerators{rootIsRoot}
+	return query
 }
 
 func RowTriples(source *triples.Triples) (*triples.Triples, error) {
-	query := RowQuery()
-	res, err := query.Apply(source)
-	if err != nil {
-		return nil, err
-	}
-	return res.GetAllTriples(), nil
+	return RowQuery().SearchForSelected(source)
 }
 
 func MatrixQuery() Query {
+	root, rowPredicates, rows, cellPredicates := Var(), Var(), Var(), Var()
+
+	// Match Triples
+	matching := triples.NewTriples()
+	matching.AddTriple(root, rowPredicates, rows)
+	matching.AddTriple(rows, cellPredicates, Var())
+
+	query := NewQuery(matching)
+
+	// Select Triples
+	query.Selected = triples.NewTriples()
+	query.Selected.AddTripleFromNodes(root, rowPredicates, rows)
+
 	// Computations
-	root := Var()
 	rootIsAnon := NewComputation(root, triples.TypeFunctionNode, triples.Str("triples.AnonymousNode"))
-
-	rowPredicates := Var()
 	rowPredicatesAreIndices := NewComputation(rowPredicates, triples.TypeFunctionNode, triples.Str("triples.IndexNode"))
-
-	rows := Var()
 	rowsAreAnon := NewComputation(rows, triples.TypeFunctionNode, triples.Str("triples.AnonymousNode"))
-
-	cellPredicates := Var()
 	cellPredicatesAreIndices := NewComputation(cellPredicates, triples.TypeFunctionNode, triples.Str("triples.IndexNode"))
 
-	// Selected Triples
-	selectTriples := triples.NewTriples()
-	selectTriples.AddTriple(root, rowPredicates, rows)
-	selectTriples.AddTriple(rows, cellPredicates, Var())
-
-	return NewQuery(selectTriples, NewComputations(
+	query.Computations = NewComputations(
 		rootIsAnon,
 		rowPredicatesAreIndices,
 		rowsAreAnon,
-		cellPredicatesAreIndices))
+		cellPredicatesAreIndices,
+	)
+
+	// Computation Generators
+	rootIsRoot := ComputationGenerator{
+		Variable:          root,
+		FunctionGenerator: NewObjectCountFunction,
+		Expected:          triples.NewIndexNode(0),
+	}
+	query.ComputationGenerators = ComputationGenerators{rootIsRoot}
+
+	return query
 }

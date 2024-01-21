@@ -18,7 +18,7 @@ func Test_RowQuery(t *testing.T) {
 	)
 	require.Nil(t, err)
 
-	solutions, err := query.Apply(source)
+	solutions, err := query.SearchForSolutions(source)
 	require.Nil(t, err)
 
 	require.Len(t, solutions, 3)
@@ -45,15 +45,21 @@ func Test_MatrixQuery(t *testing.T) {
 	require.Nil(t, err)
 
 	query := MatrixQuery()
-	matchesMap, err := query.GetMatchesMap(source)
+	matchesMap, err := query.SearchForMatches(source)
 	require.Nil(t, err)
 	require.Len(t, matchesMap, 2)
 
-	require.Len(t, matchesMap[query.Query.GetTripleList()[0]].TripleSet, source.Length())
+	require.Len(t, matchesMap[query.Matching.GetTripleList()[0]].TripleSet, source.Length())
 
-	solutions, err := MatrixQuery().Apply(source)
+	solutions, err := query.SearchForSolutions(source)
 	require.Nil(t, err)
 
 	log.Printf("%s", solutions.GetAllTriples())
 	require.Len(t, solutions, 4)
+
+	selected, err := solutions.GetSelectTriples(query.Selected)
+	require.Nil(t, err)
+
+	log.Printf("select: %s", selected)
+	require.Len(t, selected.TripleSet, 2)
 }
