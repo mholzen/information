@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"regexp"
 	"strconv"
@@ -78,7 +77,8 @@ func (source *Parser) Parse(data any) (t.Node, error) {
 			}
 		}
 		return array, nil
-
+	case bool:
+		return t.NewBoolNode(data), nil
 	case nil:
 		return source.NewNode(nil)
 	default:
@@ -105,7 +105,7 @@ func DecodeJson(input string) (interface{}, error) {
 
 func NewParserFromContentType(mimeType string, data io.Reader) (*t.TransformerWithResult, error) {
 	switch {
-	case strings.HasPrefix(mimeType, "application/json"), strings.HasPrefix(mimeType, "text/plain"):
+	case strings.HasPrefix(mimeType, "application/json"):
 		var buffer bytes.Buffer
 		_, err := buffer.ReadFrom(data)
 		if err != nil {
@@ -128,8 +128,7 @@ func NewJsonParser(json string) *t.TransformerWithResult {
 	transformer.Transformer = func(target *t.Triples) error {
 		data, err := DecodeJson(json)
 		if err != nil {
-			log.Printf("Error decoding '%s' %s", json, err)
-			return err
+			return fmt.Errorf("cannot decode JSON: %w", err)
 		}
 		parser := Parser{}
 		parser.Triples = target
@@ -297,6 +296,22 @@ func NewTriplesFromStrings(triples ...string) (*t.Triples, error) {
 		res.Add(triple)
 	}
 	return res, nil
+}
+
+func NewTriplesFromJson(bytes []byte) (*t.Triples, error) {
+	res := t.NewTriples()
+	err := res.Transform(NewJsonParser(string(bytes)).Transformer)
+	return res, err
+}
+
+func NewTriplesFromContent(mimeType string, reader io.Reader) (*t.Triples, error) {
+	parser, err := NewParserFromContentType(mimeType, reader)
+	if err != nil {
+		return nil, err
+	}
+	res := t.NewTriples()
+	err = res.Transform(parser.Transformer)
+	return res, err
 }
 
 func NewNamedTriples(triples ...string) (*t.Triples, error) {

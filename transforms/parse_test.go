@@ -18,14 +18,14 @@ func Test_remove_comment(t *testing.T) {
 }
 
 func Test_parse(t *testing.T) {
-	tm := NewJsonParser(`{"first":"marc","last":"von Holzen"}`)
+	tm := NewJsonParser(`{"first":"marc","last":"von Holzen", "alive": true, "age": 50}`)
 
 	src := NewTriples()
 	err := src.Transform(tm.Transformer)
 	require.Nil(t, err)
 	assert.NotNil(t, tm.Result)
 
-	assert.Len(t, src.TripleSet, 2)
+	assert.Len(t, src.TripleSet, 4)
 }
 
 func Test_triples_map2(t *testing.T) {
