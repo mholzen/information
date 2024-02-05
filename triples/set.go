@@ -69,3 +69,41 @@ func (set NodeSet) Intersect(with NodeSet) NodeSet {
 }
 
 type NodeList []Node
+
+func NewNodeList(values ...any) (NodeList, error) {
+	res := make(NodeList, 0)
+	for _, value := range values {
+		node, err := NewNode(value)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, node)
+	}
+	return res, nil
+}
+
+func (list NodeList) Strings() []string {
+	res := make([]string, 0)
+	for _, node := range list {
+		res = append(res, node.String())
+	}
+	return res
+}
+
+func (list NodeList) Sort() NodeList {
+	sort.Slice(list, func(i, j int) bool {
+		return list[i].LessThan(list[j])
+	})
+	return list
+}
+
+func (list NodeList) SortBy(less NodeSortFunc) NodeList {
+	sort.Slice(list, func(i, j int) bool {
+		return less(list[i], list[j])
+	})
+	return list
+}
+
+func (list NodeList) SortLexical() NodeList {
+	return list.SortBy(NodeLessLexical)
+}
