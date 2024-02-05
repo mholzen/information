@@ -1,10 +1,37 @@
 package triples
 
 import (
+	"fmt"
 	"reflect"
 	"runtime"
 	"strings"
 )
+
+type BoolValue bool
+
+func (b BoolValue) String() string {
+	return fmt.Sprintf("%t", b)
+}
+
+func (b BoolValue) Compare(other BoolValue) int {
+	if b == other {
+		return 0
+	}
+	if b {
+		// sort true before false so that it sorts lexically first
+		// (true "more important" than false)
+		return -1
+	}
+	return 1
+}
+
+type BoolNode = CreatedComparableNode[BoolValue]
+
+var boolNodes CreatedComparableNodes[BoolValue] = make(CreatedComparableNodes[BoolValue])
+
+func NewBoolNode(b bool) BoolNode {
+	return boolNodes.NewNode(BoolValue(b))
+}
 
 // things you can do with a function:
 // - evaluate its output
