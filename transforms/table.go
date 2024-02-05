@@ -7,11 +7,7 @@ import (
 func NewTable(headers *triples.Triples) triples.Mapper {
 	return func(source *triples.Triples) (*triples.Triples, error) {
 		if headers == nil {
-			var err error
-			headers, err = PredicatesSortedByString(source)
-			if err != nil {
-				return nil, err
-			}
+			headers = PredicatesSortedLexical(source)
 		}
 
 		rows, err := RowTriples(source)
@@ -46,7 +42,6 @@ func NewTable(headers *triples.Triples) triples.Mapper {
 		}
 		return res, nil
 	}
-
 }
 
 var TableMapper = NewTable(nil)

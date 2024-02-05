@@ -4,30 +4,16 @@ import (
 	t "github.com/mholzen/information/triples"
 )
 
-func Predicates(source *t.Triples) (*t.Triples, error) {
+func NodeListToTriples(source t.NodeList) *t.Triples {
 	res := t.NewTriples()
 	container := t.NewAnonymousNode()
-
-	for _, row := range source.GetTripleList() {
-		res.AddTripleFromAny(container, t.Predicate, row.Predicate)
+	for i, node := range source {
+		res.AddTriple(container, t.NewIndexNode(i), node)
 	}
-	return res, nil
+	return res
 }
 
-func PredicatesSortedByString(source *t.Triples) (*t.Triples, error) {
-	predicates, err := source.Map(Predicates)
-	if err != nil {
-		return nil, err
-	}
-	predicateList := predicates.GetTripleList()
-	predicateList.SortBy(func(i, j int) bool {
-		return predicateList[i].Object.String() < predicateList[j].Object.String()
-	})
-
-	res := t.NewTriples()
-	container := t.NewAnonymousNode()
-	for i, triple := range predicateList {
-		res.AddTripleFromAny(container, t.NewIndexNode(i), triple.Object)
-	}
-	return res, nil
+func PredicatesSortedLexical(source *t.Triples) *t.Triples {
+	list := source.GetPredicateList().SortLexical()
+	return NodeListToTriples(list)
 }
