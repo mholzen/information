@@ -5,6 +5,42 @@ import (
 	"time"
 )
 
+type IndexValue int
+
+func (i IndexValue) String() string {
+	return fmt.Sprintf("%d", i)
+}
+
+func (i IndexValue) Compare(other IndexValue) int {
+	return int(i) - int(other)
+}
+
+type IndexNode = CreatedComparableNode[IndexValue]
+
+var indexNodes CreatedComparableNodes[IndexValue] = make(CreatedComparableNodes[IndexValue])
+
+func NewIndexNode(value int) IndexNode {
+	return indexNodes.NewNode(IndexValue(value))
+}
+
+type FloatNode = CreatedComparableNode[FloatValue]
+
+var floatNodes CreatedComparableNodes[FloatValue] = make(CreatedComparableNodes[FloatValue])
+
+func NewFloatNode(value float64) FloatNode {
+	return floatNodes.NewNode(FloatValue(value))
+}
+
+type FloatValue float64
+
+func (i FloatValue) String() string {
+	return fmt.Sprintf("%f", i)
+}
+
+func (i FloatValue) Compare(other FloatValue) int {
+	return int(float64(i) - float64(other))
+}
+
 type NumberNode struct {
 	Value   float64
 	Created time.Time

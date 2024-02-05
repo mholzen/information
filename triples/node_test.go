@@ -7,6 +7,12 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func Test_CreatedComparableNode_LessThan(t *testing.T) {
+	anon1 := NewAnonymousNode()
+	anon2 := NewAnonymousNode()
+	assert.True(t, anon1.LessThan(anon2))
+}
+
 func Test_CompareNode(t *testing.T) {
 	a1, _ := NewNode("a")
 	a2, _ := NewNode("a")
@@ -21,8 +27,12 @@ func Test_CompareNode(t *testing.T) {
 	number1 := NewNumberNode(1.0)
 	index1 := NewIndexNode(1.0)
 	string1 := NewStringNode("1.0")
+	bool1, err := NewNode(true)
+	require.Nil(t, err)
+
 	assert.False(t, NodeEquals(number1, index1))
 	assert.False(t, NodeEquals(number1, string1))
+	assert.False(t, NodeEquals(index1, bool1))
 }
 
 func Test_LessThan(t *testing.T) {

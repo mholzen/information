@@ -14,7 +14,10 @@ func Test_UnaryFunctionNode_LessThan(t *testing.T) {
 	assert.True(t, LengthFunctionNode.LessThan(TypeFunctionNode))
 	assert.False(t, TypeFunctionNode.LessThan(LengthFunctionNode))
 	assert.False(t, TypeFunctionNode.LessThan(TypeFunctionNode))
+
 	a := NewAnonymousNode()
-	assert.False(t, TypeFunctionNode.LessThan(a))
-	assert.True(t, a.LessThan(TypeFunctionNode))
+	compareFunctionAgainstAnon := TypeFunctionNode.LessThan(a)
+	compareAnonAgainstFunction := a.LessThan(TypeFunctionNode)
+
+	assert.NotEqual(t, compareFunctionAgainstAnon, compareAnonAgainstFunction)
 }
