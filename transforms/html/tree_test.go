@@ -16,6 +16,6 @@ func Test_html(t *testing.T) {
 	err := res.Transform(tm.Transformer)
 	require.Nil(t, err)
 
-	html := NewHtmlTransformer(*res, res.GetTripleList(), 4)
+	html := NewTree(*res, res.GetTripleList(), 4)
 	assert.Greater(t, len(html.String()), 1000)
 }

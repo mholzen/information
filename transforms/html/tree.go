@@ -6,35 +6,35 @@ import (
 	t "github.com/mholzen/information/triples"
 )
 
-type HtmlTransformer struct {
+type Tree struct {
 	Triples    t.Triples
 	TripleList t.TripleList
 	Depth      int
 }
 
-func NewHtmlTransformer(triples t.Triples, tripleList t.TripleList, depth int) *HtmlTransformer {
-	return &HtmlTransformer{
+func NewTree(triples t.Triples, tripleList t.TripleList, depth int) *Tree {
+	return &Tree{
 		Triples:    triples,
 		TripleList: tripleList,
 		Depth:      depth,
 	}
 }
 
-func (html HtmlTransformer) String() string {
+func (html Tree) String() string {
 	res := NewSubjectPredicateObjectList()
 	res.AddTriples(html.TripleList)
 	return res.ToHtml(html)
 }
 
-func (html HtmlTransformer) HtmlObject(object t.Node) string {
+func (html Tree) HtmlObject(object t.Node) string {
 	res := ""
 	switch typedObject := object.(type) {
 	case t.AnonymousNode:
 		tripleList := html.Triples.GetTripleListForSubject(typedObject)
-		res = NewHtmlTransformer(html.Triples, tripleList, html.Depth-1).String()
+		res = NewTree(html.Triples, tripleList, html.Depth-1).String()
 
 	default:
-		res = fmt.Sprintf("<p class=string>%s</p>", typedObject.String())
+		res = fmt.Sprintf("<p class=string>%s</p>", t.ShortString(object))
 	}
 	return res
 
@@ -50,7 +50,7 @@ func NewObjectList() *ObjectList {
 	return &res
 }
 
-func (list *ObjectList) ToHtml(html HtmlTransformer) string {
+func (list *ObjectList) ToHtml(html Tree) string {
 	res := ""
 	for _, node := range *list {
 		res += fmt.Sprintf("<tr><td>%s</td></tr>", html.HtmlObject(node))
@@ -91,10 +91,10 @@ func (list *PredicateObjectList) AddPredicate(predicate t.Node) {
 	})
 }
 
-func (list *PredicateObjectList) ToHtml(html HtmlTransformer) string {
+func (list *PredicateObjectList) ToHtml(html Tree) string {
 	res := ""
 	for _, item := range *list {
-		res += fmt.Sprintf("<tr><td class=predicate><p>%s</p></td><td>%s</td></tr>\n", item.Predicate.String(), item.Objects.ToHtml(html))
+		res += fmt.Sprintf("<tr><td class=predicate><p>%s</p></td><td>%s</td></tr>\n", t.ShortString(item.Predicate), item.Objects.ToHtml(html))
 	}
 	return fmt.Sprintf("<table>%s</table>", res)
 }
@@ -137,7 +137,7 @@ func (list *SubjectPredicateObjectList) AddTriples(triples t.TripleList) {
 	}
 }
 
-func (list *SubjectPredicateObjectList) ToHtml(html HtmlTransformer) string {
+func (list *SubjectPredicateObjectList) ToHtml(html Tree) string {
 	if len(html.TripleList) == 3 {
 		html.TripleList.Sort()
 		if html.TripleList[0].Predicate == t.Subject && html.TripleList[1].Predicate == t.Predicate && html.TripleList[2].Predicate == t.Object {
@@ -150,7 +150,7 @@ func (list *SubjectPredicateObjectList) ToHtml(html HtmlTransformer) string {
 
 	res := ""
 	for _, item := range *list {
-		res += fmt.Sprintf("<tr><td class=subject><p>%s</p></td><td>%s</td></tr>", item.Subject, item.PredicateObjects.ToHtml(html))
+		res += fmt.Sprintf("<tr><td class=subject><p>%s</p></td><td>%s</td></tr>", t.ShortString(item.Subject), item.PredicateObjects.ToHtml(html))
 	}
 	return fmt.Sprintf("<table>%s</table>", res)
 }
