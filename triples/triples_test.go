@@ -12,6 +12,10 @@ func Test_CompareTriple(t *testing.T) {
 	t2, _ := NewTripleFromAny("a", "b", 1)
 	t3, _ := NewTripleFromAny("a", "c", 1)
 
+	assert.Equal(t, t1.Subject, t2.Subject)
+	assert.Equal(t, t1.Predicate, t2.Predicate)
+	assert.Equal(t, t1.Object, t2.Object)
+
 	assert.Equal(t, t1, t2)
 	assert.NotEqual(t, t1, t3)
 }
@@ -68,4 +72,18 @@ func Test_AddTripleNodes(t *testing.T) {
 
 	err = tpls.AddTripleNodes("a", "b", tpls)
 	require.NotNil(t, err)
+}
+
+func Test_GetPredicateList(t *testing.T) {
+	tpls, err := NewTriplesFromAny(
+		"a", "b", "c",
+		"d", "e", "f",
+		"a", "b", 1,
+		"d", "e", 2,
+		"d", "e", true,
+	)
+	require.Nil(t, err)
+
+	preds := tpls.GetPredicateList()
+	require.Contains(t, preds.Strings(), "b")
 }

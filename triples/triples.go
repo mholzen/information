@@ -2,7 +2,6 @@ package triples
 
 import (
 	"fmt"
-	"sort"
 )
 
 type Triple struct {
@@ -12,7 +11,7 @@ type Triple struct {
 }
 
 func (t Triple) String() string {
-	return fmt.Sprintf("(%s, %s, %s)", shortString(t.Subject), shortString(t.Predicate), shortString(t.Object))
+	return fmt.Sprintf("(%s, %s, %s)", ShortString(t.Subject), ShortString(t.Predicate), ShortString(t.Object))
 }
 
 type NodePosition byte
@@ -67,7 +66,7 @@ func GetNodeFunction(position Node) (func(Triple) Node, error) {
 	return nil, fmt.Errorf("invalid node position %d", position)
 }
 
-func shortString(n Node) string {
+func ShortString(n Node) string {
 	// TODO: handle VariableNode
 	if a, ok := n.(AnonymousNode); ok {
 		return a.String()[0:8]
@@ -202,9 +201,14 @@ func (source *Triples) AddTripleList(triple ...Triple) *Triples {
 }
 
 func (source *Triples) Delete(triple Triple) {
-	// should we delete nodes?
-
 	delete(source.TripleSet, triple.String())
+	// should we delete nodes?
+}
+
+func (source *Triples) DeleteTriples(triples *Triples) {
+	for _, triple := range triples.TripleSet {
+		source.Delete(triple)
+	}
 }
 
 func (source *Triples) AddTriples(triples *Triples) {
@@ -456,25 +460,15 @@ func (source *Triples) GetObjects() NodeSet {
 }
 
 func (source *Triples) GetSubjectList() NodeList {
-	return source.GetSubjects().GetSortedNodeList()
+	return source.GetSubjects().GetNodeList()
 }
 
-func (source *Triples) GetPredicateList() NodeList { // TODO: refactor to avoid boilerplate with GetSubjectList
-	set := source.GetPredicates()
-	keys := make([]string, 0)
-	for key := range set {
-		keys = append(keys, key)
-	}
-	sort.Strings(keys)
-	res := make(NodeList, 0)
-	for _, key := range keys {
-		res = append(res, set[key])
-	}
-	return res
+func (source *Triples) GetPredicateList() NodeList {
+	return source.GetPredicates().GetNodeList()
 }
 
 func (source *Triples) GetObjectList() NodeList {
-	return source.GetObjects().GetSortedNodeList()
+	return source.GetObjects().GetNodeList()
 }
 
 func (source *Triples) GetTripleList() TripleList {
