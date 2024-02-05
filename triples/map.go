@@ -2,6 +2,8 @@ package triples
 
 type Mapper func(source *Triples) (*Triples, error)
 
+type SafeMapper func(source *Triples) *Triples
+
 func (source *Triples) Map(mapper Mapper) (*Triples, error) {
 	return mapper(source)
 }
