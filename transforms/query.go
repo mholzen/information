@@ -1,6 +1,8 @@
 package transforms
 
 import (
+	"log"
+
 	t "github.com/mholzen/information/triples"
 )
 
@@ -87,11 +89,14 @@ func (q Query) SearchForSolutions(source *t.Triples) (SolutionList, error) {
 	if err != nil {
 		return SolutionList{}, err
 	}
+	log.Printf("matches count: %v", len(matches))
+
 	solutions := q.ComputeSolutions(matches)
+	log.Printf("solutions count: %v", len(solutions))
 
 	computations := q.Computations.AugmentWithGenerators(q.ComputationGenerators, source)
-
 	solutions = solutions.FilterByComputations(computations)
+	log.Printf("solutions count after filtering: %v", len(solutions))
 
 	return solutions, nil
 }
@@ -113,11 +118,11 @@ func (q Query) GetTriples() *t.Triples {
 
 func (q Query) GetMapper() t.Mapper {
 	return func(source *t.Triples) (*t.Triples, error) {
-		res, err := q.SearchForSolutions(source)
+		res, err := q.SearchForSelected(source)
 		if err != nil {
 			return nil, err
 		}
-		return res.GetAllTriples(), nil
+		return res, nil
 	}
 }
 
