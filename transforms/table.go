@@ -22,8 +22,8 @@ func NewTable(headers *triples.Triples) triples.Mapper {
 			for j, header := range headers.GetTripleList().Sort() {
 
 				query := triples.NewTriples()
-				query.AddTripleFromAny(triples.NewAnonymousNode(), triples.Subject, row.Object)
-				query.AddTripleFromAny(triples.NewAnonymousNode(), triples.Predicate, header.Object)
+				query.AddTriple(triples.NewAnonymousNode(), triples.Subject, row.Object)
+				query.AddTriple(triples.NewAnonymousNode(), triples.Predicate, header.Object)
 				queryTripleMatch, err := NewTripleMatchFromTriples(query)
 				if err != nil {
 					return nil, err
@@ -34,11 +34,11 @@ func NewTable(headers *triples.Triples) triples.Mapper {
 				}
 				resultCell := triples.NewAnonymousNode()
 				for k, cellTriple := range cellTriples.GetTripleList() {
-					res.AddTripleFromAny(resultCell, triples.NewIndexNode(k), cellTriple.Object)
+					res.AddTriple(resultCell, triples.NewIndexNode(k), cellTriple.Object)
 				}
-				res.AddTripleFromAny(resultRow, triples.NewIndexNode(j), resultCell)
+				res.AddTriple(resultRow, triples.NewIndexNode(j), resultCell)
 			}
-			res.AddTripleFromAny(root, triples.NewIndexNode(i), resultRow)
+			res.AddTriple(root, triples.NewIndexNode(i), resultRow)
 		}
 		return res, nil
 	}

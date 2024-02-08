@@ -149,7 +149,7 @@ func NewCsvParser(data io.Reader) *t.TransformerWithResult {
 		parser := Parser{}
 		parser.Triples = target
 		res, err := parser.Parse(array)
-		target.AddTripleFromAny(res, "source", "CsvParser")
+		target.AddTriple(res, t.Str("source"), t.Str("CsvParser"))
 		transformer.Result = &res
 		return err
 	}
@@ -165,9 +165,9 @@ func NewLinesParser(data io.Reader) *t.TransformerWithResult {
 		}
 		var container t.Node = t.NewAnonymousNode()
 		for i, line := range array {
-			target.AddTripleFromAny(container, i, line)
+			target.AddTriple(container, t.NewIndexNode(i), t.Str(line))
 		}
-		target.AddTripleFromAny(container, "source", "LinesParser")
+		target.AddTriple(container, t.Str("source"), t.Str("LinesParser"))
 		transformer.Result = &container
 		return err
 	}

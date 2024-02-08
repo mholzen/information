@@ -27,7 +27,7 @@ func RootMapper(source *t.Triples) (*t.Triples, error) {
 		return nil, err
 	}
 	res := t.NewTriples()
-	res.AddTripleFromAny(t.NewAnonymousNode(), t.NewStringNode("root"), root)
+	res.AddTriple(t.NewAnonymousNode(), t.NewStringNode("root"), root)
 	return res, nil
 }
 

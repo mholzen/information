@@ -42,8 +42,8 @@ func MatrixQuery() Query {
 
 	// Match Triples
 	matching := triples.NewTriples()
-	matching.AddTripleFromAny(root, rowPredicates, rows)
-	matching.AddTripleFromAny(rows, cellPredicates, Var())
+	matching.AddTriple(root, rowPredicates, rows)
+	matching.AddTriple(rows, cellPredicates, Var())
 
 	query := NewQuery(matching)
 

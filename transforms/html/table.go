@@ -24,7 +24,7 @@ func HtmlTableMapper(source *triples.Triples) (*triples.Triples, error) {
 	res := triples.NewTriples()
 	container := triples.NewAnonymousNode()
 	htmlTable := table(source)
-	res.AddTripleFromAny(container, "html", triples.NewStringNode(htmlTable))
+	res.AddTriple(container, triples.Str("html"), triples.NewStringNode(htmlTable))
 	return res, nil
 }
 
